@@ -1,244 +1,748 @@
 import { create } from "zustand";
-import type { Song, Section } from "../types";
+import type {
+  Song,
+  Section,
+  SectionType,
+} from "../types";
 
 interface SongStore {
-currentSong: Song | null;
+  currentSong: Song | null;
 
-selectedSectionId: string | null;
-selectedArrangementId: string | null;
+  selectedSectionId: string | null;
+  selectedArrangementId: string | null;
 
-setCurrentSong: (song: Song) => void;
+  previewInsertIndex: number | null;
 
-setSelectedSection: (
-id: string | null
-) => void;
+  setCurrentSong: (song: Song) => void;
 
-setSelectedArrangement: (
-id: string | null
-) => void;
+  setSelectedSection: (
+    id: string | null
+  ) => void;
 
-updateLyrics: (
-sectionId: string,
-lyrics: string
-) => void;
+  setSelectedArrangement: (
+    id: string | null
+  ) => void;
 
-createSection: () => void;
+  setPreviewInsertIndex: (
+    index: number | null
+  ) => void;
 
-deleteSection: (
-sectionId: string
-) => void;
+  updateLyrics: (
+    sectionId: string,
+    lyrics: string
+  ) => void;
 
-addSectionToArrangement: (
-sectionId: string
-) => void;
+  updateSongMetadata: (
+    metadata: Partial<
+      Pick<
+        Song,
+        | "title"
+        | "artist"
+        | "album"
+        | "genre"
+        | "key"
+        | "tempo"
+        | "timeSignature"
+        | "notes"
+      >
+    >
+  ) => void;
 
-removeArrangementItem: (
-index: number
-) => void;
+  renameSection: (
+    sectionId: string,
+    title: string
+  ) => void;
+
+  setActiveVersion: (
+    sectionId: string,
+    versionId: string
+  ) => void;
+
+  createVersion: (
+    sectionId: string
+  ) => void;
+
+  duplicateVersion: (
+    sectionId: string
+  ) => void;
+
+  renameVersion: (
+    sectionId: string,
+    versionId: string,
+    name: string
+  ) => void;
+
+  deleteVersion: (
+    sectionId: string,
+    versionId: string
+  ) => void;
+
+  createSection: (
+    type: SectionType
+  ) => void;
+
+  deleteSection: (
+    sectionId: string
+  ) => void;
+
+  addSectionToArrangement: (
+    sectionId: string
+  ) => void;
+
+  insertSectionIntoArrangement: (
+    sectionId: string,
+    index: number
+  ) => void;
+
+  removeArrangementItem: (
+    index: number
+  ) => void;
+
+  moveArrangementItem: (
+    oldIndex: number,
+    newIndex: number
+  ) => void;
+}
+
+function getSectionLabel(
+  type: SectionType
+): string {
+  switch (type) {
+    case "intro":
+      return "Intro";
+
+    case "verse":
+      return "Verse";
+
+    case "pre-chorus":
+      return "Pre-Chorus";
+
+    case "chorus":
+      return "Chorus";
+
+    case "post-chorus":
+      return "Post-Chorus";
+
+    case "bridge":
+      return "Bridge";
+
+    case "hook":
+      return "Hook";
+
+    case "outro":
+      return "Outro";
+
+    default:
+      return "Custom";
+  }
+}
+
+function touchSong(
+  song: Song
+): Song {
+  return {
+    ...song,
+    updatedAt:
+      new Date().toISOString(),
+  };
 }
 
 export const useSongStore = create<SongStore>(
-(set) => ({
-currentSong: null,
+  (set) => ({
+    currentSong: null,
 
+    selectedSectionId: null,
+    selectedArrangementId: null,
 
-selectedSectionId: null,
-selectedArrangementId: null,
+    previewInsertIndex: null,
 
-setCurrentSong: (song) =>
-  set({
-    currentSong: song,
-  }),
+    setCurrentSong: (song) =>
+      set({
+        currentSong: song,
+      }),
 
-setSelectedSection: (id) =>
-  set({
-    selectedSectionId: id,
-  }),
+    setSelectedSection: (id) =>
+      set({
+        selectedSectionId: id,
+      }),
 
-setSelectedArrangement: (id) =>
-  set({
-    selectedArrangementId: id,
-  }),
+    setSelectedArrangement: (id) =>
+      set({
+        selectedArrangementId: id,
+      }),
 
-updateLyrics: (
-  sectionId,
-  lyrics
-) =>
-  set((state) => {
-    if (!state.currentSong) {
-      return state;
-    }
+    setPreviewInsertIndex: (
+      index
+    ) =>
+      set({
+        previewInsertIndex: index,
+      }),
 
-    return {
-      currentSong: {
-        ...state.currentSong,
-        sections:
-          state.currentSong.sections.map(
-            (section) => {
-              if (
-                section.id !== sectionId
-              ) {
-                return section;
-              }
+    updateLyrics: (
+      sectionId,
+      lyrics
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
 
-              return {
-                ...section,
-                versions:
-                  section.versions.map(
-                    (version) => {
-                      if (
-                        version.id !==
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  return {
+                    ...section,
+                    versions:
+                      section.versions.map(
+                        (version) => {
+                          if (
+                            version.id !==
+                            section.activeVersionId
+                          ) {
+                            return version;
+                          }
+
+                          return {
+                            ...version,
+                            lyrics,
+                          };
+                        }
+                      ),
+                  };
+                }
+              ),
+          }),
+        };
+      }),
+
+    updateSongMetadata: (
+      metadata
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            ...metadata,
+          }),
+        };
+      }),
+
+    renameSection: (
+      sectionId,
+      title
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  return {
+                    ...section,
+                    title,
+                  };
+                }
+              ),
+          }),
+        };
+      }),
+
+    setActiveVersion: (
+      sectionId,
+      versionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  return {
+                    ...section,
+                    activeVersionId: versionId,
+                  };
+                }
+              ),
+          }),
+        };
+      }),
+
+    createVersion: (
+      sectionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  const activeVersion =
+                    section.versions.find(
+                      (version) =>
+                        version.id ===
                         section.activeVersionId
-                      ) {
-                        return version;
+                    );
+
+                  if (!activeVersion) {
+                    return section;
+                  }
+
+                  const newVersion = {
+                    ...activeVersion,
+                    id: crypto.randomUUID(),
+                    name: `Version ${
+                      section.versions.length + 1
+                    }`,
+                  };
+
+                  return {
+                    ...section,
+                    activeVersionId: newVersion.id,
+                    versions: [
+                      ...section.versions,
+                      newVersion,
+                    ],
+                  };
+                }
+              ),
+          }),
+        };
+      }),
+
+    duplicateVersion: (
+      sectionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  const activeVersion =
+                    section.versions.find(
+                      (version) =>
+                        version.id ===
+                        section.activeVersionId
+                    );
+
+                  if (!activeVersion) {
+                    return section;
+                  }
+
+                  const newVersion = {
+                    ...activeVersion,
+                    id: crypto.randomUUID(),
+                    name: `${activeVersion.name} Copy`,
+                  };
+
+                  return {
+                    ...section,
+                    activeVersionId: newVersion.id,
+                    versions: [
+                      ...section.versions,
+                      newVersion,
+                    ],
+                  };
+                }
+              ),
+          }),
+        };
+      }),
+
+    renameVersion: (
+      sectionId,
+      versionId,
+      name
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
+
+                  return {
+                    ...section,
+                    versions: section.versions.map(
+                      (version) => {
+                        if (
+                          version.id !==
+                          versionId
+                        ) {
+                          return version;
+                        }
+
+                        return {
+                          ...version,
+                          name,
+                        };
                       }
+                    ),
+                  };
+                }
+              ),
+          }),
+        };
+      }),
 
-                      return {
-                        ...version,
-                        lyrics,
-                      };
-                    }
-                  ),
-              };
-            }
-          ),
-      },
-    };
-  }),
+    deleteVersion: (
+      sectionId,
+      versionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
 
-createSection: () =>
-  set((state) => {
-    if (!state.currentSong) {
-      return state;
-    }
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !== sectionId
+                  ) {
+                    return section;
+                  }
 
-    const newSection: Section = {
-      id: crypto.randomUUID(),
+                  if (
+                    section.versions.length === 1
+                  ) {
+                    return section;
+                  }
 
-      type: "verse",
+                  const nextVersions =
+                    section.versions.filter(
+                      (version) =>
+                        version.id !==
+                        versionId
+                    );
 
-      title: "New Section",
+                  if (
+                    nextVersions.length ===
+                    section.versions.length
+                  ) {
+                    return section;
+                  }
 
-      activeVersionId: "v1",
+                  const nextActiveId =
+                    section.activeVersionId ===
+                    versionId
+                      ? nextVersions[0].id
+                      : section.activeVersionId;
 
-      versions: [
-        {
-          id: "v1",
-          name: "Default",
-          lyrics: "",
-          chords: [],
-          melody: {
-            notes: [],
-          },
-          markers: [],
-          notes: "",
-        },
-      ],
-    };
+                  return {
+                    ...section,
+                    activeVersionId: nextActiveId,
+                    versions: nextVersions,
+                  };
+                }
+              ),
+          }),
+        };
+      }),
 
-    return {
-      currentSong: {
-        ...state.currentSong,
-        sections: [
-          ...state.currentSong.sections,
-          newSection,
-        ],
-      },
+    createSection: (type) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
 
-      selectedSectionId:
-        newSection.id,
-    };
-  }),
-
-deleteSection: (
-  sectionId
-) =>
-  set((state) => {
-    if (!state.currentSong) {
-      return state;
-    }
-
-    return {
-      currentSong: {
-        ...state.currentSong,
-        sections:
+        const existingCount =
           state.currentSong.sections.filter(
             (section) =>
-              section.id !== sectionId
-          ),
-      },
+              section.type === type
+          ).length;
 
-      selectedSectionId:
-        state.selectedSectionId ===
-        sectionId
-          ? null
-          : state.selectedSectionId,
-    };
-  }),
+        const title = `${getSectionLabel(
+          type
+        )} ${existingCount + 1}`;
 
-addSectionToArrangement: (
-  sectionId
-) =>
-  set((state) => {
-    if (!state.currentSong) {
-      return state;
-    }
+        const newSection: Section = {
+          id: crypto.randomUUID(),
 
-    const arrangement =
-      state.currentSong.arrangements[0];
+          type,
 
-    if (!arrangement) {
-      return state;
-    }
+          title,
 
-    return {
-      currentSong: {
-        ...state.currentSong,
-        arrangements: [
-          {
-            ...arrangement,
-            sequence: [
-              ...arrangement.sequence,
-              { sectionId },
+          activeVersionId: "v1",
+
+          versions: [
+            {
+              id: "v1",
+              name: "Default",
+              lyrics: "",
+              chords: [],
+              melody: {
+                notes: [],
+              },
+              markers: [],
+              notes: "",
+            },
+          ],
+        };
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections: [
+              ...state.currentSong.sections,
+              newSection,
             ],
-          },
-        ],
-      },
-    };
-  }),
+          }),
 
-removeArrangementItem: (
-  index
-) =>
-  set((state) => {
-    if (!state.currentSong) {
-      return state;
-    }
+          selectedSectionId:
+            newSection.id,
+        };
+      }),
 
-    const arrangement =
-      state.currentSong.arrangements[0];
+    deleteSection: (
+      sectionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
 
-    if (!arrangement) {
-      return state;
-    }
-
-    return {
-      currentSong: {
-        ...state.currentSong,
-        arrangements: [
-          {
-            ...arrangement,
-            sequence:
-              arrangement.sequence.filter(
-                (_, i) =>
-                  i !== index
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.filter(
+                (section) =>
+                  section.id !== sectionId
               ),
-          },
-        ],
-      },
-    };
-  }),
+          }),
 
+          selectedSectionId:
+            state.selectedSectionId ===
+            sectionId
+              ? null
+              : state.selectedSectionId,
+        };
+      }),
 
-})
+    addSectionToArrangement: (
+      sectionId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const arrangement =
+          state.currentSong.arrangements[0];
+
+        if (!arrangement) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            arrangements: [
+              {
+                ...arrangement,
+                sequence: [
+                  ...arrangement.sequence,
+                  {
+                    id: crypto.randomUUID(),
+                    sectionId,
+                  },
+                ],
+              },
+            ],
+          }),
+        };
+      }),
+
+    insertSectionIntoArrangement: (
+      sectionId,
+      index
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const arrangement =
+          state.currentSong.arrangements[0];
+
+        if (!arrangement) {
+          return state;
+        }
+
+        const sequence = [
+          ...arrangement.sequence,
+        ];
+
+        sequence.splice(
+          index,
+          0,
+          {
+            id: crypto.randomUUID(),
+            sectionId,
+          }
+        );
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            arrangements: [
+              {
+                ...arrangement,
+                sequence,
+              },
+            ],
+          }),
+
+          previewInsertIndex: null,
+        };
+      }),
+
+    removeArrangementItem: (
+      index
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const arrangement =
+          state.currentSong.arrangements[0];
+
+        if (!arrangement) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            arrangements: [
+              {
+                ...arrangement,
+                sequence:
+                  arrangement.sequence.filter(
+                    (_, i) =>
+                      i !== index
+                  ),
+              },
+            ],
+          }),
+        };
+      }),
+
+    moveArrangementItem: (
+      oldIndex,
+      newIndex
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const arrangement =
+          state.currentSong.arrangements[0];
+
+        if (!arrangement) {
+          return state;
+        }
+
+        const sequence = [
+          ...arrangement.sequence,
+        ];
+
+        const [movedItem] =
+          sequence.splice(
+            oldIndex,
+            1
+          );
+
+        sequence.splice(
+          newIndex,
+          0,
+          movedItem
+        );
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            arrangements: [
+              {
+                ...arrangement,
+                sequence,
+              },
+            ],
+          }),
+        };
+      }),
+  })
 );

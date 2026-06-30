@@ -11,6 +11,20 @@ export interface Song {
 
   title: string;
 
+  artist: string;
+
+  album: string;
+
+  genre: string;
+
+  key: string;
+
+  tempo: number;
+
+  timeSignature: string;
+
+  notes: string;
+
   createdAt: string;
 
   updatedAt: string;

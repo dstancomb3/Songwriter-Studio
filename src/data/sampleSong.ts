@@ -5,6 +5,20 @@ export const sampleSong: Song = {
 
   title: "The Devil Doesn't Bargain",
 
+  artist: "",
+
+  album: "",
+
+  genre: "",
+
+  key: "C",
+
+  tempo: 120,
+
+  timeSignature: "4/4",
+
+  notes: "",
+
   createdAt: new Date().toISOString(),
 
   updatedAt: new Date().toISOString(),
@@ -16,6 +30,37 @@ export const sampleSong: Song = {
   themes: [],
 
   sections: [
+    {
+      id: "verse-2",
+
+      type: "verse",
+
+      title: "Verse 2",
+
+      activeVersionId: "v2",
+
+      versions: [
+        {
+          id: "v2",
+
+          name: "Default",
+
+          lyrics:
+            "El Diablo only lives\n to lie and cheat and steal",
+
+          chords: [],
+
+          melody: {
+            notes: [],
+          },
+
+          markers: [],
+
+          notes: "",
+        },
+      ],
+    },
+
     {
       id: "verse-1",
 
@@ -31,7 +76,8 @@ export const sampleSong: Song = {
 
           name: "Default",
 
-          lyrics: "It's not a deal you wanna make",
+          lyrics:
+            "It's not a deal you wanna make,\n in the end your soul he'll take",
 
           chords: [],
 
@@ -85,10 +131,25 @@ export const sampleSong: Song = {
       name: "Main Arrangement",
 
       sequence: [
-        { sectionId: "verse-1" },
-        { sectionId: "chorus-1" },
-        { sectionId: "verse-1" },
-        { sectionId: "chorus-1" },
+        {
+          id: "arr-1",
+          sectionId: "verse-1",
+        },
+
+        {
+          id: "arr-2",
+          sectionId: "chorus-1",
+        },
+
+        {
+          id: "arr-3",
+          sectionId: "verse-2",
+        },
+
+        {
+          id: "arr-4",
+          sectionId: "chorus-1",
+        },
       ],
     },
   ],

@@ -1,4 +1,5 @@
 export interface ArrangementItem {
+  id: string;
   sectionId: string;
 }
 
