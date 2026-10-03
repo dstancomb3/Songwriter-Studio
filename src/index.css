@@ -388,3 +388,280 @@ h4 {
     grid-template-columns: 54px minmax(0, 1fr);
   }
 }
+
+
+/* Second-pass songwriter controls */
+
+.section-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 0.38rem;
+  margin-bottom: 0.55rem;
+}
+
+.section-create-row select {
+  width: 100%;
+}
+
+.section-create-button {
+  width: 34px;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #d8d2ff;
+}
+
+.section-card-list,
+.arrangement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.34rem;
+}
+
+.section-card {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.26rem 0.3rem;
+  border: 1px solid #30384d;
+  border-left: 4px solid transparent;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(29, 35, 51, 0.95), rgba(23, 28, 41, 0.95));
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+  cursor: pointer;
+}
+
+.section-card:hover {
+  border-color: #46516d;
+  background: linear-gradient(180deg, rgba(35, 42, 60, 0.98), rgba(27, 33, 48, 0.98));
+}
+
+.section-card--selected {
+  border-color: rgba(139, 124, 255, 0.72);
+  box-shadow: 0 0 0 2px rgba(139, 124, 255, 0.12);
+  background: linear-gradient(180deg, rgba(47, 48, 74, 0.98), rgba(31, 35, 54, 0.98));
+}
+
+.section-card__drag,
+.section-card__delete,
+.arrangement-item__drag,
+.arrangement-item__remove {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8993aa;
+  display: grid;
+  place-items: center;
+  box-shadow: none;
+}
+
+.section-card__drag:hover:not(:disabled),
+.arrangement-item__drag:hover:not(:disabled) {
+  color: #d7dcef;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0;
+}
+
+.section-card__delete,
+.arrangement-item__remove {
+  font-size: 1.1rem;
+  color: #707b93;
+  opacity: 0.7;
+}
+
+.section-card:hover .section-card__delete,
+.arrangement-item:hover .arrangement-item__remove {
+  opacity: 1;
+}
+
+.section-card__delete:hover:not(:disabled),
+.arrangement-item__remove:hover:not(:disabled) {
+  color: #ff9ea8;
+  background: rgba(255, 110, 126, 0.08);
+  border: 0;
+}
+
+.section-card__name {
+  min-width: 0;
+  width: 100%;
+  padding: 0.12rem 0.18rem;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #eef1f8;
+  box-shadow: none;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.section-card__name:hover,
+.section-card__name:focus {
+  border: 0;
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: none;
+}
+
+.arrangement-list {
+  min-height: 128px;
+}
+
+.arrangement-item {
+  min-height: 35px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.25rem 0.3rem;
+  border: 1px solid #30384d;
+  border-left: 4px solid transparent;
+  border-radius: 8px;
+  background: rgba(21, 26, 39, 0.84);
+}
+
+.arrangement-item__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #dde2ef;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.arrangement-empty {
+  min-height: 74px;
+  border: 1px dashed #4a5574;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #7f899f;
+  font-size: 0.78rem;
+}
+
+.arrangement-drop-target {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(139, 124, 255, 0.58);
+  box-shadow: 0 0 12px rgba(139, 124, 255, 0.25);
+}
+
+.editor-empty {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  gap: 0.2rem;
+  text-align: center;
+  color: #8790a5;
+  font-size: 0.78rem;
+}
+
+.editor-empty__icon {
+  font-size: 1.05rem;
+  color: #8b7cff;
+}
+
+.editor-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.62rem;
+  color: #f3f5fa;
+  font-size: 0.84rem;
+}
+
+.editor-section-heading__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.035);
+}
+
+.editor-field {
+  display: grid;
+  gap: 0.24rem;
+  margin-bottom: 0.58rem;
+}
+
+.editor-field select,
+.editor-field textarea {
+  width: 100%;
+}
+
+.editor-field--lyrics {
+  margin-top: 0.6rem;
+  margin-bottom: 0;
+}
+
+.editor-field--lyrics textarea {
+  min-height: 126px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.editor-color-row {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  color: #9ea8bc;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.editor-color-row input[type="color"] {
+  width: 34px;
+  height: 25px;
+  padding: 2px;
+  border-radius: 6px;
+  background: #171c29;
+}
+
+.editor-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.34rem;
+}
+
+.editor-action-grid button {
+  padding: 0.34rem 0.42rem;
+  font-size: 0.73rem;
+}
+
+.song-strip .app-panel__header {
+  min-height: 38px;
+  background:
+    linear-gradient(90deg, rgba(38, 45, 68, 0.98), rgba(26, 32, 48, 0.98));
+}
+
+.song-strip .app-panel__header > span:first-child {
+  font-size: 0.86rem;
+  letter-spacing: 0.005em;
+}
+
+.song-strip .app-panel__body {
+  padding-top: 0.52rem;
+  padding-bottom: 0.52rem;
+}
+
+.song-meta-field > div {
+  color: #8f99ad;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.song-meta-field input,
+.song-meta-field textarea {
+  padding-top: 0.34rem;
+  padding-bottom: 0.34rem;
+  font-size: 0.8rem;
+}
