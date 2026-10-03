@@ -21,60 +21,23 @@ export function Panel({
   children,
 }: PanelProps) {
   return (
-    <div
-      style={{
-        background: "#27272a",
-
-        border:
-          "1px solid #3f3f46",
-
-        borderRadius: "9px",
-
-        display: "flex",
-
-        flexDirection: "column",
-
-        overflow: "hidden",
-      }}
-    >
+    <div className="app-panel">
       <div
-        style={{
-          padding:
-            "0.675rem 0.75rem",
-
-          borderBottom:
-            "1px solid #3f3f46",
-
-          fontWeight: 700,
-
-          fontSize: "0.8rem",
-
-          color: "#fafafa",
-
-          background:
-            "#313134",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: collapsible
-            ? "pointer"
-            : "default",
-        }}
+        className="app-panel__header"
         onClick={
           collapsible
             ? onToggleCollapse
             : undefined
         }
+        style={{
+          cursor: collapsible
+            ? "pointer"
+            : "default",
+        }}
       >
         <span>{title}</span>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
-        >
+        <div className="app-panel__header-actions">
           {headerRight && (
             <div
               onClick={(event) =>
@@ -83,7 +46,7 @@ export function Panel({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "0.35rem",
               }}
             >
               {headerRight}
@@ -94,9 +57,10 @@ export function Panel({
             <span
               onClick={onToggleCollapse}
               style={{
-                fontSize: "1.25rem",
+                fontSize: "1rem",
                 lineHeight: 1,
                 cursor: "pointer",
+                color: "#aab3c7",
               }}
             >
               {isCollapsed ? "▸" : "▾"}
@@ -106,11 +70,7 @@ export function Panel({
       </div>
 
       {!isCollapsed && (
-        <div
-          style={{
-            padding: "0.75rem",
-          }}
-        >
+        <div className="app-panel__body">
           {children}
         </div>
       )}
