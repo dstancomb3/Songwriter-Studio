@@ -1481,3 +1481,44 @@ h4 {
   font-size: 0.66rem;
   line-height: 1.4;
 }
+
+
+/* Keep Write arrangement visible within the viewport */
+
+.workspace-grid {
+  grid-template-rows: minmax(0, 1fr) 66px;
+}
+
+.workspace-arrangement {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-arrangement .app-panel {
+  height: 66px;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-arrangement .app-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-arrangement .arrangement-track {
+  min-height: 32px;
+  height: 32px;
+}
+
+.workspace-arrangement .arrangement-item--horizontal {
+  min-height: 30px;
+}
+
+.workspace-arrangement .arrangement-drop-target--horizontal {
+  height: 30px;
+}
+
+.workspace-arrangement .arrangement-empty--horizontal {
+  min-height: 30px;
+}
