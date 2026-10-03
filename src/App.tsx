@@ -148,16 +148,16 @@ function App() {
       const rect =
         element.getBoundingClientRect();
 
-      const pointerY =
+      const pointerX =
         active.rect.current
-          .translated?.top ?? 0;
+          .translated?.left ?? 0;
 
       const midpoint =
-        rect.top +
-        rect.height / 2;
+        rect.left +
+        rect.width / 2;
 
       const insertIndex =
-        pointerY > midpoint
+        pointerX > midpoint
           ? index + 1
           : index;
 
@@ -197,11 +197,11 @@ function App() {
       const rect =
         element.getBoundingClientRect();
 
-      const pointerY =
+      const pointerX =
         active.rect.current
-          .translated?.top ?? 0;
+          .translated?.left ?? 0;
 
-      if (pointerY > rect.bottom) {
+      if (pointerX > rect.right) {
         setPreviewInsertIndex(
           arrangement.sequence.length
         );
@@ -364,17 +364,20 @@ function App() {
         </div>
 
         <div className="workspace-grid">
-          <div className="workspace-column">
-            <SectionEditor />
-          </div>
-
-          <div className="workspace-column workspace-column--structure">
+          <div className="workspace-sections">
             <SectionPanel />
-            <ArrangementPanel />
           </div>
 
           <div className="workspace-preview">
             <PreviewPanel />
+          </div>
+
+          <div className="workspace-context">
+            <SectionEditor />
+          </div>
+
+          <div className="workspace-arrangement">
+            <ArrangementPanel />
           </div>
         </div>
       </div>
