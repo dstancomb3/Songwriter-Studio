@@ -12,8 +12,6 @@ import {
 } from "../../constants/sectionColors";
 
 export function PreviewPanel() {
-  const [focusedSectionId, setFocusedSectionId] =
-    useState<string | null>(null);
   const [hoveredSectionId, setHoveredSectionId] =
     useState<string | null>(null);
   const textareaRefs = useRef<
@@ -51,42 +49,6 @@ export function PreviewPanel() {
 
     element.style.height = "0px";
     element.style.height = `${element.scrollHeight}px`;
-  }
-
-  function hexToRgba(
-    hex: string,
-    alpha: number
-  ) {
-    const normalized =
-      hex.replace("#", "");
-    const value =
-      normalized.length === 3
-        ? normalized
-            .split("")
-            .map((char) =>
-              `${char}${char}`
-            )
-            .join("")
-        : normalized;
-
-    if (value.length !== 6) {
-      return `rgba(255, 255, 255, ${alpha})`;
-    }
-
-    const red = parseInt(
-      value.slice(0, 2),
-      16
-    );
-    const green = parseInt(
-      value.slice(2, 4),
-      16
-    );
-    const blue = parseInt(
-      value.slice(4, 6),
-      16
-    );
-
-    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
   }
 
   useEffect(() => {
@@ -180,18 +142,6 @@ export function PreviewPanel() {
                 onInput={(e) =>
                   resizeTextarea(
                     e.currentTarget
-                  )
-                }
-                onFocus={() =>
-                  setFocusedSectionId(
-                    section.id
-                  )
-                }
-                onBlur={() =>
-                  setFocusedSectionId((id) =>
-                    id === section.id
-                      ? null
-                      : id
                   )
                 }
                 rows={1}
