@@ -313,74 +313,38 @@ function App() {
   }
 
   return (
-    <>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={
-          closestCenter
-        }
-        onDragOver={
-          handleDragOver
-        }
-        onDragEnd={
-          handleDragEnd
-        }
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch",
-            gap: "0.75rem",
-            padding: "0.375rem",
-            minHeight: "100vh",
-          }}
-        >
-          <div style={{ width: "100%" }}>
-            <SongPanel />
+    <DndContext
+      sensors={sensors}
+      collisionDetection={
+        closestCenter
+      }
+      onDragOver={
+        handleDragOver
+      }
+      onDragEnd={
+        handleDragEnd
+      }
+    >
+      <div className="app-shell">
+        <div className="song-strip">
+          <SongPanel />
+        </div>
+
+        <div className="workspace-grid">
+          <div className="workspace-column">
+            <SectionEditor />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "start",
-              gap: "0.75rem",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-                alignSelf: "flex-start",
-                width: "210px",
-              }}
-            >
-              <SectionEditor />
-            </div>
+          <div className="workspace-column workspace-column--structure">
+            <SectionPanel />
+            <ArrangementPanel />
+          </div>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-                alignSelf: "flex-start",
-                width: "240px",
-              }}
-            >
-              <SectionPanel />
-
-              <ArrangementPanel />
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <PreviewPanel />
-            </div>
+          <div className="workspace-preview">
+            <PreviewPanel />
           </div>
         </div>
-      </DndContext>
-    </>
+      </div>
+    </DndContext>
   );
-}
-
-export default App;
+;
