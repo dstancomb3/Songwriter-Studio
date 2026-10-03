@@ -37,7 +37,6 @@ function DraggableSection({
     transform,
   } = useDraggable({
     id: `section-${id}`,
-
     data: {
       type: "section",
       sectionId: id,
@@ -47,79 +46,58 @@ function DraggableSection({
   return (
     <div
       ref={setNodeRef}
+      className={
+        selected
+          ? "section-card section-card--selected"
+          : "section-card"
+      }
       style={{
         transform:
           transform
             ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
             : undefined,
-
-        border: selected
-          ? "2px solid #4f46e5"
-          : "1px solid gray",
-
-        borderLeft: `5px solid ${accentColor}`,
-
-        marginBottom: "0.56rem",
-
-        padding: "0.375rem",
-
-        opacity:
-          transform ? 0.5 : 1,
-
-        backgroundColor: "",
-
-        position: "relative",
-
-        zIndex:
-          transform ? 1000 : 1,
+        borderLeftColor: accentColor,
+        opacity: transform ? 0.58 : 1,
+        zIndex: transform ? 1000 : 1,
       }}
+      onClick={onSelect}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "0.375rem",
-        }}
+      <button
+        type="button"
+        className="section-card__drag"
+        {...listeners}
+        {...attributes}
+        aria-label={`Drag ${title}`}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
       >
-        <div
-          {...listeners}
-          {...attributes}
-          style={{
-            cursor: "grab",
-            marginRight: "0.375rem",
-            userSelect: "none",
-          }}
-        >
-          ☰
-        </div>
+        ⠿
+      </button>
 
-        <input
-          value={title}
-          onChange={(e) =>
-            onRename(e.target.value)
-          }
-          onClick={onSelect}
-          style={{
-            cursor: "text",
-            background: "transparent",
-            border: "none",
-            flex: 1,
-            font: "inherit",
-            margin: 0,
-            outline: "none",
-            padding: 0,
-            width: "100%",
-          }}
-        />
-      </div>
+      <input
+        className="section-card__name"
+        value={title}
+        onChange={(event) =>
+          onRename(event.target.value)
+        }
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelect();
+        }}
+      />
 
       <button
-        onClick={onDelete}
-        style={{
-          width: "100%",
+        type="button"
+        className="section-card__delete"
+        onClick={(event) => {
+          event.stopPropagation();
+          onDelete();
         }}
+        aria-label={`Delete ${title}`}
+        title="Delete section"
       >
-        Delete
+        ×
       </button>
     </div>
   );
@@ -167,100 +145,73 @@ export function SectionPanel() {
 
   return (
     <Panel title="Sections">
-      <select
-        value={newType}
-        onChange={(e) =>
-          setNewType(
-            e.target.value as SectionType
+      <div className="section-create-row">
+        <select
+          value={newType}
+          onChange={(event) =>
+            setNewType(
+              event.target.value as SectionType
+            )
+          }
+          aria-label="Section type"
+        >
+          <option value="intro">Intro</option>
+          <option value="verse">Verse</option>
+          <option value="pre-chorus">Pre-Chorus</option>
+          <option value="chorus">Chorus</option>
+          <option value="post-chorus">Post-Chorus</option>
+          <option value="bridge">Bridge</option>
+          <option value="hook">Hook</option>
+          <option value="outro">Outro</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        <button
+          type="button"
+          className="section-create-button"
+          onClick={() =>
+            createSection(newType)
+          }
+          title="Create section"
+        >
+          +
+        </button>
+      </div>
+
+      <div className="section-card-list">
+        {song?.sections.map(
+          (section) => (
+            <DraggableSection
+              key={section.id}
+              id={section.id}
+              title={section.title}
+              accentColor={
+                sectionColors[section.type]
+              }
+              selected={
+                selectedSectionId ===
+                section.id
+              }
+              onSelect={() =>
+                setSelectedSection(
+                  section.id
+                )
+              }
+              onRename={(title) =>
+                renameSection(
+                  section.id,
+                  title
+                )
+              }
+              onDelete={() =>
+                deleteSection(
+                  section.id
+                )
+              }
+            />
           )
-        }
-        style={{
-          width: "100%",
-          marginBottom: "0.375rem",
-        }}
-      >
-        <option value="intro">
-          Intro
-        </option>
-
-        <option value="verse">
-          Verse
-        </option>
-
-        <option value="pre-chorus">
-          Pre-Chorus
-        </option>
-
-        <option value="chorus">
-          Chorus
-        </option>
-
-        <option value="post-chorus">
-          Post-Chorus
-        </option>
-
-        <option value="bridge">
-          Bridge
-        </option>
-
-        <option value="hook">
-          Hook
-        </option>
-
-        <option value="outro">
-          Outro
-        </option>
-
-        <option value="custom">
-          Custom
-        </option>
-      </select>
-
-      <button
-        onClick={() =>
-          createSection(newType)
-        }
-        style={{
-          width: "100%",
-          marginBottom: "0.75rem",
-          padding: "0.375rem",
-        }}
-      >
-        Create Section
-      </button>
-
-      {song?.sections.map(
-        (section) => (
-          <DraggableSection
-            key={section.id}
-            id={section.id}
-            title={section.title}
-            accentColor={
-              sectionColors[section.type]
-            }
-            selected={
-              selectedSectionId ===
-              section.id
-            }
-            onSelect={() =>
-              setSelectedSection(
-                section.id
-              )
-            }
-            onRename={(title) =>
-              renameSection(
-                section.id,
-                title
-              )
-            }
-            onDelete={() =>
-              deleteSection(
-                section.id
-              )
-            }
-          />
-        )
-      )}
+        )}
+      </div>
     </Panel>
   );
 }
