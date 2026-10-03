@@ -62,18 +62,9 @@ export function SongPanel() {
     return null;
   }
 
-  const headerDetails =
-    song.title && song.artist
-      ? ` — ${song.title} · ${song.artist}`
-      : song.title
-      ? ` — ${song.title}`
-      : song.artist
-      ? ` — ${song.artist}`
-      : "";
-
   return (
     <Panel
-      title={`Song${headerDetails}`}
+      title={song.title || "Untitled Song"}
       collapsible
       isCollapsed={isCollapsed}
       onToggleCollapse={() =>
