@@ -16,12 +16,6 @@ export function SectionEditor() {
         state.selectedSectionId
     );
 
-  const updateLyrics =
-    useSongStore(
-      (state) =>
-        state.updateLyrics
-    );
-
   const setActiveVersion =
     useSongStore(
       (state) =>
@@ -58,17 +52,34 @@ export function SectionEditor() {
         state.updateSectionColor
     );
 
-  if (
-    !song ||
-    !selectedSectionId
-  ) {
+  if (!song) {
+    return null;
+  }
+
+  if (!selectedSectionId) {
     return (
-      <Panel title="Editor">
-        <div className="editor-empty">
-          <div className="editor-empty__icon">
-            ✎
+      <Panel title="Context">
+        <div className="context-overview">
+          <div className="context-overview__label">
+            Song overview
           </div>
-          <div>Select a section to edit.</div>
+
+          <div className="context-stat-grid">
+            <div className="context-stat">
+              <strong>{song.sections.length}</strong>
+              <span>Sections</span>
+            </div>
+            <div className="context-stat">
+              <strong>
+                {song.arrangements[0]?.sequence.length ?? 0}
+              </strong>
+              <span>Blocks</span>
+            </div>
+          </div>
+
+          <div className="context-hint">
+            Select a section to manage versions and section settings. Edit lyrics directly on the writing page.
+          </div>
         </div>
       </Panel>
     );
@@ -102,7 +113,7 @@ export function SectionEditor() {
     );
 
   return (
-    <Panel title="Editor">
+    <Panel title="Context">
       <div className="editor-section-heading">
         <span
           className="editor-section-heading__dot"
@@ -113,7 +124,12 @@ export function SectionEditor() {
               ],
           }}
         />
-        <strong>{section.title}</strong>
+        <div>
+          <strong>{section.title}</strong>
+          <div className="context-section-type">
+            {section.type}
+          </div>
+        </div>
       </div>
 
       <div className="editor-field">
@@ -232,18 +248,10 @@ export function SectionEditor() {
         </button>
       </div>
 
-      <div className="editor-field editor-field--lyrics">
-        <label>Lyrics</label>
-        <textarea
-          value={version.lyrics}
-          onChange={(event) =>
-            updateLyrics(
-              section.id,
-              event.target.value
-            )
-          }
-          rows={9}
-        />
+      <div className="context-divider" />
+
+      <div className="context-hint">
+        Lyrics are edited directly in the Write canvas. Changes are saved to this active version automatically.
       </div>
     </Panel>
   );
