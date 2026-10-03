@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   DndContext,
@@ -24,7 +24,13 @@ import { ArrangementPanel } from "./components/arrangement/ArrangementPanel";
 import { SongPanel } from "./components/songpanel";
 import { PreviewPanel } from "./components/preview/PreviewPanel";
 
+type Workspace =
+  | "write"
+  | "arrange";
+
 function App() {
+  const [workspace, setWorkspace] =
+    useState<Workspace>("write");
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -339,16 +345,49 @@ function App() {
           </div>
 
           <nav className="studio-nav" aria-label="Workspace">
-            <button type="button" className="studio-nav__item studio-nav__item--active">
+            <button
+              type="button"
+              className={
+                workspace === "write"
+                  ? "studio-nav__item studio-nav__item--active"
+                  : "studio-nav__item"
+              }
+              onClick={() =>
+                setWorkspace("write")
+              }
+            >
               Write
             </button>
-            <button type="button" className="studio-nav__item">
+
+            <button
+              type="button"
+              className={
+                workspace === "arrange"
+                  ? "studio-nav__item studio-nav__item--active"
+                  : "studio-nav__item"
+              }
+              onClick={() =>
+                setWorkspace("arrange")
+              }
+            >
               Arrange
             </button>
-            <button type="button" className="studio-nav__item">
+
+            <button
+              type="button"
+              className="studio-nav__item studio-nav__item--disabled"
+              disabled
+              title="Explore workspace is coming next"
+            >
               Explore
             </button>
-            <button type="button" className="studio-nav__item">
+
+            <button
+              type="button"
+              className="studio-nav__item studio-nav__item--disabled"
+              disabled
+              title="Songwriting tools are coming next"
+            >
               Tools
             </button>
           </nav>
@@ -363,23 +402,91 @@ function App() {
           <SongPanel />
         </div>
 
-        <div className="workspace-grid">
-          <div className="workspace-sections">
-            <SectionPanel />
-          </div>
+        {workspace === "write" ? (
+          <div className="workspace-grid">
+            <div className="workspace-sections">
+              <SectionPanel />
+            </div>
 
-          <div className="workspace-preview">
-            <PreviewPanel />
-          </div>
+            <div className="workspace-preview">
+              <PreviewPanel />
+            </div>
 
-          <div className="workspace-context">
-            <SectionEditor />
-          </div>
+            <div className="workspace-context">
+              <SectionEditor />
+            </div>
 
-          <div className="workspace-arrangement">
-            <ArrangementPanel />
+            <div className="workspace-arrangement">
+              <ArrangementPanel />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="arrange-workspace">
+            <div className="arrange-workspace__sections">
+              <SectionPanel />
+            </div>
+
+            <div className="arrange-workspace__main">
+              <div className="arrange-workspace__intro">
+                <div>
+                  <div className="arrange-workspace__eyebrow">
+                    Structure view
+                  </div>
+                  <h2>Build the song's shape</h2>
+                  <p>
+                    Drag sections into the arrangement, reorder repetitions,
+                    and shape the full song without leaving the project.
+                  </p>
+                </div>
+
+                <div className="arrange-workspace__summary">
+                  <span>
+                    {song?.sections.length ?? 0} sections
+                  </span>
+                  <span>
+                    {song?.arrangements[0]?.sequence.length ?? 0} blocks
+                  </span>
+                </div>
+              </div>
+
+              <ArrangementPanel expanded />
+
+              <div className="arrange-workspace__map">
+                {(song?.arrangements[0]?.sequence ?? []).map(
+                  (item, index) => {
+                    const section =
+                      song?.sections.find(
+                        (candidate) =>
+                          candidate.id ===
+                          item.sectionId
+                      );
+
+                    return (
+                      <div
+                        className="arrange-map-card"
+                        key={item.id}
+                      >
+                        <span className="arrange-map-card__index">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <strong>
+                          {section?.title ?? "Section"}
+                        </strong>
+                        <span>
+                          {section?.type ?? ""}
+                        </span>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+
+            <div className="arrange-workspace__context">
+              <SectionEditor />
+            </div>
+          </div>
+        )}
       </div>
     </DndContext>
   );
