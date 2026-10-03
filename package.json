@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "desktop": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "desktop:prepare": "node scripts/ensure-tauri-icon.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
