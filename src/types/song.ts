@@ -29,6 +29,8 @@ export interface Song {
 
   notes: string;
 
+  concept?: string;
+
   createdAt: string;
 
   updatedAt: string;
