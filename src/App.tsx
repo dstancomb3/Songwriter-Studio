@@ -326,6 +326,39 @@ function App() {
       }
     >
       <div className="app-shell">
+        <div className="studio-header">
+          <div className="studio-brand">
+            <div className="studio-logo" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <strong>Songwriter Studio</strong>
+          </div>
+
+          <nav className="studio-nav" aria-label="Workspace">
+            <button type="button" className="studio-nav__item studio-nav__item--active">
+              Write
+            </button>
+            <button type="button" className="studio-nav__item">
+              Arrange
+            </button>
+            <button type="button" className="studio-nav__item">
+              Explore
+            </button>
+            <button type="button" className="studio-nav__item">
+              Tools
+            </button>
+          </nav>
+
+          <div className="studio-status">
+            <span className="studio-status__dot" />
+            <span>Saved locally</span>
+          </div>
+        </div>
+
         <div className="song-strip">
           <SongPanel />
         </div>
