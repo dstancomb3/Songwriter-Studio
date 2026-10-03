@@ -12,7 +12,7 @@ export function SongPanel() {
   const fileInputRef =
     useRef<HTMLInputElement>(null);
   const [isCollapsed, setIsCollapsed] =
-    useState(false);
+    useState(true);
 
   const song = useSongStore(
     (state) => state.currentSong
