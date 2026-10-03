@@ -29,17 +29,6 @@ export function PreviewPanel() {
     (state) => state.updateLyrics
   );
 
-  if (!song) return null;
-
-  const arrangement = song.arrangements[0];
-
-  if (!arrangement) return null;
-
-  const sectionColors =
-    getSectionColors(
-      song.settings.sectionColors
-    );
-
   function resizeTextarea(
     element: HTMLTextAreaElement | null
   ) {
@@ -58,6 +47,17 @@ export function PreviewPanel() {
       resizeTextarea(element)
     );
   }, [song]);
+
+  if (!song) return null;
+
+  const arrangement = song.arrangements[0];
+
+  if (!arrangement) return null;
+
+  const sectionColors =
+    getSectionColors(
+      song.settings.sectionColors
+    );
 
   return (
     <Panel title="Preview">
