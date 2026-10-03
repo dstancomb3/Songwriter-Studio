@@ -21,6 +21,13 @@ export function PreviewPanel() {
     >
   >({});
 
+  const sectionRefs = useRef<
+    Record<
+      string,
+      HTMLDivElement | null
+    >
+  >({});
+
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -28,6 +35,18 @@ export function PreviewPanel() {
   const updateLyrics = useSongStore(
     (state) => state.updateLyrics
   );
+
+  const selectedSectionId =
+    useSongStore(
+      (state) =>
+        state.selectedSectionId
+    );
+
+  const setSelectedSection =
+    useSongStore(
+      (state) =>
+        state.setSelectedSection
+    );
 
   function resizeTextarea(
     element: HTMLTextAreaElement | null
@@ -47,6 +66,22 @@ export function PreviewPanel() {
       resizeTextarea(element)
     );
   }, [song]);
+
+  useEffect(() => {
+    if (!selectedSectionId) {
+      return;
+    }
+
+    const element =
+      sectionRefs.current[
+        selectedSectionId
+      ];
+
+    element?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [selectedSectionId]);
 
   if (!song) return null;
 
@@ -113,7 +148,32 @@ export function PreviewPanel() {
             return (
               <div
                 key={item.id ?? index}
-                className="preview-section"
+                ref={(element) => {
+                  if (
+                    index ===
+                    arrangement.sequence.findIndex(
+                      (candidate) =>
+                        candidate.sectionId ===
+                        section.id
+                    )
+                  ) {
+                    sectionRefs.current[
+                      section.id
+                    ] = element;
+                  }
+                }}
+                data-section-id={section.id}
+                className={
+                  selectedSectionId ===
+                  section.id
+                    ? "preview-section preview-section--selected"
+                    : "preview-section"
+                }
+                onClick={() =>
+                  setSelectedSection(
+                    section.id
+                  )
+                }
               >
                 <h3
                   className="preview-section__title"
@@ -145,7 +205,7 @@ export function PreviewPanel() {
                   className="preview-lyrics"
                   ref={(element) => {
                     textareaRefs.current[
-                      section.id
+                      item.id
                     ] = element;
                     resizeTextarea(element);
                   }}
@@ -160,6 +220,14 @@ export function PreviewPanel() {
                     resizeTextarea(
                       e.currentTarget
                     )
+                  }
+                  onFocus={() =>
+                    setSelectedSection(
+                      section.id
+                    )
+                  }
+                  onClick={(event) =>
+                    event.stopPropagation()
                   }
                   rows={1}
                 />
