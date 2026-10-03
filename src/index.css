@@ -854,3 +854,71 @@ h4 {
     gap: 0.42rem;
   }
 }
+
+
+/* Compact single-row studio header */
+
+.studio-header {
+  min-height: 36px;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(160px, 1fr);
+  gap: 0.7rem;
+  padding: 0 0.15rem;
+}
+
+.studio-logo {
+  width: 22px;
+  height: 22px;
+}
+
+.studio-logo span:nth-child(1) { height: 6px; }
+.studio-logo span:nth-child(2) { height: 12px; }
+.studio-logo span:nth-child(3) { height: 18px; }
+.studio-logo span:nth-child(4) { height: 11px; }
+.studio-logo span:nth-child(5) { height: 6px; }
+
+.studio-brand {
+  gap: 0.45rem;
+  font-size: 0.84rem;
+}
+
+.studio-nav {
+  padding: 0.16rem;
+}
+
+.studio-nav__item {
+  padding: 0.28rem 0.58rem;
+  font-size: 0.71rem;
+}
+
+.studio-status {
+  font-size: 0.68rem;
+}
+
+@media (max-width: 1180px) {
+  .studio-header {
+    min-height: 36px;
+    grid-template-columns: minmax(160px, 1fr) auto minmax(140px, 1fr);
+    gap: 0.5rem;
+  }
+
+  .studio-nav {
+    order: initial;
+    grid-column: auto;
+    justify-self: center;
+  }
+
+  .studio-status {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .studio-status {
+    display: none;
+  }
+
+  .studio-header {
+    grid-template-columns: minmax(150px, 1fr) auto;
+  }
+}
