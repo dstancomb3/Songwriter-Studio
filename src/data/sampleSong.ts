@@ -23,6 +23,9 @@ export const sampleSong: Song = {
 
   notes: "",
 
+  concept:
+    "A warning that evil never bargains fairly and every deal with it carries a cost.",
+
   createdAt: new Date().toISOString(),
 
   updatedAt: new Date().toISOString(),
