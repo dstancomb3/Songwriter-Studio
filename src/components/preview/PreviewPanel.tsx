@@ -61,8 +61,38 @@ export function PreviewPanel() {
 
   return (
     <div className="preview-shell">
-      <Panel title="Preview">
+      <Panel title="Write">
         <div className="preview-paper">
+          <div className="preview-song-header">
+            <div>
+              <div className="preview-song-kicker">Current song</div>
+              <h1 className="preview-song-title">
+                {song.title || "Untitled Song"}
+              </h1>
+              {song.artist && (
+                <div className="preview-song-artist">
+                  {song.artist}
+                </div>
+              )}
+            </div>
+
+            <div className="preview-song-meta">
+              {song.genre && (
+                <span>{song.genre}</span>
+              )}
+              {song.key && (
+                <span>{song.key}</span>
+              )}
+              {song.tempo > 0 && (
+                <span>{song.tempo} BPM</span>
+              )}
+              {song.timeSignature && (
+                <span>{song.timeSignature}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="preview-song-divider" />
           {arrangement.sequence.map((item, index) => {
             const section = song.sections.find(
               (s) => s.id === item.sectionId
