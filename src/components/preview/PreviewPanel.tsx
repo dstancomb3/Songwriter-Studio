@@ -1,7 +1,35 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { useSongStore } from "../../store/songStore";
+import { Panel } from "../ui/Panel";
+
+import {
+  getSectionColors,
+} from "../../constants/sectionColors";
 
 export function PreviewPanel() {
-  const song = useSongStore((state) => state.currentSong);
+  const [focusedSectionId, setFocusedSectionId] =
+    useState<string | null>(null);
+  const [hoveredSectionId, setHoveredSectionId] =
+    useState<string | null>(null);
+  const textareaRefs = useRef<
+    Record<
+      string,
+      HTMLTextAreaElement | null
+    >
+  >({});
+
+  const song = useSongStore(
+    (state) => state.currentSong
+  );
+
+  const updateLyrics = useSongStore(
+    (state) => state.updateLyrics
+  );
 
   if (!song) return null;
 
@@ -9,31 +37,189 @@ export function PreviewPanel() {
 
   if (!arrangement) return null;
 
+  const sectionColors =
+    getSectionColors(
+      song.settings.sectionColors
+    );
+
+  function resizeTextarea(
+    element: HTMLTextAreaElement | null
+  ) {
+    if (!element) {
+      return;
+    }
+
+    element.style.height = "0px";
+    element.style.height = `${element.scrollHeight}px`;
+  }
+
+  function hexToRgba(
+    hex: string,
+    alpha: number
+  ) {
+    const normalized =
+      hex.replace("#", "");
+    const value =
+      normalized.length === 3
+        ? normalized
+            .split("")
+            .map((char) =>
+              `${char}${char}`
+            )
+            .join("")
+        : normalized;
+
+    if (value.length !== 6) {
+      return `rgba(255, 255, 255, ${alpha})`;
+    }
+
+    const red = parseInt(
+      value.slice(0, 2),
+      16
+    );
+    const green = parseInt(
+      value.slice(2, 4),
+      16
+    );
+    const blue = parseInt(
+      value.slice(4, 6),
+      16
+    );
+
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  }
+
+  useEffect(() => {
+    Object.values(
+      textareaRefs.current
+    ).forEach((element) =>
+      resizeTextarea(element)
+    );
+  }, [song]);
+
   return (
-    <div>
-      <h2>Preview</h2>
+    <Panel title="Preview">
+      <div
+        style={{
+          padding: "0.375rem 1rem",
 
-      {arrangement.sequence.map((item, index) => {
-        const section = song.sections.find(
-          (s) => s.id === item.sectionId
-        );
+          maxWidth: "600px",
 
-        if (!section) return null;
+          margin: "0 auto",
 
-        const version = section.versions.find(
-          (v) => v.id === section.activeVersionId
-        );
+          whiteSpace: "pre-wrap",
 
-        if (!version) return null;
+          lineHeight: 1.6,
 
-        return (
-          <div key={index}>
-            <h3>[{section.title}]</h3>
+          overflowY: "auto",
+        }}
+      >
+        {arrangement.sequence.map((item, index) => {
+          const section = song.sections.find(
+            (s) => s.id === item.sectionId
+          );
 
-            <pre>{version.lyrics}</pre>
-          </div>
-        );
-      })}
-    </div>
+          if (!section) return null;
+
+          const version = section.versions.find(
+            (v) => v.id === section.activeVersionId
+          );
+
+          if (!version) return null;
+
+          const sectionColor =
+            sectionColors[section.type] ??
+            sectionColors.custom;
+
+          return (
+            <div key={index}>
+              <h3
+                onMouseEnter={() =>
+                  setHoveredSectionId(
+                    section.id
+                  )
+                }
+                onMouseLeave={() =>
+                  setHoveredSectionId((id) =>
+                    id === section.id
+                      ? null
+                      : id
+                  )
+                }
+                style={{
+                  marginTop: "1rem",
+                  fontWeight: 700,
+                  fontSize: "1.05em",
+                  color: sectionColor,
+                  filter:
+                    hoveredSectionId ===
+                    section.id
+                      ? "brightness(1.15)"
+                      : "none",
+                  transition:
+                    "filter 180ms ease",
+                }}
+              >
+                [{section.title}]
+              </h3>
+
+              <textarea
+                ref={(element) => {
+                  textareaRefs.current[
+                    section.id
+                  ] = element;
+                  resizeTextarea(element);
+                }}
+                value={version.lyrics}
+                onChange={(e) =>
+                  updateLyrics(
+                    section.id,
+                    e.target.value
+                  )
+                }
+                onInput={(e) =>
+                  resizeTextarea(
+                    e.currentTarget
+                  )
+                }
+                onFocus={() =>
+                  setFocusedSectionId(
+                    section.id
+                  )
+                }
+                onBlur={() =>
+                  setFocusedSectionId((id) =>
+                    id === section.id
+                      ? null
+                      : id
+                  )
+                }
+                rows={1}
+                style={{
+                  width: "100%",
+                  margin: 0,
+                  resize: "none",
+                  border: "none",
+                  outline: "none",
+                  boxShadow: "none",
+                  background: "transparent",
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  borderRadius: 0,
+                  padding: 0,
+                  color: "inherit",
+                  font: "inherit",
+                  whiteSpace: "pre-wrap",
+                  lineHeight: "inherit",
+                  overflow: "hidden",
+                  borderLeft: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
   );
 }

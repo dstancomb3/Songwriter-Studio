@@ -1,9 +1,13 @@
-import type { Section } from "./section";
+import type {
+  Section,
+  SectionColorMap,
+} from "./section";
 import type { Arrangement } from "./arrangement";
 import type { Theme } from "./theme";
 
 export interface SongSettings {
   darkMode: boolean;
+  sectionColors?: SectionColorMap;
 }
 
 export interface Song {

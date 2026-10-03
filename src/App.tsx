@@ -18,8 +18,6 @@ import {
   saveSong,
 } from "./services/songPersistence";
 
-import { Toolbar } from "./components/Toolbar";
-
 import { SectionPanel } from "./components/sections/SectionPanel";
 import { SectionEditor } from "./components/sections/SectionEditor";
 import { ArrangementPanel } from "./components/arrangement/ArrangementPanel";
@@ -316,8 +314,6 @@ function App() {
 
   return (
     <>
-      <Toolbar />
-
       <DndContext
         sensors={sensors}
         collisionDetection={
@@ -332,31 +328,55 @@ function App() {
       >
         <div
           style={{
-            display: "grid",
-
-            gridTemplateColumns:
-              "300px 250px 1fr 250px 2fr",
-
-            transform: "scale(0.5)",
-
-            transformOrigin: "top left",
-
-            gap: "1rem",
-
-            padding: "1rem",
-
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            gap: "0.75rem",
+            padding: "0.375rem",
             minHeight: "100vh",
           }}
         >
-          <SongPanel />
+          <div style={{ width: "100%" }}>
+            <SongPanel />
+          </div>
 
-          <SectionPanel />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "start",
+              gap: "0.75rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+                alignSelf: "flex-start",
+                width: "210px",
+              }}
+            >
+              <SectionEditor />
+            </div>
 
-          <SectionEditor />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+                alignSelf: "flex-start",
+                width: "240px",
+              }}
+            >
+              <SectionPanel />
 
-          <ArrangementPanel />
+              <ArrangementPanel />
+            </div>
 
-          <PreviewPanel />
+            <div style={{ flex: 1 }}>
+              <PreviewPanel />
+            </div>
+          </div>
         </div>
       </DndContext>
     </>

@@ -11,14 +11,21 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { useSongStore } from "../../store/songStore";
+import { Panel } from "../ui/Panel";
+
+import {
+  getSectionColors,
+} from "../../constants/sectionColors";
 
 function SortableItem({
   id,
   title,
+  accentColor,
   onRemove,
 }: {
   id: string;
   title: string;
+  accentColor: string;
   onRemove: () => void;
 }) {
   const {
@@ -45,9 +52,11 @@ function SortableItem({
 
     border: "1px solid gray",
 
-    padding: "0.5rem",
+    borderLeft: `5px solid ${accentColor}`,
 
-    marginBottom: "0.5rem",
+    padding: "0.375rem",
+
+    marginBottom: "0.375rem",
 
     display: "flex",
 
@@ -77,7 +86,7 @@ function SortableItem({
       <button
         onClick={onRemove}
         style={{
-          marginLeft: "0.5rem",
+          marginLeft: "0.375rem",
         }}
       >
         ✕
@@ -125,6 +134,11 @@ export function ArrangementPanel() {
     return null;
   }
 
+  const sectionColors =
+    getSectionColors(
+      song.settings.sectionColors
+    );
+
   const items =
     arrangement.sequence.map(
       (item) => {
@@ -140,19 +154,23 @@ export function ArrangementPanel() {
           title:
             section?.title ??
             item.sectionId,
+
+          accentColor:
+            section
+              ? sectionColors[section.type]
+              : sectionColors.custom,
         };
       }
     );
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        minHeight: "400px",
-      }}
-    >
-      <h2>Arrangement</h2>
-
+    <Panel title="Arrangement">
+      <div
+        ref={setNodeRef}
+        style={{
+          minHeight: "300px",
+        }}
+      >
       <SortableContext
         items={items.map(
           (item) => item.id
@@ -164,12 +182,12 @@ export function ArrangementPanel() {
         {items.length === 0 && (
           <div
             style={{
-              height: "120px",
+              height: "90px",
 
               border:
                 "2px dashed #4f46e5",
 
-              borderRadius: "6px",
+              borderRadius: "4px",
 
               display: "flex",
 
@@ -189,16 +207,16 @@ export function ArrangementPanel() {
                 index && (
                 <div
                   style={{
-                    height: "40px",
+                    height: "30px",
 
                     border:
                       "2px dashed #4f46e5",
 
                     marginBottom:
-                      "0.5rem",
+                      "0.375rem",
 
                     borderRadius:
-                      "4px",
+                      "3px",
                   }}
                 />
               )}
@@ -206,6 +224,9 @@ export function ArrangementPanel() {
               <SortableItem
                 id={item.id}
                 title={item.title}
+                accentColor={
+                  item.accentColor
+                }
                 onRemove={() =>
                   removeArrangementItem(
                     index
@@ -220,17 +241,18 @@ export function ArrangementPanel() {
           items.length && (
           <div
             style={{
-              height: "40px",
+              height: "30px",
 
               border:
                 "2px dashed #4f46e5",
 
               borderRadius:
-                "4px",
+                "3px",
             }}
           />
         )}
       </SortableContext>
-    </div>
+      </div>
+    </Panel>
   );
 }

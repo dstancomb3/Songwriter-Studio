@@ -3,6 +3,11 @@ import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 
 import { useSongStore } from "../../store/songStore";
+import { Panel } from "../ui/Panel";
+
+import {
+  getSectionColors,
+} from "../../constants/sectionColors";
 
 import type {
   SectionType,
@@ -11,6 +16,7 @@ import type {
 function DraggableSection({
   id,
   title,
+  accentColor,
   selected,
   onSelect,
   onRename,
@@ -18,6 +24,7 @@ function DraggableSection({
 }: {
   id: string;
   title: string;
+  accentColor: string;
   selected: boolean;
   onSelect: () => void;
   onRename: (title: string) => void;
@@ -50,9 +57,11 @@ function DraggableSection({
           ? "2px solid #4f46e5"
           : "1px solid gray",
 
-        marginBottom: "0.75rem",
+        borderLeft: `5px solid ${accentColor}`,
 
-        padding: "0.5rem",
+        marginBottom: "0.56rem",
+
+        padding: "0.375rem",
 
         opacity:
           transform ? 0.5 : 1,
@@ -69,7 +78,7 @@ function DraggableSection({
         style={{
           display: "flex",
           alignItems: "center",
-          marginBottom: "0.5rem",
+          marginBottom: "0.375rem",
         }}
       >
         <div
@@ -77,7 +86,7 @@ function DraggableSection({
           {...attributes}
           style={{
             cursor: "grab",
-            marginRight: "0.5rem",
+            marginRight: "0.375rem",
             userSelect: "none",
           }}
         >
@@ -151,10 +160,13 @@ export function SectionPanel() {
       (state) => state.deleteSection
     );
 
-  return (
-    <div>
-      <h2>Sections</h2>
+  const sectionColors =
+    getSectionColors(
+      song?.settings.sectionColors
+    );
 
+  return (
+    <Panel title="Sections">
       <select
         value={newType}
         onChange={(e) =>
@@ -164,7 +176,7 @@ export function SectionPanel() {
         }
         style={{
           width: "100%",
-          marginBottom: "0.5rem",
+          marginBottom: "0.375rem",
         }}
       >
         <option value="intro">
@@ -210,8 +222,8 @@ export function SectionPanel() {
         }
         style={{
           width: "100%",
-          marginBottom: "1rem",
-          padding: "0.5rem",
+          marginBottom: "0.75rem",
+          padding: "0.375rem",
         }}
       >
         Create Section
@@ -223,6 +235,9 @@ export function SectionPanel() {
             key={section.id}
             id={section.id}
             title={section.title}
+            accentColor={
+              sectionColors[section.type]
+            }
             selected={
               selectedSectionId ===
               section.id
@@ -246,6 +261,6 @@ export function SectionPanel() {
           />
         )
       )}
-    </div>
+    </Panel>
   );
 }

@@ -5,6 +5,10 @@ import type {
   SectionType,
 } from "../types";
 
+import {
+  getSectionColors,
+} from "../constants/sectionColors";
+
 interface SongStore {
   currentSong: Song | null;
 
@@ -46,6 +50,11 @@ interface SongStore {
         | "notes"
       >
     >
+  ) => void;
+
+  updateSectionColor: (
+    sectionType: SectionType,
+    color: string
   ) => void;
 
   renameSection: (
@@ -236,6 +245,35 @@ export const useSongStore = create<SongStore>(
           currentSong: touchSong({
             ...state.currentSong,
             ...metadata,
+          }),
+        };
+      }),
+
+    updateSectionColor: (
+      sectionType,
+      color
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const sectionColors =
+          getSectionColors(
+            state.currentSong.settings
+              .sectionColors
+          );
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            settings: {
+              ...state.currentSong.settings,
+              sectionColors: {
+                ...sectionColors,
+                [sectionType]: color,
+              },
+            },
           }),
         };
       }),

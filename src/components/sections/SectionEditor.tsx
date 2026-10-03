@@ -1,4 +1,9 @@
 import { useSongStore } from "../../store/songStore";
+import { Panel } from "../ui/Panel";
+
+import {
+  getSectionColors,
+} from "../../constants/sectionColors";
 
 export function SectionEditor() {
   const song = useSongStore(
@@ -47,17 +52,22 @@ export function SectionEditor() {
         state.deleteVersion
     );
 
+  const updateSectionColor =
+    useSongStore(
+      (state) =>
+        state.updateSectionColor
+    );
+
   if (
     !song ||
     !selectedSectionId
   ) {
     return (
-      <div>
-        <h2>Editor</h2>
+      <Panel title="Editor">
         <p>
           Select a section.
         </p>
-      </div>
+      </Panel>
     );
   }
 
@@ -83,15 +93,18 @@ export function SectionEditor() {
     return null;
   }
 
-  return (
-    <div>
-      <h2>{section.title}</h2>
+  const sectionColors =
+    getSectionColors(
+      song.settings.sectionColors
+    );
 
+  return (
+    <Panel title="Editor">
       <hr />
 
       <div
         style={{
-          marginBottom: "1rem",
+          marginBottom: "0.75rem",
         }}
       >
         <label>
@@ -110,9 +123,9 @@ export function SectionEditor() {
           }
           style={{
             width: "100%",
-            marginTop: "0.25rem",
+            marginTop: "0.2rem",
             marginBottom:
-              "0.75rem",
+              "0.56rem",
           }}
         >
           {section.versions.map(
@@ -127,12 +140,45 @@ export function SectionEditor() {
           )}
         </select>
 
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent:
+              "space-between",
+            gap: "0.5rem",
+            marginBottom:
+              "0.56rem",
+          }}
+        >
+          <span>Section Color</span>
+          <input
+            type="color"
+            value={
+              sectionColors[section.type]
+            }
+            onChange={(e) =>
+              updateSectionColor(
+                section.type,
+                e.target.value
+              )
+            }
+            style={{
+              width: "44px",
+              height: "28px",
+              padding: 0,
+              border: "none",
+              background: "transparent",
+            }}
+          />
+        </label>
+
         <div
           style={{
             display: "grid",
             gridTemplateColumns:
               "1fr 1fr",
-            gap: "0.5rem",
+            gap: "0.375rem",
           }}
         >
           <button
@@ -214,11 +260,11 @@ export function SectionEditor() {
             e.target.value
           )
         }
-        rows={14}
+        rows={11}
         style={{
           width: "100%",
         }}
       />
-    </div>
+    </Panel>
   );
 }

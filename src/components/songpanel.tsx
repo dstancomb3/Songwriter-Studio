@@ -1,6 +1,19 @@
+import { useRef, useState } from "react";
+
+import {
+  exportSong,
+  importSong,
+} from "../services/songFile";
+
 import { useSongStore } from "../store/songStore";
+import { Panel } from "./ui/Panel";
 
 export function SongPanel() {
+  const fileInputRef =
+    useRef<HTMLInputElement>(null);
+  const [isCollapsed, setIsCollapsed] =
+    useState(false);
+
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -11,166 +24,315 @@ export function SongPanel() {
         state.updateSongMetadata
     );
 
+  const setCurrentSong =
+    useSongStore(
+      (state) => state.setCurrentSong
+    );
+
+  async function handleImport(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const importedSong =
+        await importSong(file);
+
+      setCurrentSong(
+        importedSong
+      );
+    } catch (error) {
+      console.error(
+        "IMPORT ERROR:",
+        error
+      );
+
+      alert("Invalid song file.");
+    }
+
+    event.target.value = "";
+  }
+
   if (!song) {
     return null;
   }
 
-  return (
-    <div>
-      <h2>Song</h2>
+  const headerDetails =
+    song.title && song.artist
+      ? ` — ${song.title} · ${song.artist}`
+      : song.title
+      ? ` — ${song.title}`
+      : song.artist
+      ? ` — ${song.artist}`
+      : "";
 
+  return (
+    <Panel
+      title={`Song${headerDetails}`}
+      collapsible
+      isCollapsed={isCollapsed}
+      onToggleCollapse={() =>
+        setIsCollapsed(
+          (value) => !value
+        )
+      }
+      headerRight={
+        <>
+          <button
+            onClick={() => {
+              if (song) {
+                exportSong(
+                  song
+                );
+              }
+            }}
+          >
+            Export JSON
+          </button>
+
+          <button
+            onClick={() =>
+              fileInputRef.current?.click()
+            }
+          >
+            Import JSON
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.songwriter.json"
+            onChange={handleImport}
+            style={{
+              display: "none",
+            }}
+          />
+        </>
+      }
+    >
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(3, minmax(140px, 1fr)) minmax(220px, 2fr)",
+          gap: "0.5rem",
         }}
       >
-        <label>
-          <div>Title</div>
-
-          <input
-            value={song.title}
-            onChange={(e) =>
-              updateSongMetadata({
-                title:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Title</div>
 
-        <label>
-          <div>Artist</div>
+            <input
+              value={song.title}
+              onChange={(e) =>
+                updateSongMetadata({
+                  title:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            value={song.artist}
-            onChange={(e) =>
-              updateSongMetadata({
-                artist:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Artist</div>
 
-        <label>
-          <div>Album</div>
+            <input
+              value={song.artist}
+              onChange={(e) =>
+                updateSongMetadata({
+                  artist:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            value={song.album}
-            onChange={(e) =>
-              updateSongMetadata({
-                album:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Album</div>
 
-        <label>
-          <div>Genre</div>
+            <input
+              value={song.album}
+              onChange={(e) =>
+                updateSongMetadata({
+                  album:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            value={song.genre}
-            onChange={(e) =>
-              updateSongMetadata({
-                genre:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Genre</div>
 
-        <label>
-          <div>Key</div>
+            <input
+              value={song.genre}
+              onChange={(e) =>
+                updateSongMetadata({
+                  genre:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            value={song.key}
-            onChange={(e) =>
-              updateSongMetadata({
-                key:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Key</div>
 
-        <label>
-          <div>Tempo (BPM)</div>
+            <input
+              value={song.key}
+              onChange={(e) =>
+                updateSongMetadata({
+                  key:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            type="number"
-            value={song.tempo}
-            onChange={(e) =>
-              updateSongMetadata({
-                tempo:
-                  Number(
-                    e.target.value
-                  ) || 0,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>Tempo (BPM)</div>
 
-        <label>
-          <div>
-            Time Signature
-          </div>
+            <input
+              type="number"
+              value={song.tempo}
+              onChange={(e) =>
+                updateSongMetadata({
+                  tempo:
+                    Number(
+                      e.target.value
+                    ) || 0,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <input
-            value={
-              song.timeSignature
-            }
-            onChange={(e) =>
-              updateSongMetadata({
-                timeSignature:
-                  e.target.value,
-              })
-            }
+          <label
             style={{
-              width: "100%",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
-          />
-        </label>
+          >
+            <div>
+              Time Signature
+            </div>
 
-        <label>
-          <div>Notes</div>
+            <input
+              value={
+                song.timeSignature
+              }
+              onChange={(e) =>
+                updateSongMetadata({
+                  timeSignature:
+                    e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+              }}
+            />
+          </label>
 
-          <textarea
-            value={song.notes}
-            onChange={(e) =>
-              updateSongMetadata({
-                notes:
-                  e.target.value,
-              })
-            }
-            rows={8}
+          <label
             style={{
-              width: "100%",
-              resize: "vertical",
+              display: "grid",
+              gridTemplateColumns:
+                "80px 1fr",
+              alignItems: "start",
+              gap: "0.5rem",
+              gridColumn: "4 / -1",
             }}
-          />
-        </label>
+          >
+            <div>Notes</div>
+
+            <textarea
+              value={song.notes}
+              onChange={(e) =>
+                updateSongMetadata({
+                  notes:
+                    e.target.value,
+                })
+              }
+              rows={3}
+              style={{
+                width: "100%",
+                resize: "vertical",
+              }}
+            />
+          </label>
       </div>
-    </div>
+    </Panel>
   );
 }

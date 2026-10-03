@@ -9,6 +9,11 @@ export type SectionType =
   | "outro"
   | "custom";
 
+export type SectionColorMap = Record<
+  SectionType,
+  string
+>;
+
 import type { Marker } from "./marker";
 import type { MelodyData } from "./melody";
 

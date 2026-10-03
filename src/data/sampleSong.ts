@@ -1,5 +1,9 @@
 import type { Song } from "../types";
 
+import {
+  defaultSectionColors,
+} from "../constants/sectionColors";
+
 export const sampleSong: Song = {
   id: "song-1",
 
@@ -25,6 +29,7 @@ export const sampleSong: Song = {
 
   settings: {
     darkMode: true,
+    sectionColors: defaultSectionColors,
   },
 
   themes: [],
