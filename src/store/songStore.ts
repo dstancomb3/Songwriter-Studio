@@ -48,6 +48,7 @@ interface SongStore {
         | "tempo"
         | "timeSignature"
         | "notes"
+        | "concept"
       >
     >
   ) => void;
