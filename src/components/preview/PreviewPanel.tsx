@@ -60,116 +60,84 @@ export function PreviewPanel() {
     );
 
   return (
-    <Panel title="Preview">
-      <div
-        style={{
-          padding: "0.375rem 1rem",
+    <div className="preview-shell">
+      <Panel title="Preview">
+        <div className="preview-paper">
+          {arrangement.sequence.map((item, index) => {
+            const section = song.sections.find(
+              (s) => s.id === item.sectionId
+            );
 
-          maxWidth: "600px",
+            if (!section) return null;
 
-          margin: "0 auto",
+            const version = section.versions.find(
+              (v) => v.id === section.activeVersionId
+            );
 
-          whiteSpace: "pre-wrap",
+            if (!version) return null;
 
-          lineHeight: 1.6,
+            const sectionColor =
+              sectionColors[section.type] ??
+              sectionColors.custom;
 
-          overflowY: "auto",
-        }}
-      >
-        {arrangement.sequence.map((item, index) => {
-          const section = song.sections.find(
-            (s) => s.id === item.sectionId
-          );
-
-          if (!section) return null;
-
-          const version = section.versions.find(
-            (v) => v.id === section.activeVersionId
-          );
-
-          if (!version) return null;
-
-          const sectionColor =
-            sectionColors[section.type] ??
-            sectionColors.custom;
-
-          return (
-            <div key={index}>
-              <h3
-                onMouseEnter={() =>
-                  setHoveredSectionId(
-                    section.id
-                  )
-                }
-                onMouseLeave={() =>
-                  setHoveredSectionId((id) =>
-                    id === section.id
-                      ? null
-                      : id
-                  )
-                }
-                style={{
-                  marginTop: "1rem",
-                  fontWeight: 700,
-                  fontSize: "1.05em",
-                  color: sectionColor,
-                  filter:
-                    hoveredSectionId ===
-                    section.id
-                      ? "brightness(1.15)"
-                      : "none",
-                  transition:
-                    "filter 180ms ease",
-                }}
+            return (
+              <div
+                key={item.id ?? index}
+                className="preview-section"
               >
-                [{section.title}]
-              </h3>
+                <h3
+                  className="preview-section__title"
+                  onMouseEnter={() =>
+                    setHoveredSectionId(
+                      section.id
+                    )
+                  }
+                  onMouseLeave={() =>
+                    setHoveredSectionId((id) =>
+                      id === section.id
+                        ? null
+                        : id
+                    )
+                  }
+                  style={{
+                    color: sectionColor,
+                    filter:
+                      hoveredSectionId ===
+                      section.id
+                        ? "brightness(0.82)"
+                        : "none",
+                  }}
+                >
+                  {section.title}
+                </h3>
 
-              <textarea
-                ref={(element) => {
-                  textareaRefs.current[
-                    section.id
-                  ] = element;
-                  resizeTextarea(element);
-                }}
-                value={version.lyrics}
-                onChange={(e) =>
-                  updateLyrics(
-                    section.id,
-                    e.target.value
-                  )
-                }
-                onInput={(e) =>
-                  resizeTextarea(
-                    e.currentTarget
-                  )
-                }
-                rows={1}
-                style={{
-                  width: "100%",
-                  margin: 0,
-                  resize: "none",
-                  border: "none",
-                  outline: "none",
-                  boxShadow: "none",
-                  background: "transparent",
-                  appearance: "none",
-                  WebkitAppearance: "none",
-                  borderRadius: 0,
-                  padding: 0,
-                  color: "inherit",
-                  font: "inherit",
-                  whiteSpace: "pre-wrap",
-                  lineHeight: "inherit",
-                  overflow: "hidden",
-                  borderLeft: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </Panel>
+                <textarea
+                  className="preview-lyrics"
+                  ref={(element) => {
+                    textareaRefs.current[
+                      section.id
+                    ] = element;
+                    resizeTextarea(element);
+                  }}
+                  value={version.lyrics}
+                  onChange={(e) =>
+                    updateLyrics(
+                      section.id,
+                      e.target.value
+                    )
+                  }
+                  onInput={(e) =>
+                    resizeTextarea(
+                      e.currentTarget
+                    )
+                  }
+                  rows={1}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+    </div>
   );
 }
