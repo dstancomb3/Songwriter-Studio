@@ -115,23 +115,8 @@ export function SongPanel() {
         </>
       }
     >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(3, minmax(140px, 1fr)) minmax(220px, 2fr)",
-          gap: "0.5rem",
-        }}
-      >
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+      <div className="song-meta-grid">
+          <label className="song-meta-field">
             <div>Title</div>
 
             <input
@@ -148,15 +133,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>Artist</div>
 
             <input
@@ -173,15 +150,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>Album</div>
 
             <input
@@ -198,15 +167,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>Genre</div>
 
             <input
@@ -223,15 +184,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>Key</div>
 
             <input
@@ -248,15 +201,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>Tempo (BPM)</div>
 
             <input
@@ -276,15 +221,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <label className="song-meta-field">
             <div>
               Time Signature
             </div>
@@ -305,16 +242,7 @@ export function SongPanel() {
             />
           </label>
 
-          <label
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "80px 1fr",
-              alignItems: "start",
-              gap: "0.5rem",
-              gridColumn: "4 / -1",
-            }}
-          >
+          <label className="song-meta-field song-meta-field--notes">
             <div>Notes</div>
 
             <textarea
