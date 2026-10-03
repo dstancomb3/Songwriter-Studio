@@ -36,60 +36,47 @@ function SortableItem({
     transition,
   } = useSortable({
     id,
-
     data: {
       type: "arrangement",
     },
   });
 
-  const style = {
-    transform:
-      CSS.Transform.toString(
-        transform
-      ),
-
-    transition,
-
-    border: "1px solid gray",
-
-    borderLeft: `5px solid ${accentColor}`,
-
-    padding: "0.375rem",
-
-    marginBottom: "0.375rem",
-
-    display: "flex",
-
-    justifyContent:
-      "space-between",
-
-    alignItems: "center",
-  };
-
   return (
     <div
       ref={setNodeRef}
       data-arrangement-id={id}
-      style={style}
+      className="arrangement-item"
+      style={{
+        transform:
+          CSS.Transform.toString(
+            transform
+          ),
+        transition,
+        borderLeftColor: accentColor,
+      }}
     >
-      <div
+      <button
+        type="button"
+        className="arrangement-item__drag"
         {...attributes}
         {...listeners}
-        style={{
-          cursor: "grab",
-          flex: 1,
-        }}
+        aria-label={`Drag ${title}`}
       >
-        ☰ {title}
-      </div>
+        ⠿
+      </button>
+
+      <span className="arrangement-item__title">
+        {title}
+      </span>
 
       <button
+        type="button"
+        className="arrangement-item__remove"
         onClick={onRemove}
-        style={{
-          marginLeft: "0.375rem",
-        }}
+        aria-label={`Remove ${title} from arrangement`}
+        title="Remove from arrangement"
       >
-        ✕
+        ×
       </button>
     </div>
   );
@@ -116,7 +103,6 @@ export function ArrangementPanel() {
     setNodeRef,
   } = useDroppable({
     id: "arrangement-container",
-
     data: {
       type:
         "arrangement-container",
@@ -144,17 +130,16 @@ export function ArrangementPanel() {
       (item) => {
         const section =
           song.sections.find(
-            (s) =>
-              s.id === item.sectionId
+            (candidate) =>
+              candidate.id ===
+              item.sectionId
           );
 
         return {
           id: item.id,
-
           title:
             section?.title ??
             item.sectionId,
-
           accentColor:
             section
               ? sectionColors[section.type]
@@ -167,91 +152,51 @@ export function ArrangementPanel() {
     <Panel title="Arrangement">
       <div
         ref={setNodeRef}
-        style={{
-          minHeight: "300px",
-        }}
+        className="arrangement-list"
       >
-      <SortableContext
-        items={items.map(
-          (item) => item.id
-        )}
-        strategy={
-          verticalListSortingStrategy
-        }
-      >
-        {items.length === 0 && (
-          <div
-            style={{
-              height: "90px",
-
-              border:
-                "2px dashed #4f46e5",
-
-              borderRadius: "4px",
-
-              display: "flex",
-
-              alignItems: "center",
-
-              justifyContent: "center",
-            }}
-          >
-            Drag a section here
-          </div>
-        )}
-
-        {items.map(
-          (item, index) => (
-            <div key={item.id}>
-              {previewInsertIndex ===
-                index && (
-                <div
-                  style={{
-                    height: "30px",
-
-                    border:
-                      "2px dashed #4f46e5",
-
-                    marginBottom:
-                      "0.375rem",
-
-                    borderRadius:
-                      "3px",
-                  }}
-                />
-              )}
-
-              <SortableItem
-                id={item.id}
-                title={item.title}
-                accentColor={
-                  item.accentColor
-                }
-                onRemove={() =>
-                  removeArrangementItem(
-                    index
-                  )
-                }
-              />
+        <SortableContext
+          items={items.map(
+            (item) => item.id
+          )}
+          strategy={
+            verticalListSortingStrategy
+          }
+        >
+          {items.length === 0 && (
+            <div className="arrangement-empty">
+              Drag a section here
             </div>
-          )
-        )}
+          )}
 
-        {previewInsertIndex ===
-          items.length && (
-          <div
-            style={{
-              height: "30px",
+          {items.map(
+            (item, index) => (
+              <div key={item.id}>
+                {previewInsertIndex ===
+                  index && (
+                  <div className="arrangement-drop-target" />
+                )}
 
-              border:
-                "2px dashed #4f46e5",
+                <SortableItem
+                  id={item.id}
+                  title={item.title}
+                  accentColor={
+                    item.accentColor
+                  }
+                  onRemove={() =>
+                    removeArrangementItem(
+                      index
+                    )
+                  }
+                />
+              </div>
+            )
+          )}
 
-              borderRadius:
-                "3px",
-            }}
-          />
-        )}
-      </SortableContext>
+          {previewInsertIndex ===
+            items.length && (
+            <div className="arrangement-drop-target" />
+          )}
+        </SortableContext>
       </div>
     </Panel>
   );
