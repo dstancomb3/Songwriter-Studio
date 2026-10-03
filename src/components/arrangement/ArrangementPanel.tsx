@@ -1,6 +1,6 @@
 import {
   SortableContext,
-  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 
@@ -45,14 +45,14 @@ function SortableItem({
     <div
       ref={setNodeRef}
       data-arrangement-id={id}
-      className="arrangement-item"
+      className="arrangement-item arrangement-item--horizontal"
       style={{
         transform:
           CSS.Transform.toString(
             transform
           ),
         transition,
-        borderLeftColor: accentColor,
+        borderTopColor: accentColor,
       }}
     >
       <button
@@ -152,28 +152,31 @@ export function ArrangementPanel() {
     <Panel title="Arrangement">
       <div
         ref={setNodeRef}
-        className="arrangement-list"
+        className="arrangement-track"
       >
         <SortableContext
           items={items.map(
             (item) => item.id
           )}
           strategy={
-            verticalListSortingStrategy
+            horizontalListSortingStrategy
           }
         >
           {items.length === 0 && (
-            <div className="arrangement-empty">
+            <div className="arrangement-empty arrangement-empty--horizontal">
               Drag a section here
             </div>
           )}
 
           {items.map(
             (item, index) => (
-              <div key={item.id}>
+              <div
+                key={item.id}
+                className="arrangement-slot"
+              >
                 {previewInsertIndex ===
                   index && (
-                  <div className="arrangement-drop-target" />
+                  <div className="arrangement-drop-target arrangement-drop-target--horizontal" />
                 )}
 
                 <SortableItem
@@ -194,7 +197,7 @@ export function ArrangementPanel() {
 
           {previewInsertIndex ===
             items.length && (
-            <div className="arrangement-drop-target" />
+            <div className="arrangement-drop-target arrangement-drop-target--horizontal" />
           )}
         </SortableContext>
       </div>
