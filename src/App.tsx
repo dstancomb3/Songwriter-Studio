@@ -347,4 +347,6 @@ function App() {
       </div>
     </DndContext>
   );
-;
+}
+
+export default App;
