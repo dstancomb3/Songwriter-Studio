@@ -64,17 +64,20 @@ export function SectionEditor() {
   ) {
     return (
       <Panel title="Editor">
-        <p>
-          Select a section.
-        </p>
+        <div className="editor-empty">
+          <div className="editor-empty__icon">
+            ✎
+          </div>
+          <div>Select a section to edit.</div>
+        </div>
       </Panel>
     );
   }
 
   const section =
     song.sections.find(
-      (s) =>
-        s.id ===
+      (candidate) =>
+        candidate.id ===
         selectedSectionId
     );
 
@@ -84,8 +87,8 @@ export function SectionEditor() {
 
   const version =
     section.versions.find(
-      (v) =>
-        v.id ===
+      (candidate) =>
+        candidate.id ===
         section.activeVersionId
     );
 
@@ -100,171 +103,148 @@ export function SectionEditor() {
 
   return (
     <Panel title="Editor">
-      <hr />
+      <div className="editor-section-heading">
+        <span
+          className="editor-section-heading__dot"
+          style={{
+            background:
+              sectionColors[
+                section.type
+              ],
+          }}
+        />
+        <strong>{section.title}</strong>
+      </div>
 
-      <div
-        style={{
-          marginBottom: "0.75rem",
-        }}
-      >
-        <label>
-          Version
-        </label>
-
+      <div className="editor-field">
+        <label>Version</label>
         <select
           value={
             section.activeVersionId
           }
-          onChange={(e) =>
+          onChange={(event) =>
             setActiveVersion(
               section.id,
-              e.target.value
+              event.target.value
             )
           }
-          style={{
-            width: "100%",
-            marginTop: "0.2rem",
-            marginBottom:
-              "0.56rem",
-          }}
         >
           {section.versions.map(
-            (version) => (
+            (item) => (
               <option
-                key={version.id}
-                value={version.id}
+                key={item.id}
+                value={item.id}
               >
-                {version.name}
+                {item.name}
               </option>
             )
           )}
         </select>
-
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent:
-              "space-between",
-            gap: "0.5rem",
-            marginBottom:
-              "0.56rem",
-          }}
-        >
-          <span>Section Color</span>
-          <input
-            type="color"
-            value={
-              sectionColors[section.type]
-            }
-            onChange={(e) =>
-              updateSectionColor(
-                section.type,
-                e.target.value
-              )
-            }
-            style={{
-              width: "44px",
-              height: "28px",
-              padding: 0,
-              border: "none",
-              background: "transparent",
-            }}
-          />
-        </label>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "1fr 1fr",
-            gap: "0.375rem",
-          }}
-        >
-          <button
-            onClick={() =>
-              createVersion(
-                section.id
-              )
-            }
-          >
-            New Version
-          </button>
-
-          <button
-            onClick={() =>
-              duplicateVersion(
-                section.id
-              )
-            }
-          >
-            Duplicate
-          </button>
-
-          <button
-            onClick={() => {
-              const newName =
-                window.prompt(
-                  "Rename version",
-                  version.name
-                );
-
-              if (!newName) {
-                return;
-              }
-
-              renameVersion(
-                section.id,
-                version.id,
-                newName
-              );
-            }}
-          >
-            Rename
-          </button>
-
-          <button
-            onClick={() => {
-              if (
-                !window.confirm(
-                  "Delete this version?"
-                )
-              ) {
-                return;
-              }
-
-              deleteVersion(
-                section.id,
-                version.id
-              );
-            }}
-            disabled={
-              section.versions.length ===
-              1
-            }
-          >
-            Delete
-          </button>
-        </div>
       </div>
 
-      <hr />
+      <div className="editor-color-row">
+        <span>Section color</span>
+        <input
+          type="color"
+          value={
+            sectionColors[
+              section.type
+            ]
+          }
+          onChange={(event) =>
+            updateSectionColor(
+              section.type,
+              event.target.value
+            )
+          }
+          aria-label="Section color"
+        />
+      </div>
 
-      <h3>Lyrics</h3>
+      <div className="editor-action-grid">
+        <button
+          type="button"
+          onClick={() =>
+            createVersion(
+              section.id
+            )
+          }
+        >
+          New
+        </button>
 
-      <textarea
-        value={version.lyrics}
-        onChange={(e) =>
-          updateLyrics(
-            section.id,
-            e.target.value
-          )
-        }
-        rows={11}
-        style={{
-          width: "100%",
-        }}
-      />
+        <button
+          type="button"
+          onClick={() =>
+            duplicateVersion(
+              section.id
+            )
+          }
+        >
+          Duplicate
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            const newName =
+              window.prompt(
+                "Rename version",
+                version.name
+              );
+
+            if (!newName) {
+              return;
+            }
+
+            renameVersion(
+              section.id,
+              version.id,
+              newName
+            );
+          }}
+        >
+          Rename
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (
+              !window.confirm(
+                "Delete this version?"
+              )
+            ) {
+              return;
+            }
+
+            deleteVersion(
+              section.id,
+              version.id
+            );
+          }}
+          disabled={
+            section.versions.length ===
+            1
+          }
+        >
+          Delete
+        </button>
+      </div>
+
+      <div className="editor-field editor-field--lyrics">
+        <label>Lyrics</label>
+        <textarea
+          value={version.lyrics}
+          onChange={(event) =>
+            updateLyrics(
+              section.id,
+              event.target.value
+            )
+          }
+          rows={9}
+        />
+      </div>
     </Panel>
   );
 }
