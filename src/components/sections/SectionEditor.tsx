@@ -1,3 +1,8 @@
+import {
+  useMemo,
+  useState,
+} from "react";
+
 import { useSongStore } from "../../store/songStore";
 import { Panel } from "../ui/Panel";
 
@@ -5,7 +10,56 @@ import {
   getSectionColors,
 } from "../../constants/sectionColors";
 
+import {
+  analyzeConceptLocally,
+} from "../../semantic/semanticClient";
+
+import type {
+  SemanticConceptAnalysis,
+} from "../../semantic/localEmbeddings";
+
+function formatScore(
+  value: number
+) {
+  return value.toFixed(3);
+}
+
+function semanticLabel(
+  value: number
+) {
+  if (value >= 0.72) {
+    return "Strong";
+  }
+
+  if (value >= 0.5) {
+    return "Moderate";
+  }
+
+  return "Loose";
+}
+
 export function SectionEditor() {
+  const [
+    semanticAnalysis,
+    setSemanticAnalysis,
+  ] = useState<
+    SemanticConceptAnalysis | null
+  >(null);
+
+  const [
+    semanticStatus,
+    setSemanticStatus,
+  ] = useState<
+    "idle" | "loading" | "ready"
+  >("idle");
+
+  const [
+    semanticError,
+    setSemanticError,
+  ] = useState<
+    string | null
+  >(null);
+
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -14,6 +68,12 @@ export function SectionEditor() {
     useSongStore(
       (state) =>
         state.selectedSectionId
+    );
+
+  const updateSongMetadata =
+    useSongStore(
+      (state) =>
+        state.updateSongMetadata
     );
 
   const setActiveVersion =
@@ -52,9 +112,189 @@ export function SectionEditor() {
         state.updateSectionColor
     );
 
+  const selectedSemanticScore =
+    useMemo(() => {
+      if (
+        !semanticAnalysis ||
+        !selectedSectionId
+      ) {
+        return null;
+      }
+
+      return (
+        semanticAnalysis.sections.find(
+          (item) =>
+            item.sectionId ===
+            selectedSectionId
+        ) ?? null
+      );
+    }, [
+      semanticAnalysis,
+      selectedSectionId,
+    ]);
+
+  async function handleAnalyze() {
+    if (!song) {
+      return;
+    }
+
+    setSemanticStatus(
+      "loading"
+    );
+    setSemanticError(
+      null
+    );
+
+    try {
+      const analysis =
+        await analyzeConceptLocally(
+          song
+        );
+
+      setSemanticAnalysis(
+        analysis
+      );
+
+      setSemanticStatus(
+        "ready"
+      );
+    } catch (error) {
+      setSemanticError(
+        error instanceof Error
+          ? error.message
+          : String(error)
+      );
+
+      setSemanticStatus(
+        "idle"
+      );
+    }
+  }
+
   if (!song) {
     return null;
   }
+
+  const semanticBlock = (
+    <div className="semantic-context">
+      <div className="semantic-context__heading">
+        <div>
+          <div className="semantic-context__eyebrow">
+            Local semantic
+          </div>
+          <strong>
+            Concept fit
+          </strong>
+        </div>
+
+        <span className="semantic-context__local">
+          Local
+        </span>
+      </div>
+
+      <label className="semantic-concept-field">
+        <span>
+          Song concept
+        </span>
+
+        <textarea
+          value={
+            song.concept ?? ""
+          }
+          onChange={(event) => {
+            updateSongMetadata({
+              concept:
+                event.target.value,
+            });
+
+            setSemanticAnalysis(
+              null
+            );
+            setSemanticStatus(
+              "idle"
+            );
+          }}
+          rows={4}
+          placeholder="What is this song really about?"
+        />
+      </label>
+
+      <button
+        type="button"
+        className="semantic-analyze-button"
+        onClick={
+          handleAnalyze
+        }
+        disabled={
+          semanticStatus ===
+          "loading"
+        }
+      >
+        {semanticStatus ===
+        "loading"
+          ? "Analyzing locally…"
+          : "Analyze locally"}
+      </button>
+
+      {semanticError && (
+        <div className="semantic-error">
+          {semanticError}
+        </div>
+      )}
+
+      {semanticAnalysis && (
+        <div className="semantic-results">
+          <div className="semantic-score-card">
+            <span>
+              Overall concept fit
+            </span>
+            <strong>
+              {formatScore(
+                semanticAnalysis.overallScore
+              )}
+            </strong>
+            <em>
+              {semanticLabel(
+                semanticAnalysis.overallScore
+              )}
+            </em>
+          </div>
+
+          {selectedSemanticScore && (
+            <div className="semantic-score-card semantic-score-card--selected">
+              <span>
+                {selectedSemanticScore.title}
+              </span>
+              <strong>
+                {formatScore(
+                  selectedSemanticScore.rerankerScore
+                )}
+              </strong>
+              <em>
+                {semanticLabel(
+                  selectedSemanticScore.rerankerScore
+                )}
+              </em>
+            </div>
+          )}
+
+          <div className="semantic-model-note">
+            BGE embeddings + MiniLM reranking.
+            Scores measure semantic relevance,
+            not writing quality.
+          </div>
+        </div>
+      )}
+
+      {semanticStatus ===
+        "loading" && (
+        <div className="semantic-model-note">
+          First run may take longer while the
+          local models download and cache.
+        </div>
+      )}
+    </div>
+  );
 
   if (!selectedSectionId) {
     return (
@@ -66,20 +306,34 @@ export function SectionEditor() {
 
           <div className="context-stat-grid">
             <div className="context-stat">
-              <strong>{song.sections.length}</strong>
-              <span>Sections</span>
+              <strong>
+                {song.sections.length}
+              </strong>
+              <span>
+                Sections
+              </span>
             </div>
+
             <div className="context-stat">
               <strong>
-                {song.arrangements[0]?.sequence.length ?? 0}
+                {song.arrangements[0]
+                  ?.sequence.length ?? 0}
               </strong>
-              <span>Blocks</span>
+              <span>
+                Blocks
+              </span>
             </div>
           </div>
 
           <div className="context-hint">
-            Select a section to manage versions and section settings. Edit lyrics directly on the writing page.
+            Select a section to manage versions
+            and section settings. Edit lyrics
+            directly on the writing page.
           </div>
+
+          <div className="context-divider" />
+
+          {semanticBlock}
         </div>
       </Panel>
     );
@@ -124,8 +378,12 @@ export function SectionEditor() {
               ],
           }}
         />
+
         <div>
-          <strong>{section.title}</strong>
+          <strong>
+            {section.title}
+          </strong>
+
           <div className="context-section-type">
             {section.type}
           </div>
@@ -133,7 +391,10 @@ export function SectionEditor() {
       </div>
 
       <div className="editor-field">
-        <label>Version</label>
+        <label>
+          Version
+        </label>
+
         <select
           value={
             section.activeVersionId
@@ -159,7 +420,10 @@ export function SectionEditor() {
       </div>
 
       <div className="editor-color-row">
-        <span>Section color</span>
+        <span>
+          Section color
+        </span>
+
         <input
           type="color"
           value={
@@ -251,8 +515,14 @@ export function SectionEditor() {
       <div className="context-divider" />
 
       <div className="context-hint">
-        Lyrics are edited directly in the Write canvas. Changes are saved to this active version automatically.
+        Lyrics are edited directly in the Write
+        canvas. Changes are saved to this active
+        version automatically.
       </div>
+
+      <div className="context-divider" />
+
+      {semanticBlock}
     </Panel>
   );
 }
