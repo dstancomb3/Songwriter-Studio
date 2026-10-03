@@ -22,11 +22,13 @@ function SortableItem({
   title,
   accentColor,
   onRemove,
+  expanded = false,
 }: {
   id: string;
   title: string;
   accentColor: string;
   onRemove: () => void;
+  expanded?: boolean;
 }) {
   const {
     attributes,
@@ -45,7 +47,11 @@ function SortableItem({
     <div
       ref={setNodeRef}
       data-arrangement-id={id}
-      className="arrangement-item arrangement-item--horizontal"
+      className={
+        expanded
+          ? "arrangement-item arrangement-item--horizontal arrangement-item--expanded"
+          : "arrangement-item arrangement-item--horizontal"
+      }
       style={{
         transform:
           CSS.Transform.toString(
@@ -82,7 +88,11 @@ function SortableItem({
   );
 }
 
-export function ArrangementPanel() {
+export function ArrangementPanel({
+  expanded = false,
+}: {
+  expanded?: boolean;
+}) {
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -152,7 +162,11 @@ export function ArrangementPanel() {
     <Panel title="Arrangement">
       <div
         ref={setNodeRef}
-        className="arrangement-track"
+        className={
+          expanded
+            ? "arrangement-track arrangement-track--expanded"
+            : "arrangement-track"
+        }
       >
         <SortableContext
           items={items.map(
@@ -190,6 +204,7 @@ export function ArrangementPanel() {
                       index
                     )
                   }
+                  expanded={expanded}
                 />
               </div>
             )
