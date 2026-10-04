@@ -507,6 +507,8 @@ AI is an accelerator layered onto the deterministic application, not the foundat
 
 ## 15. Development Status and Next Priorities
 
+> Detailed implementation sequencing for the remaining product-depth work lives in [Remaining Features Implementation Plan](./Remaining-Features-Implementation-Plan.md).
+
 ### Verified foundation
 
 The following major systems are implemented and have been interaction-tested:
