@@ -16,6 +16,10 @@ import type {
   SongIdeaKind,
 } from "../../types";
 
+import {
+  useStudioModal,
+} from "../ui/StudioModalProvider";
+
 type FilterKind =
   | "all"
   | SongIdeaKind;
@@ -63,6 +67,11 @@ function ideaLabel(
 }
 
 export function ExploreWorkspace() {
+  const {
+    confirm,
+    notify,
+  } = useStudioModal();
+
   const song =
     useSongStore(
       (state) =>
@@ -699,15 +708,34 @@ export function ExploreWorkspace() {
                     ) => {
                       event.stopPropagation();
 
-                      if (
-                        window.confirm(
-                          "Delete this idea permanently?"
-                        )
-                      ) {
+                      void (async () => {
+                        const approved =
+                          await confirm({
+                            title:
+                              "Delete idea?",
+                            message:
+                              "This idea will be permanently removed from the song.",
+                            confirmLabel:
+                              "Delete",
+                            tone:
+                              "danger",
+                          });
+
+                        if (!approved) {
+                          return;
+                        }
+
                         deleteIdea(
                           idea.id
                         );
-                      }
+
+                        notify({
+                          title:
+                            "Idea deleted",
+                          tone:
+                            "success",
+                        });
+                      })();
                     }}
                   >
                     Delete
