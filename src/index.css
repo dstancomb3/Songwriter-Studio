@@ -1856,3 +1856,198 @@ h4 {
   font-size: 0.6rem;
   line-height: 1.4;
 }
+
+
+/* Songwriting Intelligence Wave 1 */
+
+.rhyme-score-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.56rem;
+  border: 1px solid rgba(111, 165, 255, 0.34);
+  border-radius: 9px;
+  background:
+    radial-gradient(
+      circle at 88% 12%,
+      rgba(111, 165, 255, 0.11),
+      transparent 42%
+    ),
+    rgba(24, 35, 57, 0.48);
+}
+
+.rhyme-score-hero > div:first-child {
+  display: grid;
+  gap: 0.02rem;
+}
+
+.rhyme-score-hero span {
+  color: #9ba7bd;
+  font-size: 0.63rem;
+  font-weight: 700;
+}
+
+.rhyme-score-hero strong {
+  color: #f2f6ff;
+  font-size: 1.26rem;
+  line-height: 1.05;
+}
+
+.rhyme-score-hero em {
+  color: #93baff;
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rhyme-score-ring {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(111, 165, 255, 0.56);
+  border-radius: 999px;
+  background: rgba(111, 165, 255, 0.07);
+  color: #eaf1ff;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.rhyme-score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+
+.rhyme-score-breakdown > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.04rem;
+  padding: 0.39rem 0.34rem;
+  border: 1px solid #30384d;
+  border-radius: 7px;
+  background: rgba(20, 25, 38, 0.72);
+}
+
+.rhyme-score-breakdown span {
+  color: #7f899f;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+}
+
+.rhyme-score-breakdown strong {
+  color: #dfe9ff;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.73rem;
+}
+
+.lyric-line-row__meter {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.lyric-line-row__meter--balanced {
+  color: #9fc5ff;
+}
+
+.lyric-line-row__meter--short,
+.lyric-line-row__meter--long {
+  color: #e0b782;
+}
+
+.lyric-line-row__ending--strong {
+  color: #9fc5ff;
+}
+
+.lyric-line-row__ending--slant {
+  color: #c2a9ff;
+}
+
+.lyric-line-row__ending--repeat {
+  color: #dfb378;
+}
+
+.lyric-observations {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.lyric-observation {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 0.28rem;
+  padding: 0.34rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.lyric-observation > span {
+  color: #7fa8ff;
+  font-size: 0.66rem;
+}
+
+.lyric-observation p {
+  color: #98a2b5;
+  font-size: 0.62rem;
+  line-height: 1.42;
+}
+
+.preview-section__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.preview-section__heading .preview-section__title {
+  margin-bottom: 0.22rem;
+}
+
+.preview-section__metrics {
+  display: flex;
+  align-items: center;
+  gap: 0.24rem;
+  margin-bottom: 0.18rem;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.preview-section__metrics span {
+  padding: 0.12rem 0.28rem;
+  border: 1px solid rgba(95, 80, 67, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  color: #7a727a;
+  font-size: 0.54rem;
+  font-weight: 700;
+}
+
+.preview-line-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin: 0 0 0.28rem;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.preview-line-guide__chip {
+  padding: 0.1rem 0.28rem;
+  border-radius: 999px;
+  background: rgba(78, 69, 87, 0.06);
+  color: #817885;
+  font-size: 0.52rem;
+  font-weight: 700;
+}
+
+.preview-line-guide__chip--balanced {
+  border: 1px solid rgba(87, 124, 166, 0.18);
+}
+
+.preview-line-guide__chip--short,
+.preview-line-guide__chip--long {
+  border: 1px solid rgba(174, 127, 76, 0.2);
+  background: rgba(174, 127, 76, 0.055);
+}
