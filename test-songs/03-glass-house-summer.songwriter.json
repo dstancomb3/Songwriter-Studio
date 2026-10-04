@@ -1,0 +1,348 @@
+{
+  "id": "test-glass-house-summer",
+  "title": "Glass House Summer",
+  "artist": "Test Library",
+  "album": "Songwriter Studio QA",
+  "genre": "Dream Pop",
+  "key": "D major",
+  "tempo": 116,
+  "timeSignature": "4/4",
+  "notes": "Structure case: Intro, Verse, Pre-Chorus, Chorus, Post-Chorus, Hook, Bridge, Outro, plus one unused alternate Section in the library.",
+  "concept": "A summer romance feels beautiful and exposed, with both people knowing every perfect moment is visible, fragile, and temporary.",
+  "createdAt": "2026-10-04T06:55:00.000Z",
+  "updatedAt": "2026-10-04T06:55:00.000Z",
+  "settings": {
+    "darkMode": true,
+    "sectionColors": {
+      "intro": "#64748b",
+      "verse": "#3b82f6",
+      "pre-chorus": "#f59e0b",
+      "chorus": "#22c55e",
+      "post-chorus": "#14b8a6",
+      "bridge": "#a855f7",
+      "hook": "#ec4899",
+      "outro": "#ef4444",
+      "custom": "#9ca3af"
+    }
+  },
+  "themes": [],
+  "ideas": [
+    {
+      "id": "ghs-i1",
+      "kind": "title",
+      "text": "Transparent June",
+      "note": "Alternate title",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ghs-i2",
+      "kind": "image",
+      "text": "Fingerprints visible when the sun hits the window",
+      "note": "Could deepen chorus image",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "ghs-intro",
+      "type": "intro",
+      "title": "Intro",
+      "activeVersionId": "ghs-intro-v1",
+      "versions": [
+        {
+          "id": "ghs-intro-v1",
+          "name": "Default",
+          "lyrics": "June light on the kitchen tiles\nBare feet, open windows",
+          "chords": [
+            "D",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-v1",
+      "type": "verse",
+      "title": "Verse 1",
+      "activeVersionId": "ghs-v1-v1",
+      "versions": [
+        {
+          "id": "ghs-v1-v1",
+          "name": "Default",
+          "lyrics": "We taped the screen where moths got in\nLeft peaches ripening by the sink\nYou wore my shirt out to the yard\nI watched the sunlight through your drink",
+          "chords": [
+            "D",
+            "A",
+            "Bm",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-pre",
+      "type": "pre-chorus",
+      "title": "Pre-Chorus",
+      "activeVersionId": "ghs-pre-v1",
+      "versions": [
+        {
+          "id": "ghs-pre-v1",
+          "name": "Default",
+          "lyrics": "Everybody on the sidewalk\nCould see straight through the room\nWe were never good at hiding\nWe were only good at June",
+          "chords": [
+            "Em",
+            "G",
+            "D",
+            "A"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-chorus",
+      "type": "chorus",
+      "title": "Chorus",
+      "activeVersionId": "ghs-chorus-v1",
+      "versions": [
+        {
+          "id": "ghs-chorus-v1",
+          "name": "Default",
+          "lyrics": "Glass house summer\nEvery heartbeat on display\nBeautiful because it couldn't\nEver learn to look away\nGlass house summer\nFingerprints on every pane\nWe could see the ending coming\nStill we danced inside the frame",
+          "chords": [
+            "G",
+            "D",
+            "A",
+            "Bm"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-post",
+      "type": "post-chorus",
+      "title": "Post-Chorus",
+      "activeVersionId": "ghs-post-v1",
+      "versions": [
+        {
+          "id": "ghs-post-v1",
+          "name": "Default",
+          "lyrics": "Don't throw stones\nDon't throw stones\nWe know how thin the walls are",
+          "chords": [
+            "G",
+            "A",
+            "Bm"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-v2",
+      "type": "verse",
+      "title": "Verse 2",
+      "activeVersionId": "ghs-v2-v1",
+      "versions": [
+        {
+          "id": "ghs-v2-v1",
+          "name": "Default",
+          "lyrics": "By August all the grass went pale\nThe fan pushed warm air down the hall\nYou packed the books beside the bed\nAnd left one picture on the wall",
+          "chords": [
+            "D",
+            "A",
+            "Bm",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-hook",
+      "type": "hook",
+      "title": "Hook",
+      "activeVersionId": "ghs-hook-v1",
+      "versions": [
+        {
+          "id": "ghs-hook-v1",
+          "name": "Default",
+          "lyrics": "We knew the glass would break\nWe loved the view anyway",
+          "chords": [
+            "Bm",
+            "G",
+            "D",
+            "A"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-bridge",
+      "type": "bridge",
+      "title": "Bridge",
+      "activeVersionId": "ghs-bridge-v1",
+      "versions": [
+        {
+          "id": "ghs-bridge-v1",
+          "name": "Default",
+          "lyrics": "If I could make a house from weather\nI'd keep that month above the door\nBut seasons do what seasons always do\nAnd sunlight doesn't sign a lease",
+          "chords": [
+            "Em",
+            "Bm",
+            "G",
+            "A"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-outro",
+      "type": "outro",
+      "title": "Outro",
+      "activeVersionId": "ghs-outro-v1",
+      "versions": [
+        {
+          "id": "ghs-outro-v1",
+          "name": "Default",
+          "lyrics": "September on the kitchen tiles\nOne clean square where your picture was",
+          "chords": [
+            "D",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ghs-unused",
+      "type": "custom",
+      "title": "Unused Alternate Verse",
+      "activeVersionId": "ghs-unused-v1",
+      "versions": [
+        {
+          "id": "ghs-unused-v1",
+          "name": "Default",
+          "lyrics": "We drove out past the county line\nAnd slept beneath a borrowed sheet\nThe dashboard clock was missing time\nThe asphalt shimmered in the heat",
+          "chords": [
+            "Bm",
+            "G",
+            "D",
+            "A"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": "Intentional unused section for Arrange testing."
+        }
+      ]
+    }
+  ],
+  "arrangements": [
+    {
+      "id": "main",
+      "name": "Main Arrangement",
+      "sequence": [
+        {
+          "id": "ghs-o1",
+          "sectionId": "ghs-intro"
+        },
+        {
+          "id": "ghs-o2",
+          "sectionId": "ghs-v1"
+        },
+        {
+          "id": "ghs-o3",
+          "sectionId": "ghs-pre"
+        },
+        {
+          "id": "ghs-o4",
+          "sectionId": "ghs-chorus"
+        },
+        {
+          "id": "ghs-o5",
+          "sectionId": "ghs-post"
+        },
+        {
+          "id": "ghs-o6",
+          "sectionId": "ghs-v2"
+        },
+        {
+          "id": "ghs-o7",
+          "sectionId": "ghs-pre"
+        },
+        {
+          "id": "ghs-o8",
+          "sectionId": "ghs-chorus"
+        },
+        {
+          "id": "ghs-o9",
+          "sectionId": "ghs-hook"
+        },
+        {
+          "id": "ghs-o10",
+          "sectionId": "ghs-bridge"
+        },
+        {
+          "id": "ghs-o11",
+          "sectionId": "ghs-chorus"
+        },
+        {
+          "id": "ghs-o12",
+          "sectionId": "ghs-post"
+        },
+        {
+          "id": "ghs-o13",
+          "sectionId": "ghs-outro"
+        }
+      ]
+    }
+  ]
+}
