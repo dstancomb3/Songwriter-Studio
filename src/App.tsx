@@ -228,16 +228,45 @@ function App() {
       const rect =
         element.getBoundingClientRect();
 
-      const pointerX =
+      const axis =
+        over.data.current?.axis ??
+        "horizontal";
+
+      const translated =
         active.rect.current
-          .translated?.left ?? 0;
+          .translated;
+
+      const pointerPosition =
+        axis === "vertical"
+          ? (
+              translated?.top ??
+              0
+            ) +
+            (
+              translated?.height ??
+              0
+            ) /
+              2
+          : (
+              translated?.left ??
+              0
+            ) +
+            (
+              translated?.width ??
+              0
+            ) /
+              2;
 
       const midpoint =
-        rect.left +
-        rect.width / 2;
+        axis === "vertical"
+          ? rect.top +
+            rect.height / 2
+          : rect.left +
+            rect.width / 2;
 
       const insertIndex =
-        pointerX > midpoint
+        pointerPosition >
+        midpoint
           ? index + 1
           : index;
 
@@ -277,11 +306,44 @@ function App() {
       const rect =
         element.getBoundingClientRect();
 
-      const pointerX =
-        active.rect.current
-          .translated?.left ?? 0;
+      const axis =
+        over.data.current?.axis ??
+        "horizontal";
 
-      if (pointerX > rect.right) {
+      const translated =
+        active.rect.current
+          .translated;
+
+      const pointerPosition =
+        axis === "vertical"
+          ? (
+              translated?.top ??
+              0
+            ) +
+            (
+              translated?.height ??
+              0
+            ) /
+              2
+          : (
+              translated?.left ??
+              0
+            ) +
+            (
+              translated?.width ??
+              0
+            ) /
+              2;
+
+      const boundary =
+        axis === "vertical"
+          ? rect.bottom
+          : rect.right;
+
+      if (
+        pointerPosition >
+        boundary
+      ) {
         setPreviewInsertIndex(
           arrangement.sequence.length
         );
@@ -527,9 +589,6 @@ function App() {
               <SectionEditor />
             </div>
 
-            <div className="workspace-arrangement">
-              <ArrangementPanel />
-            </div>
           </div>
         ) : workspace === "arrange" ? (
           <div className="arrange-workspace">
