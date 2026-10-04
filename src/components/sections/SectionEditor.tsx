@@ -27,15 +27,15 @@ function formatScore(
 function semanticLabel(
   value: number
 ) {
-  if (value >= 0.72) {
-    return "Strong";
+  if (value >= 75) {
+    return "Focused";
   }
 
-  if (value >= 0.5) {
-    return "Moderate";
+  if (value >= 55) {
+    return "Developing";
   }
 
-  return "Loose";
+  return "Diffuse";
 }
 
 export function SectionEditor() {
@@ -183,7 +183,7 @@ export function SectionEditor() {
             Local semantic
           </div>
           <strong>
-            Concept fit
+            Concept Score
           </strong>
         </div>
 
@@ -244,20 +244,45 @@ export function SectionEditor() {
 
       {semanticAnalysis && (
         <div className="semantic-results">
-          <div className="semantic-score-card">
-            <span>
-              Overall concept fit
-            </span>
-            <strong>
-              {formatScore(
-                semanticAnalysis.overallScore
-              )}
-            </strong>
-            <em>
-              {semanticLabel(
-                semanticAnalysis.overallScore
-              )}
-            </em>
+          <div className="concept-score-hero">
+            <div>
+              <span>
+                Concept Score
+              </span>
+              <strong>
+                {semanticAnalysis.conceptScore.total}
+              </strong>
+              <em>
+                {semanticLabel(
+                  semanticAnalysis.conceptScore.total
+                )}
+              </em>
+            </div>
+
+            <div className="concept-score-ring">
+              {semanticAnalysis.conceptScore.total}
+            </div>
+          </div>
+
+          <div className="concept-score-breakdown">
+            <div>
+              <span>Relevance</span>
+              <strong>
+                {semanticAnalysis.conceptScore.relevance}
+              </strong>
+            </div>
+            <div>
+              <span>Consistency</span>
+              <strong>
+                {semanticAnalysis.conceptScore.consistency}
+              </strong>
+            </div>
+            <div>
+              <span>Hook anchor</span>
+              <strong>
+                {semanticAnalysis.conceptScore.anchor}
+              </strong>
+            </div>
           </div>
 
           {selectedSemanticScore && (
@@ -271,17 +296,16 @@ export function SectionEditor() {
                 )}
               </strong>
               <em>
-                {semanticLabel(
-                  selectedSemanticScore.rerankerScore
-                )}
+                raw semantic fit
               </em>
             </div>
           )}
 
           <div className="semantic-model-note">
-            BGE embeddings + MiniLM reranking.
-            Scores measure semantic relevance,
-            not writing quality.
+            Concept Score v1 = 50% relevance,
+            25% section consistency, 25% chorus/hook
+            anchoring. BGE + MiniLM remain fully local.
+            This measures conceptual focus, not writing quality.
           </div>
         </div>
       )}
