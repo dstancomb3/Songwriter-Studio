@@ -15,7 +15,9 @@ import {
   compareSongVersions,
   deleteVersionSnapshot,
   loadVersionHistory,
+  restoreSectionFromSnapshot,
   restoreVersionSnapshot,
+  saveSafetySnapshot,
   saveVersionSnapshot,
 } from "../../services/versionHistory";
 
@@ -59,6 +61,24 @@ function scoreDelta(
   return current - previous;
 }
 
+function sourceLabel(
+  snapshot:
+    SongVersionSnapshot
+) {
+  switch (
+    snapshot.source
+  ) {
+    case "safety":
+      return "Safety";
+    case "restore":
+      return "Restore";
+    case "import":
+      return "Import";
+    default:
+      return "Manual";
+  }
+}
+
 function Delta({
   value,
 }: {
@@ -96,6 +116,7 @@ function Delta({
 export function VersionsWorkspace() {
   const {
     confirm,
+    notify,
   } = useStudioModal();
 
   const song =
@@ -134,6 +155,18 @@ export function VersionsWorkspace() {
     snapshotName,
     setSnapshotName,
   ] = useState("");
+
+  const [
+    snapshotNote,
+    setSnapshotNote,
+  ] = useState("");
+
+  const [
+    expandedSectionId,
+    setExpandedSectionId,
+  ] = useState<
+    string | null
+  >(null);
 
   const [
     currentConceptScore,
@@ -192,6 +225,12 @@ export function VersionsWorkspace() {
     );
   }, [song?.updatedAt]);
 
+  useEffect(() => {
+    setExpandedSectionId(
+      null
+    );
+  }, [selectedSnapshotId]);
+
   const selectedSnapshot =
     snapshots.find(
       (snapshot) =>
@@ -231,6 +270,18 @@ export function VersionsWorkspace() {
       song,
       selectedSnapshot,
     ]);
+
+  function refreshSnapshots() {
+    if (!song) {
+      return;
+    }
+
+    setSnapshots(
+      loadVersionHistory(
+        song.id
+      )
+    );
+  }
 
   async function analyzeCurrent() {
     if (!song) {
@@ -337,7 +388,13 @@ export function VersionsWorkspace() {
               snapshots.length +
               1
             ),
-        scores
+        scores,
+        {
+          note:
+            snapshotNote,
+          source:
+            "manual",
+        }
       );
 
     setSnapshots(
@@ -353,14 +410,26 @@ export function VersionsWorkspace() {
       ""
     );
 
+    setSnapshotNote(
+      ""
+    );
+
     setStatus(
       "idle"
     );
+
+    notify({
+      title:
+        "Snapshot saved",
+      tone:
+        "success",
+    });
   }
 
   async function restoreSelected() {
     if (
-      !selectedSnapshot
+      !selectedSnapshot ||
+      !song
     ) {
       return;
     }
@@ -370,7 +439,7 @@ export function VersionsWorkspace() {
         title:
           "Restore snapshot?",
         message:
-          "Your current working state will be replaced. Save a snapshot first if you want to keep it.",
+          "Your current working state will be replaced. Songwriter Studio will save an automatic safety snapshot first.",
         confirmLabel:
           "Restore",
         tone:
@@ -381,15 +450,110 @@ export function VersionsWorkspace() {
       return;
     }
 
-    setCurrentSong(
+    saveSafetySnapshot(
+      song,
+      "Before restoring " +
+        selectedSnapshot.name,
+      "Automatic safety snapshot before restoring a full song version."
+    );
+
+    const restored =
       restoreVersionSnapshot(
         selectedSnapshot
-      )
-    );
+      );
+
+    setCurrentSong({
+      ...restored,
+      updatedAt:
+        new Date().toISOString(),
+    });
 
     setSelectedSection(
       null
     );
+
+    refreshSnapshots();
+
+    notify({
+      title:
+        "Snapshot restored",
+      message:
+        "Your previous working state is preserved as a safety snapshot.",
+      tone:
+        "success",
+    });
+  }
+
+  async function restoreSection(
+    sectionId: string
+  ) {
+    if (
+      !song ||
+      !selectedSnapshot
+    ) {
+      return;
+    }
+
+    const section =
+      selectedSnapshot.song.sections.find(
+        (item) =>
+          item.id ===
+          sectionId
+      );
+
+    if (!section) {
+      return;
+    }
+
+    const approved =
+      await confirm({
+        title:
+          "Restore " +
+          section.title +
+          "?",
+        message:
+          "Only this section will be restored from the selected snapshot. The current song will be saved as a safety snapshot first.",
+        confirmLabel:
+          "Restore section",
+      });
+
+    if (!approved) {
+      return;
+    }
+
+    saveSafetySnapshot(
+      song,
+      "Before restoring " +
+        section.title,
+      "Automatic safety snapshot before selectively restoring a section."
+    );
+
+    const restored =
+      restoreSectionFromSnapshot(
+        song,
+        selectedSnapshot,
+        sectionId
+      );
+
+    setCurrentSong(
+      restored
+    );
+
+    setSelectedSection(
+      sectionId
+    );
+
+    refreshSnapshots();
+
+    notify({
+      title:
+        section.title +
+        " restored",
+      message:
+        "Only the selected section was replaced.",
+      tone:
+        "success",
+    });
   }
 
   async function removeSnapshot(
@@ -470,9 +634,7 @@ export function VersionsWorkspace() {
                 event.target.value
               )
             }
-            placeholder={
-              "Name this version"
-            }
+            placeholder="Name this version"
             onKeyDown={(event) => {
               if (
                 event.key ===
@@ -481,6 +643,19 @@ export function VersionsWorkspace() {
                 void saveSnapshot();
               }
             }}
+          />
+
+          <textarea
+            value={
+              snapshotNote
+            }
+            onChange={(event) =>
+              setSnapshotNote(
+                event.target.value
+              )
+            }
+            rows={2}
+            placeholder="Optional note: stronger hook, tighter verse…"
           />
 
           <button
@@ -527,15 +702,37 @@ export function VersionsWorkspace() {
                   )
                 }
               >
-                <strong>
-                  {snapshot.name}
-                </strong>
+                <div className="snapshot-card__heading">
+                  <strong>
+                    {snapshot.name}
+                  </strong>
+
+                  <em
+                    className={
+                      "snapshot-source snapshot-source--" +
+                      (
+                        snapshot.source ??
+                        "manual"
+                      )
+                    }
+                  >
+                    {sourceLabel(
+                      snapshot
+                    )}
+                  </em>
+                </div>
 
                 <span>
                   {formatDate(
                     snapshot.createdAt
                   )}
                 </span>
+
+                {snapshot.note && (
+                  <p className="snapshot-card__note">
+                    {snapshot.note}
+                  </p>
+                )}
 
                 <div className="snapshot-card__scores">
                   <span>
@@ -578,8 +775,8 @@ export function VersionsWorkspace() {
             </h2>
 
             <p>
-              See what actually changed between a saved version and the song
-              you are writing now.
+              Expand a changed section to inspect exact line changes or recover only
+              that section without rolling back the rest of the song.
             </p>
           </div>
 
@@ -608,7 +805,7 @@ export function VersionsWorkspace() {
                 !selectedSnapshot
               }
             >
-              Restore
+              Restore all
             </button>
           </div>
         </div>
@@ -715,40 +912,159 @@ export function VersionsWorkspace() {
 
             <div className="version-section-diffs">
               {comparison.sections.map(
-                (section) => (
-                  <div
-                    className={
-                      "version-section-diff version-section-diff--" +
-                      section.status
-                    }
-                    key={
-                      section.sectionId
-                    }
-                  >
-                    <div>
-                      <strong>
-                        {section.title}
-                      </strong>
+                (section) => {
+                  const expanded =
+                    expandedSectionId ===
+                    section.sectionId;
 
-                      <span>
-                        {section.status}
-                      </span>
-                    </div>
+                  const canRestore =
+                    selectedSnapshot.song.sections.some(
+                      (item) =>
+                        item.id ===
+                        section.sectionId
+                    );
 
-                    <div className="version-section-diff__numbers">
-                      <span>
-                        +{
-                          section.addedLines
+                  return (
+                    <div
+                      className={
+                        "version-section-diff version-section-diff--" +
+                        section.status +
+                        (
+                          expanded
+                            ? " version-section-diff--expanded"
+                            : ""
+                        )
+                      }
+                      key={
+                        section.sectionId
+                      }
+                    >
+                      <button
+                        type="button"
+                        className="version-section-diff__summary"
+                        onClick={() =>
+                          setExpandedSectionId(
+                            expanded
+                              ? null
+                              : section.sectionId
+                          )
                         }
-                      </span>
-                      <span>
-                        -{
-                          section.removedLines
-                        }
-                      </span>
+                      >
+                        <div>
+                          <strong>
+                            {section.title}
+                          </strong>
+
+                          <span>
+                            {section.status}
+                          </span>
+                        </div>
+
+                        <div className="version-section-diff__numbers">
+                          <span>
+                            +{
+                              section.addedLines
+                            }
+                          </span>
+                          <span>
+                            -{
+                              section.removedLines
+                            }
+                          </span>
+                          <em>
+                            {expanded
+                              ? "▴"
+                              : "▾"}
+                          </em>
+                        </div>
+                      </button>
+
+                      {expanded && (
+                        <div className="version-line-diff">
+                          <div className="version-line-diff__header">
+                            <span>
+                              Snapshot
+                            </span>
+                            <span>
+                              Current
+                            </span>
+                          </div>
+
+                          <div className="version-line-diff__rows">
+                            {section.lineDiff.length ===
+                              0 && (
+                              <div className="version-line-diff__empty">
+                                No lyric-line changes in this section.
+                              </div>
+                            )}
+
+                            {section.lineDiff.map(
+                              (
+                                line,
+                                index
+                              ) => (
+                                <div
+                                  className={
+                                    "version-line-diff__row version-line-diff__row--" +
+                                    line.kind
+                                  }
+                                  key={
+                                    line.kind +
+                                    "-" +
+                                    index +
+                                    "-" +
+                                    line.text
+                                  }
+                                >
+                                  <div>
+                                    <span>
+                                      {line.beforeLine ??
+                                        ""}
+                                    </span>
+                                    <p>
+                                      {line.kind ===
+                                      "added"
+                                        ? ""
+                                        : line.text}
+                                    </p>
+                                  </div>
+
+                                  <div>
+                                    <span>
+                                      {line.afterLine ??
+                                        ""}
+                                    </span>
+                                    <p>
+                                      {line.kind ===
+                                      "removed"
+                                        ? ""
+                                        : line.text}
+                                    </p>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+
+                          <div className="version-line-diff__actions">
+                            {canRestore && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  void restoreSection(
+                                    section.sectionId
+                                  )
+                                }
+                              >
+                                Restore this section
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )
+                  );
+                }
               )}
             </div>
           </>
@@ -850,13 +1166,56 @@ export function VersionsWorkspace() {
           </div>
         </div>
 
+        {selectedSnapshot && (
+          <div className="version-selected-meta">
+            <span>
+              Comparing against
+            </span>
+            <strong>
+              {
+                selectedSnapshot.name
+              }
+            </strong>
+
+            <div>
+              <em
+                className={
+                  "snapshot-source snapshot-source--" +
+                  (
+                    selectedSnapshot.source ??
+                    "manual"
+                  )
+                }
+              >
+                {sourceLabel(
+                  selectedSnapshot
+                )}
+              </em>
+
+              <small>
+                {formatDate(
+                  selectedSnapshot.createdAt
+                )}
+              </small>
+            </div>
+
+            {selectedSnapshot.note && (
+              <p>
+                {
+                  selectedSnapshot.note
+                }
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="version-score-history">
           <div className="version-score-history__label">
-            Saved versions
+            Recent history
           </div>
 
           {snapshots
-            .slice(0, 8)
+            .slice(0, 10)
             .map(
               (snapshot) => (
                 <div
@@ -878,6 +1237,10 @@ export function VersionsWorkspace() {
                     </span>
 
                     <small>
+                      {sourceLabel(
+                        snapshot
+                      )}
+                      {" · "}
                       C{" "}
                       {snapshot.scores
                         .conceptScore ??
@@ -913,8 +1276,9 @@ export function VersionsWorkspace() {
         </div>
 
         <div className="versions-note">
-          Concept Score is refreshed on demand because it runs the local semantic
-          models. Rhyme and Meter scores update immediately from the current lyrics.
+          Safety snapshots are created automatically before destructive section/version
+          actions and restores. Concept Score is refreshed on demand; Rhyme and Meter
+          scores are deterministic.
         </div>
       </aside>
     </div>
