@@ -23,10 +23,12 @@ import { SectionEditor } from "./components/sections/SectionEditor";
 import { ArrangementPanel } from "./components/arrangement/ArrangementPanel";
 import { SongPanel } from "./components/songpanel";
 import { PreviewPanel } from "./components/preview/PreviewPanel";
+import { VersionsWorkspace } from "./components/versions/VersionsWorkspace";
 
 type Workspace =
   | "write"
-  | "arrange";
+  | "arrange"
+  | "versions";
 
 function App() {
   const [workspace, setWorkspace] =
@@ -384,11 +386,16 @@ function App() {
 
             <button
               type="button"
-              className="studio-nav__item studio-nav__item--disabled"
-              disabled
-              title="Songwriting tools are coming next"
+              className={
+                workspace === "versions"
+                  ? "studio-nav__item studio-nav__item--active"
+                  : "studio-nav__item"
+              }
+              onClick={() =>
+                setWorkspace("versions")
+              }
             >
-              Tools
+              Versions
             </button>
           </nav>
 
@@ -420,7 +427,7 @@ function App() {
               <ArrangementPanel />
             </div>
           </div>
-        ) : (
+        ) : workspace === "arrange" ? (
           <div className="arrange-workspace">
             <div className="arrange-workspace__sections">
               <SectionPanel />
@@ -486,6 +493,8 @@ function App() {
               <SectionEditor />
             </div>
           </div>
+        ) : (
+          <VersionsWorkspace />
         )}
       </div>
     </DndContext>
