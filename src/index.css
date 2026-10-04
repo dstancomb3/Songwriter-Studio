@@ -4098,3 +4098,29 @@ h4 {
 .preview-arrangement-edge--active span {
   margin-top: -0.18rem;
 }
+
+
+/* Drag interaction stabilization */
+
+.preview-section {
+  cursor: default;
+}
+
+.preview-lyrics {
+  cursor: text;
+}
+
+.app-shell--dragging,
+.app-shell--dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.app-shell--dragging textarea,
+.app-shell--dragging input {
+  caret-color: transparent;
+}
+
+.app-shell--dragging .preview-arrangement-drop-target {
+  pointer-events: none;
+}
