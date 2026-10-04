@@ -36,6 +36,10 @@ import {
   saveSafetySnapshot,
 } from "../../services/versionHistory";
 
+import {
+  getConceptAnalysisFingerprint,
+} from "../../analysis/conceptAnalysisState";
+
 function formatScore(
   value: number
 ) {
@@ -80,6 +84,13 @@ export function SectionEditor() {
   const [
     semanticError,
     setSemanticError,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
+    analyzedFingerprint,
+    setAnalyzedFingerprint,
   ] = useState<
     string | null
   >(null);
@@ -181,6 +192,25 @@ export function SectionEditor() {
       selectedSectionId,
     ]);
 
+  const currentAnalysisFingerprint =
+    useMemo(
+      () =>
+        song
+          ? getConceptAnalysisFingerprint(
+              song
+            )
+          : "",
+      [song]
+    );
+
+  const semanticIsStale =
+    Boolean(
+      semanticAnalysis &&
+      analyzedFingerprint &&
+      analyzedFingerprint !==
+        currentAnalysisFingerprint
+    );
+
   async function handleAnalyze() {
     if (!song) {
       return;
@@ -201,6 +231,12 @@ export function SectionEditor() {
 
       setSemanticAnalysis(
         analysis
+      );
+
+      setAnalyzedFingerprint(
+        getConceptAnalysisFingerprint(
+          song
+        )
       );
 
       setSemanticStatus(
@@ -235,8 +271,26 @@ export function SectionEditor() {
           </strong>
         </div>
 
-        <span className="semantic-context__local">
-          Local
+        <span
+          className={
+            semanticStatus ===
+            "loading"
+              ? "semantic-status semantic-status--loading"
+              : semanticIsStale
+              ? "semantic-status semantic-status--stale"
+              : semanticAnalysis
+              ? "semantic-status semantic-status--current"
+              : "semantic-status"
+          }
+        >
+          {semanticStatus ===
+          "loading"
+            ? "Analyzing"
+            : semanticIsStale
+            ? "Out of date"
+            : semanticAnalysis
+            ? "Current"
+            : "Not analyzed"}
         </span>
       </div>
 
@@ -255,11 +309,8 @@ export function SectionEditor() {
                 event.target.value,
             });
 
-            setSemanticAnalysis(
-              null
-            );
             setSemanticStatus(
-              "idle"
+              "ready"
             );
           }}
           rows={4}
@@ -281,6 +332,10 @@ export function SectionEditor() {
         {semanticStatus ===
         "loading"
           ? "Analyzing locally…"
+          : semanticIsStale
+          ? "Reanalyze"
+          : semanticAnalysis
+          ? "Analyze again"
           : "Analyze locally"}
       </button>
 
@@ -291,7 +346,41 @@ export function SectionEditor() {
       )}
 
       {semanticAnalysis && (
-        <div className="semantic-results">
+        <div
+          className={
+            semanticIsStale
+              ? "semantic-results semantic-results--stale"
+              : "semantic-results"
+          }
+        >
+          <div className="semantic-analysis-source">
+            <span>
+              Concept source
+            </span>
+
+            <strong>
+              {semanticAnalysis.conceptSource ===
+              "explicit"
+                ? "Explicit song concept"
+                : "Title / notes fallback"}
+            </strong>
+
+            {semanticAnalysis.conceptSource ===
+              "fallback" && (
+              <p>
+                No explicit Song Concept was set when this score was calculated.
+                The analysis used the song title and notes instead.
+              </p>
+            )}
+
+            {semanticIsStale && (
+              <p className="semantic-stale-note">
+                Lyrics, structure, title, notes, or concept changed after this
+                analysis. These results are preserved for reference until you
+                reanalyze.
+              </p>
+            )}
+          </div>
           <div className="concept-score-hero">
             <div>
               <span>
@@ -339,15 +428,67 @@ export function SectionEditor() {
                 {selectedSemanticScore.title}
               </span>
               <strong>
-                {formatScore(
-                  selectedSemanticScore.rerankerScore
-                )}
+                {
+                  selectedSemanticScore.fitScore
+                }
               </strong>
               <em>
-                raw semantic fit
+                concept fit
               </em>
             </div>
           )}
+
+          <div className="semantic-section-ranking">
+            <div className="semantic-section-ranking__heading">
+              <span>
+                Section concept fit
+              </span>
+
+              <small>
+                strongest → weakest
+              </small>
+            </div>
+
+            {semanticAnalysis.sections.map(
+              (item) => (
+                <button
+                  type="button"
+                  key={
+                    item.sectionId
+                  }
+                  className={
+                    item.sectionId ===
+                    selectedSectionId
+                      ? "semantic-section-fit semantic-section-fit--selected"
+                      : "semantic-section-fit"
+                  }
+                  onClick={() =>
+                    setSelectedSection(
+                      item.sectionId
+                    )
+                  }
+                >
+                  <span>
+                    {item.title}
+                  </span>
+
+                  <div>
+                    <i
+                      style={{
+                        width:
+                          item.fitScore +
+                          "%",
+                      }}
+                    />
+                  </div>
+
+                  <strong>
+                    {item.fitScore}
+                  </strong>
+                </button>
+              )
+            )}
+          </div>
 
           <div className="semantic-model-note">
             Concept Score v1 = 50% relevance,
