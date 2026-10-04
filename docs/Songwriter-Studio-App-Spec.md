@@ -2,8 +2,9 @@
 
 ## Product, UX, and Implementation Specification
 
-**Status:** Working product specification  
-**Purpose:** Reference baseline for the visual reimagining and future development of Songwriter Studio.
+**Status:** Living implementation specification  
+**Last aligned with verified app behavior:** October 4, 2026  
+**Purpose:** Product, UX, and implementation reference for the current Songwriter Studio application and its next development phases.
 
 > **Locked visual direction:** Dark studio shell + calm writing canvas + restrained section color + contextual intelligence.
 
@@ -55,18 +56,19 @@ The application is organized around four major workspaces.
 
 | Workspace | Purpose | Primary object | Secondary tools |
 |---|---|---|---|
-| **Write** | Draft and revise lyrics | Live song canvas | Rhymes, alternatives, syllables, notes, chords |
-| **Arrange** | Shape song structure | Section timeline / arrangement | Bars, order, duplication, timing metadata |
-| **Explore** | Develop concepts and raw material | Ideas, prompts, snippets, references | Theme exploration, word associations, structure builder |
-| **Versions** | Compare and recover iterations | Version history and diff | Notes, score trends, arrangement snapshots |
+| **Write** | Draft lyrics and directly shape the live song | Editable arrangement canvas | Active-line help, rhyme matches, section context, concept analysis |
+| **Arrange** | Evaluate and reshape macro song structure | Horizontal arrangement + occurrence map | Repetition, section length, hook spacing, structural notes |
+| **Explore** | Develop concepts and reusable raw material | Persistent idea bank | Related ideas, concept fit, section placement, snippets |
+| **Versions** | Compare, recover, and evaluate iterations | Version history and line diff | Safety snapshots, selective restore, score trends |
 
 ### Persistent shell
 
-- **Top bar:** app identity, current workspace, current song, save state, share/export, overflow actions.
-- **Left navigation:** project/song library and, when relevant, song sections.
-- **Center canvas:** the active creative task.
-- **Right contextual panel:** tools that respond to the current context.
-- **Bottom strip:** compact arrangement overview and structural controls; collapsible when not needed.
+- **Top bar:** app identity, workspace navigation, undo/redo, and local save state.
+- **Song strip:** compact song metadata and project-level controls.
+- **Left region:** reusable song sections where appropriate.
+- **Center canvas:** the active creative task and visually dominant surface.
+- **Right contextual region:** tools that respond to current song, section, or line context.
+- **No persistent bottom arrangement strip in Write.** Direct arrangement manipulation happens on the Write canvas; macro structural work belongs in Arrange.
 
 ---
 
@@ -94,103 +96,262 @@ The strongest baseline is **Minimal Studio**, with selective warmth from **Creat
 
 ### Center song canvas
 
-- Displays song title, optional concept/subtitle, metadata, section labels, lyrics, and optional section notes.
-- Lyrics are editable directly in place with a native-feeling text caret.
+The center canvas is both the lyric editor and the authoritative visible arrangement.
+
+- Displays the song as ordered **arrangement occurrences**, not merely one copy of each section.
+- Lyrics are editable directly in place with a native-feeling caret.
 - No modal or floating edit box appears for ordinary lyric editing.
-- Selecting a line or text range updates the contextual right panel.
-- Section blocks may show a faint active tint, but the text remains the visual focus.
-- Song-level scores may appear near the title as compact chips, for example **Rhyme 82** and **Concept 78**.
+- Repeated sections such as Chorus may appear multiple times as separate arrangement occurrences while sharing the same underlying reusable Section.
+- Existing occurrences are vertically sortable from dedicated drag handles.
+- Sections from the left library may be dragged into any insertion position, including the beginning and end of the song.
+- Insert position is determined from the pointer's vertical position against visible section midpoints so the drop indicator remains deterministic and stable.
+- Right-clicking an occurrence opens Songwriter Studio's custom context menu with occurrence-level actions such as **Remove this occurrence** and destructive section-level actions where appropriate.
+- Selecting or editing a lyric line updates caret-aware line context in the right panel.
+- Section identity uses restrained color accents; lyrics remain visually dominant.
 
-### Section panel
+### Section library
 
-- Shows every section in song order.
-- Supports drag-and-drop reorder.
-- Supports add, duplicate, delete, rename, and change section type.
-- Each section has a default type color and may be manually recolored.
-- Displays optional bar count or structural length.
-- Selecting a section scrolls/focuses the matching section in the song canvas.
+The left **Sections** panel is a reusable section library, not the canonical song-order list.
+
+- A Section stores reusable content and may appear zero, one, or many times in the arrangement.
+- Drag a section from the library into the Write canvas to add a new occurrence.
+- **Add a Section** is a single dropdown control; choosing a section type creates it immediately, while Escape or clicking away cancels.
+- Section names display as text normally.
+- Double-clicking a section name enters inline rename mode.
+- Right-click **Rename section** activates the same inline rename field rather than opening a rename modal.
+- Enter saves an inline rename, Escape cancels, and clicking away commits.
+- Full section deletion removes that section and all its arrangement occurrences, saves a safety snapshot, and requires custom confirmation.
+- Section colors are type-based defaults with user customization.
 
 ### Contextual right panel
 
-The panel changes based on user context rather than showing every tool simultaneously.
+The right panel uses current selection and caret context.
 
-| Context | Preferred panel content |
+| Context | Current / intended panel content |
 |---|---|
-| Caret in a lyric line | Rhymes, line alternatives, syllable count, meter hints |
-| Text selected | Rewrite/alternative tools, word associations, rhyme family |
-| Section selected | Section notes, section color/style, section-level concept guidance |
-| Nothing selected | Song notes, compact song-level scores, suggested next steps |
-| Chord mode active | Chord palette, key-aware chord suggestions, section chord notes |
+| Caret in a lyric line | Syllables, end word, target delta, rhyme matches, line assistance, duplicate-line warning |
+| Section selected | Version controls, color, deterministic lyric analysis, Concept section fit |
+| No active line | Section or song-level context, Concept Score, score overview |
+| Future text selection | Rewrite/alternative tools, associations, rhyme family |
+| Future chord mode | Chord palette, key-aware suggestions, section chord notes |
 
-### Bottom arrangement strip
+### Active-line assistance
 
-- Always available as a thin overview, but visually secondary.
-- Shows section order as colored blocks.
-- Supports click-to-focus, drag reorder, and optionally resize when bar lengths are meaningful.
-- Can expand into the dedicated Arrange workspace.
-- Should snap cleanly and never force unrelated panels downward.
+The active lyric line has a local deterministic assistance layer.
+
+- Per-line syllable count and delta against the section's current syllable target.
+- End-word detection.
+- Matching line endings elsewhere in the song using the deterministic rhyme heuristic.
+- Exact duplicate-line detection across active section versions.
+- Rhyme-family words already present in the song's vocabulary.
+- Clicking a suggested rhyme-family word saves a non-destructive line variant to Explore rather than overwriting lyrics.
+- Active-line suggestions are assistance, not automatic rewriting.
+
+### Write interaction rules
+
+- Normal lyric editing retains a text cursor.
+- During structural drag, the app consistently displays a grabbing cursor and suppresses text-selection interference.
+- Global undo/redo supports **Ctrl/Cmd+Z**, **Ctrl+Y**, and **Ctrl/Cmd+Shift+Z** where applicable.
+- Structural and lyric actions participate in song-level history.
+- Browser-native alert, confirm, prompt, and structural context menus are not used for application actions. Songwriter Studio uses its own modal, toast, and context-menu system.
 
 ---
 
 ## 6. Arrange Workspace
 
-Arrange turns the song into a visual structure. This workspace emphasizes section order, repetition, length, and macro form while preserving access to lyric content.
+Arrange is the macro-structure workspace. Write remains the best place for lyric editing and direct vertical arrangement; Arrange is where the songwriter judges the full song shape.
 
-- Horizontal sequence of section blocks with section type, name, and optional bar count.
-- Drag to reorder.
-- Duplicate by explicit action.
-- Delete with confirmation when content would be lost.
-- Snap to structural units such as bars when bar-based mode is enabled.
-- Compact mini-preview of the lyrics for the selected section.
-- Optional metadata: tempo, key, time signature, intended duration, section notes.
-- Arrangement changes create version-history events or are included in autosaved snapshots.
+### Horizontal arrangement
+
+- Horizontal sortable sequence of arrangement occurrences.
+- Sections from the library may be added to the arrangement.
+- Existing occurrences may be reordered.
+- Arrangement edits update the same underlying sequence used by Write.
+
+### Occurrence map
+
+Arrange includes a larger song-flow map that summarizes every occurrence.
+
+Each occurrence may show:
+
+- absolute song position
+- section title and type
+- occurrence count such as **2/3** for the second of three Chorus appearances
+- active lyric line count
+- active lyric word count
+
+Clicking an occurrence selects its underlying section and opens Write.
+
+Right-clicking an occurrence uses the custom Studio context menu and supports:
+
+- **Duplicate this occurrence**
+- **Remove this occurrence**
+
+These actions operate on the arrangement occurrence without duplicating or deleting the reusable Section itself.
+
+### Deterministic structure analysis
+
+Arrange derives structural guidance from the current song without requiring AI.
+
+Current metrics include:
+
+- total blocks
+- unique used sections
+- chorus/hook returns
+- repetition percentage
+- total arranged lyric lines and words
+- section-length range
+- unused library sections
+
+Current structural notes may identify:
+
+- back-to-back repeated occurrences
+- unusually long gaps between Chorus/Hook returns
+- large section-length contrast
+- sections in the library that are unused in the arrangement
+- absence of Chorus/Hook types in a sufficiently developed arrangement
+- a positive no-obvious-structural-flags state
+
+These notes describe **form**, not artistic quality.
+
+### Future Arrange metadata
+
+Optional later layers may include bar counts, intended duration, tempo-aware timing, section notes, and bar-based snapping. They should extend the current occurrence model rather than replace it.
 
 ---
 
 ## 7. Explore Workspace
 
-Explore is the idea-development environment. It should help a songwriter create and connect useful raw material without forcing generated content into the song.
+Explore is the persistent idea-development environment. It keeps raw material available without forcing it into the song.
 
-- Idea collections: hooks, titles, emotions, imagery, lyrical directions, personal notes, references.
-- Rhyme and word explorer: exact rhymes, near rhymes, slant rhymes, associations, phrases.
-- Notebook snippets: fragments captured during writing or imported from elsewhere.
-- Prompt tools: chorus angles, verse perspectives, bridge directions, imagery prompts.
-- Structure builder: drag ideas/snippets into provisional song sections before committing them to the song.
-- Every AI/generated suggestion is optional and insertable, never auto-applied.
+### Current idea bank
+
+Ideas are stored with the Song and may be categorized as:
+
+- hook
+- title
+- image
+- emotion
+- snippet
+- concept
+
+Current interactions include:
+
+- quick capture
+- edit
+- pin
+- archive
+- delete
+- use an idea as the song concept
+- create a new section from an idea
+- append an idea to an existing section
+- jump back into Write after placement
+
+### Local semantic Explore assistance
+
+The local semantic stack may be used to:
+
+- find related ideas
+- rank likely section placement
+- estimate concept alignment
+
+Explore suggestions remain optional. They never silently modify the song.
+
+### Future Explore tools
+
+Planned extensions include a richer rhyme/word explorer, associations, imported note organization, imagery prompts, perspective prompts, and provisional structure building.
 
 ---
 
 ## 8. Songwriting Intelligence
 
+Songwriter Studio separates deterministic craft metrics from local semantic analysis. Scores describe measurable aspects of the current draft and must not be presented as grades of artistic value.
+
 ### Rhyme Score
 
-Rhyme Score summarizes rhyme variety and flow. It should not reward rhyme density by itself. A strong score should reflect intentionality, useful repetition, variation, and natural phrasing.
+Rhyme Score v1 is deterministic and currently combines:
 
-- Default presentation: small score chip with trend arrow or status.
-- Expanded analysis may show rhyme families, repeated endings, internal rhymes, exact/near/slant distribution, and overused patterns.
-- Feedback should explain what changed the score rather than merely display a number.
+- 45% rhyme coverage
+- 30% recurring-pattern structure
+- 25% match quality
+- repeated-end-word penalties
+
+Current rhyme analysis includes:
+
+- inferred rhyme families
+- strong/slant/repeated-word classification
+- rhyme coverage
+- pattern score
+- match quality
+- repeated end words
+- per-line end-word analysis
+
+The current heuristic is spelling-based rather than a pronunciation-dictionary engine. A future pronunciation-aware rhyme layer may improve phonetic accuracy.
+
+### Syllable consistency
+
+The current implementation measures syllable-count consistency, not true poetic stress meter.
+
+- Per-line syllable counts are deterministic.
+- Each section derives a current syllable target from its active lyrics.
+- Lines are identified as short, balanced, or long relative to that target.
+- Section consistency and syllable spread are available.
+- UI should prefer **Syllable consistency** where a true stress-meter claim would be misleading.
+- Future prosodic/stress analysis may be added separately.
 
 ### Concept Score
 
-Concept Score summarizes how clearly the song develops a coherent lyrical idea or emotional center. It should measure thematic coherence and development, not subjective artistic value.
+Concept Score uses local semantic models and is user-triggered.
 
-Possible signals:
+Current local stack:
 
-- recurring imagery
-- thematic consistency
-- emotional progression
-- perspective consistency
-- hook relevance
-- section contribution
+- embedding model: `onnx-community/bge-small-en-v1.5-ONNX`
+- reranker: `Xenova/ms-marco-MiniLM-L-6-v2`
+- Transformers.js + ONNX Runtime Web/WASM
+- single WASM thread
+- local/private after required model assets are cached
 
-The expanded view should identify supporting lines and areas that drift or repeat without development. The score should be interpretable and version-aware.
+Concept Score v1 combines:
 
-### Syllables and meter
+- 50% relevance
+- 25% section consistency
+- 25% Chorus/Hook anchoring
 
-- Per-line syllable count.
-- Optional comparison against nearby lines or repeated sections.
-- Soft warnings for major pattern breaks, never hard errors.
-- Meter tools remain opt-in and should not imply irregularity is inherently wrong.
+Concept analysis rules:
+
+- only sections whose active version contains non-empty lyrics are scored
+- blank section titles/types must not inflate the score
+- an explicit Song Concept is preferred
+- if no explicit concept exists, title and notes may be used as a clearly labeled fallback
+- the UI must identify which concept source was used
+- each scored section receives a concept-fit score and may be ranked strongest to weakest
+- selecting a ranked section should focus it for inspection
+
+### Analysis freshness
+
+Semantic analysis is not silently treated as current after the song changes.
+
+Concept analysis states include:
+
+- Not analyzed
+- Analyzing
+- Current
+- Out of date
+- Unavailable/error where applicable
+
+A fingerprint of concept-relevant song state is compared against the last analyzed state. Changes to lyrics, active versions, relevant metadata, structure, or concept preserve the previous result for reference but mark it **Out of date** until reanalysis.
+
+Deterministic Rhyme and Syllable consistency metrics may update directly from the current song while Concept Score remains stale.
+
+### Song score overview
+
+The contextual intelligence layer may show a compact overview containing:
+
+- Concept
+- Rhyme
+- Syllable consistency
+
+The overview must distinguish current deterministic scores from stale semantic results.
 
 ---
 
@@ -198,26 +359,56 @@ The expanded view should identify supporting lines and areas that drift or repea
 
 > **Version history is a signature feature, not merely an autosave log.**
 
-- Automatic snapshots at meaningful edit boundaries, plus manual named versions.
-- Version notes such as "stronger hook", "new bridge", or "simplified verse 2".
-- Side-by-side compare with changed lines highlighted.
-- Section-order changes shown explicitly.
-- Arrangement snapshots per version.
-- Rhyme and Concept score trends across versions.
-- Restore a full version or selectively recover a section/line where technically practical.
+### Snapshot types
 
-### Version event model
+Songwriter Studio currently supports:
 
-Each version may include:
+- manual named snapshots
+- automatic safety snapshots before destructive actions and restores
+- source labels such as manual, safety, restore, and import
 
-- timestamp
-- version name / optional note
-- song text snapshot
-- section structure and order
-- section metadata/colors
-- arrangement metadata
-- score snapshot
-- source: autosave, manual save, restore, import, major AI-assisted insertion
+Snapshots preserve the full Song state and a craft-score summary.
+
+### Version comparison
+
+Current comparison includes:
+
+- changed, added, removed, and unchanged sections
+- line-level diff
+- automatic expansion of changed sections
+- arrangement-change detection
+- concept/title change flags
+- notes and snapshot metadata
+
+### Restore behavior
+
+- Restore an entire snapshot.
+- Selectively restore one section from a snapshot.
+- Create a safety snapshot before destructive restore operations.
+- Full restore resets working history appropriately while preserving the safety copy.
+
+### Score history
+
+Snapshots may store:
+
+- Concept Score when available
+- Rhyme Score
+- Syllable consistency score
+- line count
+- word count
+
+Versions displays:
+
+- current-vs-selected score deltas
+- recent snapshot score summaries
+- compact score trends across recent manual versions
+- Concept analysis freshness, including **Out of date** state after relevant edits
+
+A stale Concept Score must not be silently recorded as current. Manual snapshot creation should refresh stale semantic analysis when possible before storing the score.
+
+### Future history behavior
+
+Meaningful autosnapshot boundaries may be expanded later, but automatic history should remain useful rather than creating noise for every keystroke.
 
 ---
 
@@ -228,8 +419,11 @@ Implementation should keep content, structure, presentation, and analysis separa
 | Entity | Key fields | Notes |
 |---|---|---|
 | Song | id, title, subtitle/concept, genre, key, bpm, timeSignature, sections[], createdAt, updatedAt | Primary project object |
-| Section | id, type, name, color, content, notes, bars, order | Type and name should remain separate |
-| Line | id, text, optional annotations | Useful if fine-grained versioning/analysis requires stable identity |
+| Section | id, type, title, versions[], activeVersionId | Reusable content object; arrangement order is not stored on Section |
+| SectionVersion | id, name, lyrics, chords, melody, markers, notes | A Section owns one or more lyric/content versions |
+| Arrangement | id/name + sequence[] | Sequence contains occurrence records that reference Section IDs |
+| Arrangement occurrence | id, sectionId | Lets the same reusable Section appear multiple times independently in song order |
+| Line selection | derived sectionId, lineIndex, text range | Lines are currently derived from lyric text rather than persisted as first-class entities |
 | Note | id, scope, targetId, text, createdAt | Scope may be song, section, or line |
 | Version | id, timestamp, label, note, snapshot, scores | Immutable snapshot |
 | Idea | id, type, text, tags, source, linkedSongId | Explore workspace object |
@@ -240,14 +434,15 @@ Implementation should keep content, structure, presentation, and analysis separa
 ## 11. Interaction Specification
 
 - Inline lyric editing is immediate and visually seamless.
-- Section selection and lyric selection are distinct states.
-- Drag handles appear on hover/focus rather than dominating the layout.
-- Right-panel tabs remember the last used tool where reasonable.
+- Section selection, arrangement occurrence, and lyric-line selection are distinct concepts.
+- Structural drag handles are explicit and use stable pointer-driven insertion logic where appropriate.
+- Direct manipulation should avoid competing hidden drop geometry that makes insertion feedback flicker.
 - Panels snap into stable layout regions. Avoid arbitrary free-floating panels.
-- Collapsible panels preserve state and avoid layout jumps.
-- Keyboard shortcuts should cover save/version, add section, duplicate section, move section, focus search, and undo/redo.
-- Autosave should be continuous or near-continuous, with a clear non-intrusive saved state.
-- Destructive actions should be recoverable through undo or version history where feasible.
+- Inline rename is preferred for lightweight naming interactions.
+- Application dialogs, confirmations, notifications, and structural context menus use Studio UI rather than browser-native alert/confirm/prompt/context-menu behavior.
+- Global undo/redo covers song mutations and groups rapid lyric-only edits into practical history units.
+- Autosave is continuous/local with a clear non-intrusive saved state.
+- Destructive actions should be recoverable through undo and/or safety snapshots.
 
 ---
 
@@ -310,31 +505,48 @@ AI is an accelerator layered onto the deterministic application, not the foundat
 
 ---
 
-## 15. Recommended Development Order
+## 15. Development Status and Next Priorities
 
-1. Stabilize the visual shell and responsive panel layout.
-2. Make the central preview the authoritative editable lyric surface.
-3. Finish section color, add/reorder/duplicate/delete, and selection behavior.
-4. Refine compact arrangement strip and dedicated Arrange workspace.
-5. Implement robust local persistence/autosave and version snapshots.
-6. Add contextual right-panel architecture.
-7. Add deterministic syllable/rhyme helpers where practical.
-8. Add Rhyme Score and Concept Score with explainable expanded views.
-9. Build Version Compare.
-10. Build Explore / Idea Lab.
-11. Add optional AI generation and rewriting workflows after deterministic UX is stable.
+### Verified foundation
+
+The following major systems are implemented and have been interaction-tested:
+
+1. Tauri desktop shell and local persistence.
+2. Editable Write canvas as the live arrangement surface.
+3. Reusable Section library and occurrence-based arrangement model.
+4. Stable pointer-driven section insertion in Write.
+5. Inline section rename, custom context menus, custom modals/toasts.
+6. Global undo/redo.
+7. Dedicated structural Arrange workspace with deterministic analysis.
+8. Persistent Explore idea bank with local semantic assistance.
+9. Deterministic rhyme and syllable analysis.
+10. Local Concept Score with section ranking and freshness state.
+11. Version history, safety snapshots, line diff, selective restore, and score trends.
+
+### Next development priorities
+
+1. Expand songwriting utilities without increasing default-screen density.
+2. Improve rhyme accuracy with pronunciation-aware rhyme data while preserving deterministic behavior.
+3. Add richer title/hook exploration and word-overuse/cliché/repetition tools.
+4. Finish text-selection-specific contextual tools.
+5. Define and implement imported-notes organization.
+6. Decide the scope of Chord Mode and musical metadata.
+7. Add optional generative writing assistance only after deterministic workflows remain strong and explainable.
+8. Consolidate CSS/layout debt as feature surfaces stabilize.
+9. Add schema normalization/migrations for older persisted songs as data structures evolve.
+10. Continue accessibility and keyboard interaction passes.
 
 ---
 
 ## 16. Acceptance Criteria for the Reimagined Main Screen
 
-- At normal desktop zoom, song navigation, section navigation, lyric canvas, contextual tools, and the compact arrangement strip are all usable without awkward panel overflow.
+- At normal desktop zoom, section library, lyric/arrangement canvas, and contextual tools are usable without awkward panel overflow.
 - The lyric canvas is visually dominant.
 - A user can click directly into lyric text and edit without a floating editor box.
 - Section identity is immediately readable but color does not overwhelm the page.
 - The right panel shows a small number of relevant tools rather than the entire feature set.
 - Rhyme Score and Concept Score are visible without becoming the focal point.
-- The arrangement strip can be collapsed or expanded and does not push major panels off-screen.
+- Write supports direct arrangement manipulation without requiring a persistent bottom arrangement strip.
 - The visual system feels coherent across Write, Arrange, Explore, and Versions.
 - Core editing and organization remain functional without AI.
 
@@ -342,13 +554,14 @@ AI is an accelerator layered onto the deterministic application, not the foundat
 
 ## 17. Open Product Decisions
 
-- Whether a Song contains explicit Line entities or stores each section as richer text and derives lines on demand.
-- Whether bar counts are always present or only when the songwriter enables arrangement metadata.
-- How much musical functionality Chord Mode should eventually include.
-- Whether score calculation is continuous, debounced, or user-triggered for cost/performance reasons.
-- Exact autosnapshot rules for version history.
-- Whether imported notes become Ideas first or can be mapped directly into Sections.
+- Whether future persistence should introduce explicit stable Line entities or continue deriving lines from active lyric text.
+- Whether bar counts and intended duration should always exist or only when arrangement metadata is enabled.
+- How much musical functionality Chord Mode should include.
+- Exact rules for future meaningful autosnapshots beyond the current safety-snapshot system.
+- Whether imported notes become Ideas first or may be mapped directly into Sections with user correction.
 - How much of Creative Notebook's tactile aesthetic should be optional theming versus the default product style.
+- Which pronunciation/rhyme data source best improves rhyme accuracy while preserving offline/local use.
+- Whether Concept Score should remain fully user-triggered or gain optional debounced/background refresh after performance is characterized.
 
 ---
 
