@@ -501,7 +501,11 @@ function App() {
             </div>
           </div>
         ) : workspace === "explore" ? (
-          <ExploreWorkspace />
+          <ExploreWorkspace
+            onOpenWrite={() =>
+              setWorkspace("write")
+            }
+          />
         ) : (
           <VersionsWorkspace />
         )}
