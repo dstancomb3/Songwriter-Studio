@@ -953,3 +953,149 @@ export function getLineEndWord(
     line
   );
 }
+
+
+export type RhymeWordSuggestion = {
+  word: string;
+  score: number;
+  strength: RhymeStrength;
+  syllables: number;
+};
+
+export function collectRhymeWordSuggestions(
+  targetWord: string,
+  vocabulary: string[],
+  limit = 8
+): RhymeWordSuggestion[] {
+  const target =
+    cleanWord(
+      targetWord
+    );
+
+  if (!target) {
+    return [];
+  }
+
+  const uniqueWords =
+    Array.from(
+      new Set(
+        vocabulary
+          .map(
+            cleanWord
+          )
+          .filter(Boolean)
+      )
+    );
+
+  return uniqueWords
+    .filter(
+      (word) =>
+        word !== target
+    )
+    .map(
+      (word) => {
+        const rhyme =
+          rhymeSimilarity(
+            target,
+            word
+          );
+
+        return {
+          word,
+          score:
+            rhyme.score,
+          strength:
+            rhyme.strength,
+          syllables:
+            countWordSyllables(
+              word
+            ),
+        };
+      }
+    )
+    .filter(
+      (item) =>
+        item.score >=
+        0.55
+    )
+    .sort(
+      (
+        left,
+        right
+      ) =>
+        right.score -
+          left.score ||
+        left.syllables -
+          right.syllables ||
+        left.word.localeCompare(
+          right.word
+        )
+    )
+    .slice(
+      0,
+      Math.max(
+        1,
+        limit
+      )
+    );
+}
+
+export function replaceLineEndWord(
+  line: string,
+  replacement: string
+) {
+  const trimmed =
+    line.trimEnd();
+
+  if (!trimmed) {
+    return replacement;
+  }
+
+  const match =
+    trimmed.match(
+      /([A-Za-z][A-Za-z'’]*)([^A-Za-z'’]*)$/
+    );
+
+  if (!match) {
+    return (
+      trimmed +
+      " " +
+      replacement
+    );
+  }
+
+  const start =
+    match.index ?? 0;
+
+  const punctuation =
+    match[2] ?? "";
+
+  return (
+    trimmed.slice(
+      0,
+      start
+    ) +
+    replacement +
+    punctuation
+  );
+}
+
+export function normalizeLyricLine(
+  line: string
+) {
+  return line
+    .toLowerCase()
+    .replace(
+      /['’]/g,
+      "'"
+    )
+    .replace(
+      /[^a-z0-9'\s]/g,
+      ""
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim();
+}
