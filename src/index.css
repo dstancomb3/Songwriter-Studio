@@ -4124,3 +4124,15 @@ h4 {
 .app-shell--dragging .preview-arrangement-drop-target {
   pointer-events: none;
 }
+
+
+/* Simplified section add control */
+
+.section-create-row--single {
+  display: block;
+}
+
+.section-add-select {
+  width: 100%;
+  cursor: pointer;
+}
