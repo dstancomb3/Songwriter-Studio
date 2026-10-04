@@ -3040,3 +3040,173 @@ h4 {
     min-height: 78px;
   }
 }
+
+
+/* Studio-native modals and notifications */
+
+.studio-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(4, 7, 13, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+.studio-modal {
+  width: min(430px, calc(100vw - 2rem));
+  padding: 0.9rem;
+  border: 1px solid #39435b;
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(139, 124, 255, 0.13),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(28, 34, 50, 0.99),
+      rgba(19, 24, 37, 0.99)
+    );
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(255, 255, 255, 0.018);
+}
+
+.studio-modal--danger {
+  border-color: rgba(245, 154, 167, 0.36);
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(245, 154, 167, 0.1),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(35, 31, 44, 0.99),
+      rgba(22, 24, 35, 0.99)
+    );
+}
+
+.studio-modal__eyebrow {
+  margin-bottom: 0.18rem;
+  color: #9185ff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.studio-modal h2 {
+  margin: 0;
+  color: #f3f5fb;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.studio-modal__message {
+  margin: 0.38rem 0 0;
+  color: #919aad;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.studio-modal__input {
+  width: 100%;
+  margin-top: 0.7rem;
+  padding: 0.5rem 0.55rem;
+  border-color: #3b465f;
+  background: rgba(10, 14, 24, 0.62);
+  color: #f0f3fa;
+  font-size: 0.76rem;
+}
+
+.studio-modal__input:focus {
+  border-color: rgba(139, 124, 255, 0.72);
+  box-shadow: 0 0 0 3px rgba(139, 124, 255, 0.11);
+}
+
+.studio-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.studio-modal__actions button {
+  min-width: 82px;
+  padding: 0.38rem 0.58rem;
+  font-size: 0.7rem;
+}
+
+.studio-modal__confirm {
+  border-color: rgba(139, 124, 255, 0.5);
+  background: rgba(92, 77, 176, 0.38);
+  color: #eeeaff;
+}
+
+.studio-modal__confirm--danger {
+  border-color: rgba(245, 154, 167, 0.4);
+  background: rgba(133, 58, 75, 0.28);
+  color: #ffd7dd;
+}
+
+.studio-toast-stack {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2100;
+  width: min(330px, calc(100vw - 1.5rem));
+  display: grid;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.studio-toast {
+  width: 100%;
+  display: grid;
+  gap: 0.08rem;
+  padding: 0.52rem 0.58rem;
+  text-align: left;
+  pointer-events: auto;
+  border: 1px solid #3b465f;
+  border-radius: 9px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(31, 38, 56, 0.98),
+      rgba(21, 26, 40, 0.98)
+    );
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.studio-toast strong {
+  color: #eef1f8;
+  font-size: 0.7rem;
+}
+
+.studio-toast span {
+  color: #8994a8;
+  font-size: 0.63rem;
+  line-height: 1.4;
+}
+
+.studio-toast--success {
+  border-color: rgba(110, 231, 183, 0.3);
+}
+
+.studio-toast--success strong {
+  color: #b7f3dc;
+}
+
+.studio-toast--danger {
+  border-color: rgba(245, 154, 167, 0.32);
+}
+
+.studio-toast--danger strong {
+  color: #ffc5ce;
+}
