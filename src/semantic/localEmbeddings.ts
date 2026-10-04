@@ -35,6 +35,7 @@ export type SemanticSectionScore = {
   embeddingScore: number;
   rerankerScore: number;
   rerankerLogit: number;
+  fitScore: number;
 };
 
 export type ConceptScoreBreakdown = {
@@ -49,6 +50,9 @@ export type SemanticConceptAnalysis = {
   rerankerModelId: string;
   dimensions: number;
   concept: string;
+  conceptSource:
+    | "explicit"
+    | "fallback";
   overallScore: number;
   conceptScore: ConceptScoreBreakdown;
   sections: SemanticSectionScore[];
@@ -357,14 +361,14 @@ export async function analyzeSongConcept(
   const sections =
     song.sections.filter(
       (section) =>
-        canonicalizeSection(
+        activeLyrics(
           section
         ).trim().length > 0
     );
 
   if (!sections.length) {
     throw new Error(
-      "Add at least one section before running semantic analysis."
+      "Add lyrics to at least one section before running semantic analysis."
     );
   }
 
@@ -389,21 +393,39 @@ export async function analyzeSongConcept(
 
   const scored =
     sections.map(
-      (section, index) => ({
-        sectionId:
-          section.id,
-        title:
-          section.title,
-        embeddingScore:
+      (section, index) => {
+        const embeddingScore =
           cosineSimilarity(
             conceptVector,
             vectors[index + 1]
-          ),
-        rerankerScore:
-          reranked[index].score,
-        rerankerLogit:
-          reranked[index].logit,
-      })
+          );
+
+        const rerankerScore =
+          reranked[index].score;
+
+        const fitScore =
+          0.65 *
+            normalizeEmbeddingScore(
+              embeddingScore
+            ) +
+          0.35 *
+            rerankerScore;
+
+        return {
+          sectionId:
+            section.id,
+          title:
+            section.title,
+          embeddingScore,
+          rerankerScore,
+          rerankerLogit:
+            reranked[index].logit,
+          fitScore:
+            Math.round(
+              fitScore * 100
+            ),
+        };
+      }
     );
 
   const overallScore =
@@ -417,12 +439,8 @@ export async function analyzeSongConcept(
   const sectionFits =
     scored.map(
       (item) =>
-        0.65 *
-          normalizeEmbeddingScore(
-            item.embeddingScore
-          ) +
-        0.35 *
-          item.rerankerScore
+        item.fitScore /
+        100
     );
 
   const relevance =
@@ -548,6 +566,10 @@ export async function analyzeSongConcept(
       LOCAL_RERANKER_MODEL_ID,
     dimensions: 384,
     concept,
+    conceptSource:
+      song.concept?.trim()
+        ? "explicit"
+        : "fallback",
     overallScore,
     conceptScore,
     sections: scored.sort(
