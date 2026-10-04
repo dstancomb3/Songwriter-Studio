@@ -37,12 +37,20 @@ export type SemanticSectionScore = {
   rerankerLogit: number;
 };
 
+export type ConceptScoreBreakdown = {
+  total: number;
+  relevance: number;
+  consistency: number;
+  anchor: number;
+};
+
 export type SemanticConceptAnalysis = {
   modelId: string;
   rerankerModelId: string;
   dimensions: number;
   concept: string;
   overallScore: number;
+  conceptScore: ConceptScoreBreakdown;
   sections: SemanticSectionScore[];
 };
 
@@ -117,6 +125,24 @@ function sigmoid(value: number) {
 
   const z = Math.exp(value);
   return z / (1 + z);
+}
+
+function clamp01(
+  value: number
+) {
+  return Math.max(
+    0,
+    Math.min(1, value)
+  );
+}
+
+function normalizeEmbeddingScore(
+  value: number
+) {
+  return clamp01(
+    (value - 0.25) /
+      0.55
+  );
 }
 
 function cosineSimilarity(
@@ -378,6 +404,133 @@ export async function analyzeSongConcept(
       0
     ) / scored.length;
 
+  const sectionFits =
+    scored.map(
+      (item) =>
+        0.65 *
+          normalizeEmbeddingScore(
+            item.embeddingScore
+          ) +
+        0.35 *
+          item.rerankerScore
+    );
+
+  const relevance =
+    sectionFits.reduce(
+      (sum, value) =>
+        sum + value,
+      0
+    ) /
+    sectionFits.length;
+
+  const pairwiseSimilarities:
+    number[] = [];
+
+  for (
+    let leftIndex = 1;
+    leftIndex < vectors.length;
+    leftIndex += 1
+  ) {
+    for (
+      let rightIndex =
+        leftIndex + 1;
+      rightIndex <
+      vectors.length;
+      rightIndex += 1
+    ) {
+      pairwiseSimilarities.push(
+        normalizeEmbeddingScore(
+          cosineSimilarity(
+            vectors[leftIndex],
+            vectors[rightIndex]
+          )
+        )
+      );
+    }
+  }
+
+  const consistency =
+    pairwiseSimilarities.length
+      ? pairwiseSimilarities.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        ) /
+        pairwiseSimilarities.length
+      : relevance;
+
+  const anchorSectionIds =
+    new Set(
+      sections
+        .filter(
+          (section) =>
+            section.type ===
+              "chorus" ||
+            section.type ===
+              "hook"
+        )
+        .map(
+          (section) =>
+            section.id
+        )
+    );
+
+  const anchorFits =
+    scored
+      .map(
+        (item, index) => ({
+          sectionId:
+            item.sectionId,
+          fit:
+            sectionFits[index],
+        })
+      )
+      .filter(
+        (item) =>
+          anchorSectionIds.has(
+            item.sectionId
+          )
+      )
+      .map(
+        (item) =>
+          item.fit
+      );
+
+  const anchor =
+    anchorFits.length
+      ? anchorFits.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        ) /
+        anchorFits.length
+      : Math.max(
+          ...sectionFits
+        );
+
+  const conceptScore = {
+    relevance:
+      Math.round(
+        relevance * 100
+      ),
+    consistency:
+      Math.round(
+        consistency * 100
+      ),
+    anchor:
+      Math.round(
+        anchor * 100
+      ),
+    total:
+      Math.round(
+        (
+          0.5 * relevance +
+          0.25 * consistency +
+          0.25 * anchor
+        ) * 100
+      ),
+  };
+
   return {
     modelId:
       LOCAL_SEMANTIC_MODEL_ID,
@@ -386,6 +539,7 @@ export async function analyzeSongConcept(
     dimensions: 384,
     concept,
     overallScore,
+    conceptScore,
     sections: scored.sort(
       (left, right) =>
         right.rerankerLogit -
