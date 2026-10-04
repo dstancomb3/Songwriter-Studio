@@ -1621,3 +1621,95 @@ h4 {
     padding-bottom: 0.9rem;
   }
 }
+
+
+/* Concept Score v1 */
+
+.concept-score-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.58rem;
+  border: 1px solid rgba(139, 124, 255, 0.38);
+  border-radius: 9px;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(139, 124, 255, 0.12),
+      transparent 42%
+    ),
+    rgba(31, 29, 52, 0.55);
+}
+
+.concept-score-hero > div:first-child {
+  display: grid;
+  gap: 0.03rem;
+}
+
+.concept-score-hero span {
+  color: #9ea7bb;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.concept-score-hero strong {
+  color: #f5f3ff;
+  font-size: 1.28rem;
+  line-height: 1.05;
+}
+
+.concept-score-hero em {
+  color: #9b90ff;
+  font-size: 0.61rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.concept-score-ring {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(139, 124, 255, 0.6);
+  border-radius: 999px;
+  background: rgba(139, 124, 255, 0.08);
+  color: #f3f0ff;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow:
+    inset 0 0 0 4px rgba(139, 124, 255, 0.035);
+}
+
+.concept-score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+
+.concept-score-breakdown > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.05rem;
+  padding: 0.4rem 0.34rem;
+  border: 1px solid #30384d;
+  border-radius: 7px;
+  background: rgba(20, 25, 38, 0.72);
+}
+
+.concept-score-breakdown span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7f899f;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.concept-score-breakdown strong {
+  color: #e8ebf3;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.74rem;
+}
