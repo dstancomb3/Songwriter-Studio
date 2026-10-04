@@ -26,6 +26,10 @@ import {
   useStudioModal,
 } from "../ui/StudioModalProvider";
 
+import {
+  saveSafetySnapshot,
+} from "../../services/versionHistory";
+
 function formatScore(
   value: number
 ) {
@@ -50,6 +54,7 @@ export function SectionEditor() {
   const {
     confirm,
     prompt,
+    notify,
   } = useStudioModal();
 
   const [
@@ -557,10 +562,26 @@ export function SectionEditor() {
                 return;
               }
 
+              saveSafetySnapshot(
+                song,
+                "Before deleting " +
+                  version.name,
+                "Automatic safety snapshot before deleting a lyric version."
+              );
+
               deleteVersion(
                 section.id,
                 version.id
               );
+
+              notify({
+                title:
+                  "Version deleted",
+                message:
+                  "A safety snapshot was saved in Versions.",
+                tone:
+                  "success",
+              });
             })();
           }}
           disabled={
