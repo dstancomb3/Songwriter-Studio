@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   DndContext,
   closestCenter,
   type DragEndEvent,
+  type DragMoveEvent,
   type DragOverEvent,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -35,6 +41,20 @@ type Workspace =
 function App() {
   const [workspace, setWorkspace] =
     useState<Workspace>("write");
+
+  const [
+    dragActive,
+    setDragActive,
+  ] = useState(false);
+
+  const dragPointerStart =
+    useRef<
+      | {
+          x: number;
+          y: number;
+        }
+      | null
+    >(null);
   const song = useSongStore(
     (state) => state.currentSong
   );
@@ -87,6 +107,168 @@ function App() {
       }
     )
   );
+
+  function handleDragStart(
+    event: DragStartEvent
+  ) {
+    setDragActive(true);
+
+    const activator =
+      event.activatorEvent;
+
+    if (
+      "clientX" in
+        activator &&
+      "clientY" in
+        activator
+    ) {
+      dragPointerStart.current = {
+        x:
+          activator.clientX,
+        y:
+          activator.clientY,
+      };
+    } else {
+      dragPointerStart.current =
+        null;
+    }
+  }
+
+  function handleDragMove(
+    event: DragMoveEvent
+  ) {
+    if (
+      workspace !== "write"
+    ) {
+      return;
+    }
+
+    const activeType =
+      event.active.data.current
+        ?.type;
+
+    if (
+      activeType !== "section"
+    ) {
+      return;
+    }
+
+    const start =
+      dragPointerStart.current;
+
+    if (!start) {
+      return;
+    }
+
+    const pointer = {
+      x:
+        start.x +
+        event.delta.x,
+      y:
+        start.y +
+        event.delta.y,
+    };
+
+    const surface =
+      document.querySelector<HTMLElement>(
+        '[data-write-arrangement-surface="true"]'
+      );
+
+    if (!surface) {
+      setPreviewInsertIndex(
+        null
+      );
+      return;
+    }
+
+    const surfaceRect =
+      surface.getBoundingClientRect();
+
+    const insideSurface =
+      pointer.x >=
+        surfaceRect.left &&
+      pointer.x <=
+        surfaceRect.right &&
+      pointer.y >=
+        surfaceRect.top &&
+      pointer.y <=
+        surfaceRect.bottom;
+
+    if (!insideSurface) {
+      setPreviewInsertIndex(
+        null
+      );
+      return;
+    }
+
+    const currentSong =
+      useSongStore.getState()
+        .currentSong;
+
+    const arrangement =
+      currentSong
+        ?.arrangements[0];
+
+    if (!arrangement) {
+      setPreviewInsertIndex(
+        null
+      );
+      return;
+    }
+
+    let insertIndex =
+      arrangement.sequence.length;
+
+    for (
+      let index = 0;
+      index <
+      arrangement.sequence.length;
+      index += 1
+    ) {
+      const item =
+        arrangement.sequence[
+          index
+        ];
+
+      const element =
+        surface.querySelector<HTMLElement>(
+          `[data-arrangement-id="${item.id}"]`
+        );
+
+      if (!element) {
+        continue;
+      }
+
+      const rect =
+        element.getBoundingClientRect();
+
+      const midpoint =
+        rect.top +
+        rect.height / 2;
+
+      if (
+        pointer.y <
+        midpoint
+      ) {
+        insertIndex =
+          index;
+        break;
+      }
+    }
+
+    setPreviewInsertIndex(
+      insertIndex
+    );
+  }
+
+  function clearDragState() {
+    setDragActive(false);
+    dragPointerStart.current =
+      null;
+    setPreviewInsertIndex(
+      null
+    );
+  }
 
   useEffect(() => {
     const savedSong =
@@ -168,6 +350,12 @@ function App() {
   function handleDragOver(
     event: DragOverEvent
   ) {
+    if (
+      workspace === "write"
+    ) {
+      return;
+    }
+
     const { active, over } = event;
 
     if (!over) {
@@ -379,6 +567,10 @@ function App() {
   ) {
     const { active, over } = event;
 
+    setDragActive(false);
+    dragPointerStart.current =
+      null;
+
     const previewInsertIndex =
       useSongStore.getState()
         .previewInsertIndex;
@@ -514,14 +706,29 @@ function App() {
       collisionDetection={
         closestCenter
       }
+      onDragStart={
+        handleDragStart
+      }
+      onDragMove={
+        handleDragMove
+      }
       onDragOver={
         handleDragOver
+      }
+      onDragCancel={
+        clearDragState
       }
       onDragEnd={
         handleDragEnd
       }
     >
-      <div className="app-shell">
+      <div
+        className={
+          dragActive
+            ? "app-shell app-shell--dragging"
+            : "app-shell"
+        }
+      >
         <div className="studio-header">
           <div className="studio-brand">
             <div className="studio-logo" aria-hidden="true">
