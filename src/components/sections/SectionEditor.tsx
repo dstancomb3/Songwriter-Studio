@@ -33,18 +33,13 @@ import {
 } from "../ui/StudioModalProvider";
 
 import {
+  buildCraftSummary,
   saveSafetySnapshot,
 } from "../../services/versionHistory";
 
 import {
   getConceptAnalysisFingerprint,
 } from "../../analysis/conceptAnalysisState";
-
-function formatScore(
-  value: number
-) {
-  return value.toFixed(3);
-}
 
 function semanticLabel(
   value: number
@@ -209,6 +204,24 @@ export function SectionEditor() {
       analyzedFingerprint &&
       analyzedFingerprint !==
         currentAnalysisFingerprint
+    );
+
+  const songCraftSummary =
+    useMemo(
+      () =>
+        song
+          ? buildCraftSummary(
+              song,
+              semanticAnalysis
+                ?.conceptScore
+                .total ??
+                null
+            )
+          : null,
+      [
+        song,
+        semanticAnalysis,
+      ]
     );
 
   async function handleAnalyze() {
@@ -381,6 +394,56 @@ export function SectionEditor() {
               </p>
             )}
           </div>
+
+          {songCraftSummary && (
+            <div className="song-score-overview">
+              <div>
+                <span>
+                  Concept
+                </span>
+                <strong>
+                  {
+                    songCraftSummary.conceptScore ??
+                    "—"
+                  }
+                </strong>
+                <em>
+                  {semanticIsStale
+                    ? "stale"
+                    : "current"}
+                </em>
+              </div>
+
+              <div>
+                <span>
+                  Rhyme
+                </span>
+                <strong>
+                  {
+                    songCraftSummary.rhymeScore
+                  }
+                </strong>
+                <em>
+                  current
+                </em>
+              </div>
+
+              <div>
+                <span>
+                  Syllable consistency
+                </span>
+                <strong>
+                  {
+                    songCraftSummary.meterScore
+                  }
+                </strong>
+                <em>
+                  current
+                </em>
+              </div>
+            </div>
+          )}
+
           <div className="concept-score-hero">
             <div>
               <span>
