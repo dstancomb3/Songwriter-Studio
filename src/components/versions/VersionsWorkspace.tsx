@@ -30,6 +30,10 @@ import {
   useStudioModal,
 } from "../ui/StudioModalProvider";
 
+import {
+  getConceptAnalysisFingerprint,
+} from "../../analysis/conceptAnalysisState";
+
 function formatDate(
   value: string
 ) {
@@ -113,6 +117,81 @@ function Delta({
   );
 }
 
+function ScoreTrend({
+  label,
+  values,
+}: {
+  label: string;
+  values: Array<{
+    id: string;
+    name: string;
+    value: number | null;
+  }>;
+}) {
+  const visible =
+    values.filter(
+      (item) =>
+        item.value !== null
+    );
+
+  if (!visible.length) {
+    return null;
+  }
+
+  return (
+    <div className="score-trend">
+      <div className="score-trend__heading">
+        <span>
+          {label}
+        </span>
+
+        <strong>
+          {visible
+            .map(
+              (item) =>
+                item.value
+            )
+            .join(" → ")}
+        </strong>
+      </div>
+
+      <div className="score-trend__bars">
+        {visible.map(
+          (item) => (
+            <div
+              key={
+                item.id
+              }
+              className="score-trend__point"
+              title={
+                item.name +
+                ": " +
+                item.value
+              }
+            >
+              <i
+                style={{
+                  height:
+                    Math.max(
+                      8,
+                      item.value ??
+                        0
+                    ) +
+                    "%",
+                }}
+              />
+
+              <span>
+                {item.value}
+              </span>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function VersionsWorkspace() {
   const {
     confirm,
@@ -178,6 +257,13 @@ export function VersionsWorkspace() {
   >(null);
 
   const [
+    currentConceptFingerprint,
+    setCurrentConceptFingerprint,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
     status,
     setStatus,
   ] = useState<
@@ -222,12 +308,6 @@ export function VersionsWorkspace() {
   }, [song?.id]);
 
   useEffect(() => {
-    setCurrentConceptScore(
-      null
-    );
-  }, [song?.updatedAt]);
-
-  useEffect(() => {
     setCollapsedSectionIds(
       new Set()
     );
@@ -239,6 +319,33 @@ export function VersionsWorkspace() {
         snapshot.id ===
         selectedSnapshotId
     ) ?? null;
+
+  const currentFingerprint =
+    song
+      ? getConceptAnalysisFingerprint(
+          song
+        )
+      : "";
+
+  const conceptScoreIsStale =
+    Boolean(
+      currentConceptScore !==
+        null &&
+      currentConceptFingerprint &&
+      currentConceptFingerprint !==
+        currentFingerprint
+    );
+
+  const trendSnapshots =
+    snapshots
+      .filter(
+        (snapshot) =>
+          snapshot.source ===
+            "manual" ||
+          !snapshot.source
+      )
+      .slice(0, 5)
+      .reverse();
 
   const currentScores =
     useMemo(() => {
@@ -308,6 +415,12 @@ export function VersionsWorkspace() {
           .total
       );
 
+      setCurrentConceptFingerprint(
+        getConceptAnalysisFingerprint(
+          song
+        )
+      );
+
       setStatus(
         "idle"
       );
@@ -348,11 +461,15 @@ export function VersionsWorkspace() {
       currentConceptScore;
 
     if (
-      conceptScore ===
-      null &&
+      (
+        conceptScore ===
+          null ||
+        conceptScoreIsStale
+      ) &&
       (
         song.concept?.trim() ||
-        song.notes.trim()
+        song.notes.trim() ||
+        song.title.trim()
       )
     ) {
       try {
@@ -367,6 +484,12 @@ export function VersionsWorkspace() {
 
         setCurrentConceptScore(
           conceptScore
+        );
+
+        setCurrentConceptFingerprint(
+          getConceptAnalysisFingerprint(
+            song
+          )
         );
       } catch {
         conceptScore =
@@ -1109,7 +1232,13 @@ export function VersionsWorkspace() {
         </div>
 
         <div className="version-score-grid">
-          <div className="version-score-card">
+          <div
+            className={
+              conceptScoreIsStale
+                ? "version-score-card version-score-card--stale"
+                : "version-score-card"
+            }
+          >
             <span>
               Concept
             </span>
@@ -1118,6 +1247,14 @@ export function VersionsWorkspace() {
                 .conceptScore ??
                 "—"}
             </strong>
+            <em>
+              {conceptScoreIsStale
+                ? "Out of date"
+                : currentScores.conceptScore !==
+                  null
+                ? "Current"
+                : "Not analyzed"}
+            </em>
             <Delta
               value={scoreDelta(
                 currentScores.conceptScore,
@@ -1149,7 +1286,7 @@ export function VersionsWorkspace() {
 
           <div className="version-score-card">
             <span>
-              Meter
+              Syllable consistency
             </span>
             <strong>
               {
@@ -1189,6 +1326,89 @@ export function VersionsWorkspace() {
               Words
             </span>
           </div>
+        </div>
+
+        <div className="version-score-trends">
+          <div className="version-score-history__label">
+            Score trends
+          </div>
+
+          <ScoreTrend
+            label="Concept"
+            values={[
+              ...trendSnapshots.map(
+                (snapshot) => ({
+                  id:
+                    snapshot.id,
+                  name:
+                    snapshot.name,
+                  value:
+                    snapshot.scores
+                      .conceptScore,
+                })
+              ),
+              {
+                id:
+                  "current-concept",
+                name:
+                  conceptScoreIsStale
+                    ? "Current (stale concept analysis)"
+                    : "Current",
+                value:
+                  currentScores.conceptScore,
+              },
+            ]}
+          />
+
+          <ScoreTrend
+            label="Rhyme"
+            values={[
+              ...trendSnapshots.map(
+                (snapshot) => ({
+                  id:
+                    snapshot.id,
+                  name:
+                    snapshot.name,
+                  value:
+                    snapshot.scores
+                      .rhymeScore,
+                })
+              ),
+              {
+                id:
+                  "current-rhyme",
+                name:
+                  "Current",
+                value:
+                  currentScores.rhymeScore,
+              },
+            ]}
+          />
+
+          <ScoreTrend
+            label="Syllable consistency"
+            values={[
+              ...trendSnapshots.map(
+                (snapshot) => ({
+                  id:
+                    snapshot.id,
+                  name:
+                    snapshot.name,
+                  value:
+                    snapshot.scores
+                      .meterScore,
+                })
+              ),
+              {
+                id:
+                  "current-meter",
+                name:
+                  "Current",
+                value:
+                  currentScores.meterScore,
+              },
+            ]}
+          />
         </div>
 
         {selectedSnapshot && (
