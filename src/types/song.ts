@@ -4,6 +4,7 @@ import type {
 } from "./section";
 import type { Arrangement } from "./arrangement";
 import type { Theme } from "./theme";
+import type { SongIdea } from "./idea";
 
 export interface SongSettings {
   darkMode: boolean;
@@ -40,6 +41,8 @@ export interface Song {
   arrangements: Arrangement[];
 
   themes: Theme[];
+
+  ideas?: SongIdea[];
 
   settings: SongSettings;
 }
