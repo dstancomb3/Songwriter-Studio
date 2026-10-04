@@ -162,11 +162,13 @@ export function VersionsWorkspace() {
   ] = useState("");
 
   const [
-    expandedSectionId,
-    setExpandedSectionId,
+    collapsedSectionIds,
+    setCollapsedSectionIds,
   ] = useState<
-    string | null
-  >(null);
+    Set<string>
+  >(
+    () => new Set()
+  );
 
   const [
     currentConceptScore,
@@ -226,8 +228,8 @@ export function VersionsWorkspace() {
   }, [song?.updatedAt]);
 
   useEffect(() => {
-    setExpandedSectionId(
-      null
+    setCollapsedSectionIds(
+      new Set()
     );
   }, [selectedSnapshotId]);
 
@@ -913,9 +915,15 @@ export function VersionsWorkspace() {
             <div className="version-section-diffs">
               {comparison.sections.map(
                 (section) => {
+                  const hasVisibleDiff =
+                    section.status !==
+                    "unchanged";
+
                   const expanded =
-                    expandedSectionId ===
-                    section.sectionId;
+                    hasVisibleDiff &&
+                    !collapsedSectionIds.has(
+                      section.sectionId
+                    );
 
                   const canRestore =
                     selectedSnapshot.song.sections.some(
@@ -943,10 +951,27 @@ export function VersionsWorkspace() {
                         type="button"
                         className="version-section-diff__summary"
                         onClick={() =>
-                          setExpandedSectionId(
-                            expanded
-                              ? null
-                              : section.sectionId
+                          setCollapsedSectionIds(
+                            (current) => {
+                              const next =
+                                new Set(
+                                  current
+                                );
+
+                              if (
+                                expanded
+                              ) {
+                                next.add(
+                                  section.sectionId
+                                );
+                              } else {
+                                next.delete(
+                                  section.sectionId
+                                );
+                              }
+
+                              return next;
+                            }
                           )
                         }
                       >
