@@ -1,4 +1,8 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { useDraggable } from "@dnd-kit/core";
 
@@ -39,7 +43,7 @@ function DraggableSection({
   accentColor: string;
   selected: boolean;
   onSelect: () => void;
-  onRename: () => void;
+  onRename: (title: string) => void;
   onDelete: () => void;
 }) {
   const [
@@ -53,6 +57,21 @@ function DraggableSection({
     | null
   >(null);
 
+  const [
+    editing,
+    setEditing,
+  ] = useState(false);
+
+  const [
+    draftTitle,
+    setDraftTitle,
+  ] = useState(title);
+
+  const inputRef =
+    useRef<HTMLInputElement | null>(
+      null
+    );
+
   const {
     attributes,
     listeners,
@@ -64,7 +83,69 @@ function DraggableSection({
       type: "section",
       sectionId: id,
     },
+    disabled: editing,
   });
+
+  useEffect(() => {
+    if (!editing) {
+      setDraftTitle(
+        title
+      );
+    }
+  }, [
+    title,
+    editing,
+  ]);
+
+  useEffect(() => {
+    if (!editing) {
+      return;
+    }
+
+    requestAnimationFrame(
+      () => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    );
+  }, [editing]);
+
+  function startRename() {
+    setDraftTitle(
+      title
+    );
+    setEditing(
+      true
+    );
+  }
+
+  function commitRename() {
+    const nextTitle =
+      draftTitle.trim();
+
+    if (
+      nextTitle &&
+      nextTitle !==
+        title
+    ) {
+      onRename(
+        nextTitle
+      );
+    }
+
+    setEditing(
+      false
+    );
+  }
+
+  function cancelRename() {
+    setDraftTitle(
+      title
+    );
+    setEditing(
+      false
+    );
+  }
 
   return (
     <>
@@ -91,15 +172,24 @@ function DraggableSection({
               ? 1000
               : 1,
         }}
-        onClick={onSelect}
+        onClick={() => {
+          if (!editing) {
+            onSelect();
+          }
+        }}
         onDoubleClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          onRename();
+          onSelect();
+          startRename();
         }}
         onContextMenu={(event) => {
           event.preventDefault();
           event.stopPropagation();
+
+          if (editing) {
+            return;
+          }
 
           onSelect();
 
@@ -121,39 +211,81 @@ function DraggableSection({
             event.stopPropagation()
           }
           title="Drag into Write"
+          disabled={editing}
         >
           ⠿
         </button>
 
-        <button
-          type="button"
-          className="section-card__name-button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onSelect();
-          }}
-          onDoubleClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            onRename();
-          }}
-          onContextMenu={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        {editing ? (
+          <input
+            ref={inputRef}
+            className="section-card__name"
+            value={draftTitle}
+            onChange={(event) =>
+              setDraftTitle(
+                event.target.value
+              )
+            }
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            onDoubleClick={(event) =>
+              event.stopPropagation()
+            }
+            onBlur={
+              commitRename
+            }
+            onKeyDown={(event) => {
+              if (
+                event.key ===
+                "Enter"
+              ) {
+                event.preventDefault();
+                commitRename();
+              }
 
-            onSelect();
+              if (
+                event.key ===
+                "Escape"
+              ) {
+                event.preventDefault();
+                cancelRename();
+              }
+            }}
+            aria-label="Rename section"
+          />
+        ) : (
+          <button
+            type="button"
+            className="section-card__name-button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect();
+            }}
+            onDoubleClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onSelect();
+              startRename();
+            }}
+            onContextMenu={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
 
-            setMenu({
-              x:
-                event.clientX,
-              y:
-                event.clientY,
-            });
-          }}
-          title="Double-click to rename"
-        >
-          {title}
-        </button>
+              onSelect();
+
+              setMenu({
+                x:
+                  event.clientX,
+                y:
+                  event.clientY,
+              });
+            }}
+            title="Double-click to rename"
+          >
+            {title}
+          </button>
+        )}
       </div>
 
       {menu && (
@@ -169,7 +301,7 @@ function DraggableSection({
               label:
                 "Rename section",
               onSelect:
-                onRename,
+                startRename,
             },
             {
               id: "delete",
@@ -189,7 +321,6 @@ function DraggableSection({
 export function SectionPanel() {
   const {
     confirm,
-    prompt,
     notify,
   } = useStudioModal();
 
@@ -242,32 +373,6 @@ export function SectionPanel() {
       song?.settings
         .sectionColors
     );
-
-  async function rename(
-    sectionId: string,
-    currentTitle: string
-  ) {
-    const nextTitle =
-      await prompt({
-        title:
-          "Rename section",
-        message:
-          "Choose a name for this section.",
-        initialValue:
-          currentTitle,
-        confirmLabel:
-          "Rename",
-      });
-
-    if (!nextTitle) {
-      return;
-    }
-
-    renameSection(
-      sectionId,
-      nextTitle
-    );
-  }
 
   async function removeSection(
     sectionId: string,
@@ -397,10 +502,10 @@ export function SectionPanel() {
                   section.id
                 )
               }
-              onRename={() =>
-                void rename(
+              onRename={(title) =>
+                renameSection(
                   section.id,
-                  section.title
+                  title
                 )
               }
               onDelete={() =>
