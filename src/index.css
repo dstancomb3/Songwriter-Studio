@@ -4136,3 +4136,136 @@ h4 {
   width: 100%;
   cursor: pointer;
 }
+
+
+/* Active line assistance */
+
+.line-assist-panel {
+  display: grid;
+  gap: 0.34rem;
+  padding: 0.42rem;
+  border: 1px solid #30384d;
+  border-radius: 8px;
+  background: rgba(18, 23, 35, 0.56);
+}
+
+.line-assist-panel__heading,
+.line-assist-group__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.line-assist-panel__heading > span,
+.line-assist-group__label > span {
+  color: #8f99ad;
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.line-assist-panel__heading > em {
+  color: #88d4b8;
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.line-assist-group__label > em {
+  min-width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #354059;
+  border-radius: 999px;
+  color: #8faeff;
+  font-size: 0.52rem;
+  font-style: normal;
+}
+
+.line-meter-guidance,
+.line-duplicate-warning {
+  display: grid;
+  gap: 0.08rem;
+  padding: 0.36rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(224, 183, 130, 0.055);
+}
+
+.line-meter-guidance strong,
+.line-duplicate-warning strong {
+  color: #d5b686;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.line-meter-guidance p,
+.line-duplicate-warning p {
+  margin: 0;
+  color: #8d97aa;
+  font-size: 0.59rem;
+  line-height: 1.4;
+}
+
+.line-meter-guidance--on {
+  background: rgba(110, 231, 183, 0.045);
+}
+
+.line-meter-guidance--on strong {
+  color: #8ed8bd;
+}
+
+.line-duplicate-warning {
+  background: rgba(245, 154, 167, 0.055);
+}
+
+.line-duplicate-warning strong {
+  color: #e7a7b1;
+}
+
+.line-assist-group {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.line-rhyme-word-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.24rem;
+}
+
+.line-rhyme-word-list button {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.2rem 0.3rem;
+  border: 1px solid #374159;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.line-rhyme-word-list button:hover:not(:disabled) {
+  border-color: rgba(139, 124, 255, 0.42);
+  background: rgba(139, 124, 255, 0.08);
+}
+
+.line-rhyme-word-list strong {
+  color: #dfe4ee;
+  font-size: 0.58rem;
+}
+
+.line-rhyme-word-list span {
+  color: #8d79d9;
+  font-size: 0.48rem;
+  text-transform: uppercase;
+}
+
+.line-rhyme-word-list em {
+  color: #737e92;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.49rem;
+  font-style: normal;
+}
