@@ -133,6 +133,17 @@ interface SongStore {
   deleteIdea: (
     ideaId: string
   ) => void;
+
+  createSectionFromIdea: (
+    type: SectionType,
+    text: string,
+    note?: string
+  ) => string | null;
+
+  appendIdeaToSection: (
+    sectionId: string,
+    text: string
+  ) => void;
 }
 
 function getSectionLabel(
@@ -896,6 +907,168 @@ export const useSongStore = create<SongStore>(
                 ideaId
             ),
           }),
+        };
+      }),
+
+    createSectionFromIdea: (
+      type,
+      text,
+      note = ""
+    ) => {
+      const sectionId =
+        crypto.randomUUID();
+
+      let created = false;
+
+      set((state) => {
+        if (
+          !state.currentSong ||
+          !text.trim()
+        ) {
+          return state;
+        }
+
+        const existingCount =
+          state.currentSong.sections.filter(
+            (section) =>
+              section.type ===
+              type
+          ).length;
+
+        const title =
+          getSectionLabel(type) +
+          " " +
+          (existingCount + 1);
+
+        const versionId =
+          crypto.randomUUID();
+
+        const newSection: Section = {
+          id: sectionId,
+          type,
+          title,
+          activeVersionId:
+            versionId,
+          versions: [
+            {
+              id: versionId,
+              name: "Default",
+              lyrics:
+                text.trim(),
+              chords: [],
+              melody: {
+                notes: [],
+              },
+              markers: [],
+              notes:
+                note.trim(),
+            },
+          ],
+        };
+
+        const arrangement =
+          state.currentSong
+            .arrangements[0];
+
+        const arrangements =
+          arrangement
+            ? [
+                {
+                  ...arrangement,
+                  sequence: [
+                    ...arrangement.sequence,
+                    {
+                      id:
+                        crypto.randomUUID(),
+                      sectionId,
+                    },
+                  ],
+                },
+                ...state.currentSong.arrangements.slice(
+                  1
+                ),
+              ]
+            : state.currentSong
+                .arrangements;
+
+        created = true;
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections: [
+              ...state.currentSong.sections,
+              newSection,
+            ],
+            arrangements,
+          }),
+          selectedSectionId:
+            sectionId,
+        };
+      });
+
+      return created
+        ? sectionId
+        : null;
+    },
+
+    appendIdeaToSection: (
+      sectionId,
+      text
+    ) =>
+      set((state) => {
+        if (
+          !state.currentSong ||
+          !text.trim()
+        ) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            sections:
+              state.currentSong.sections.map(
+                (section) => {
+                  if (
+                    section.id !==
+                    sectionId
+                  ) {
+                    return section;
+                  }
+
+                  return {
+                    ...section,
+                    versions:
+                      section.versions.map(
+                        (version) => {
+                          if (
+                            version.id !==
+                            section.activeVersionId
+                          ) {
+                            return version;
+                          }
+
+                          const current =
+                            version.lyrics.trimEnd();
+
+                          return {
+                            ...version,
+                            lyrics:
+                              current
+                                ? current +
+                                  "\n" +
+                                  text.trim()
+                                : text.trim(),
+                          };
+                        }
+                      ),
+                  };
+                }
+              ),
+          }),
+          selectedSectionId:
+            sectionId,
         };
       }),
   })
