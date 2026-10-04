@@ -47,6 +47,46 @@ import type {
   SectionVersion,
 } from "../../types";
 
+function ArrangementEdgeDropZone({
+  id,
+  index,
+  label,
+}: {
+  id: string;
+  index: number;
+  label: string;
+}) {
+  const {
+    setNodeRef,
+    isOver,
+  } = useDroppable({
+    id,
+    data: {
+      type:
+        "arrangement-edge",
+      axis:
+        "vertical",
+      index,
+    },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={
+        isOver
+          ? "preview-arrangement-edge preview-arrangement-edge--active"
+          : "preview-arrangement-edge"
+      }
+      aria-label={label}
+    >
+      <span>
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function SortableWriteSection({
   arrangementItemId,
   section,
@@ -699,6 +739,12 @@ export function PreviewPanel() {
 
           <div className="preview-song-divider" />
 
+          <ArrangementEdgeDropZone
+            id="write-arrangement-start"
+            index={0}
+            label="Drop at beginning"
+          />
+
           <SortableContext
             items={
               arrangement.sequence.map(
@@ -870,6 +916,14 @@ export function PreviewPanel() {
               <div className="preview-arrangement-drop-target" />
             )}
           </SortableContext>
+
+          <ArrangementEdgeDropZone
+            id="write-arrangement-end"
+            index={
+              arrangement.sequence.length
+            }
+            label="Drop at end"
+          />
         </div>
       </Panel>
     </div>
