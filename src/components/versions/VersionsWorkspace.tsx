@@ -24,6 +24,10 @@ import type {
   VersionScoreSummary,
 } from "../../types";
 
+import {
+  useStudioModal,
+} from "../ui/StudioModalProvider";
+
 function formatDate(
   value: string
 ) {
@@ -90,6 +94,10 @@ function Delta({
 }
 
 export function VersionsWorkspace() {
+  const {
+    confirm,
+  } = useStudioModal();
+
   const song =
     useSongStore(
       (state) =>
@@ -350,19 +358,26 @@ export function VersionsWorkspace() {
     );
   }
 
-  function restoreSelected() {
+  async function restoreSelected() {
     if (
       !selectedSnapshot
     ) {
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        "Restore this snapshot? Your current working state will be replaced. Save a snapshot first if you want to keep it."
-      );
+    const approved =
+      await confirm({
+        title:
+          "Restore snapshot?",
+        message:
+          "Your current working state will be replaced. Save a snapshot first if you want to keep it.",
+        confirmLabel:
+          "Restore",
+        tone:
+          "danger",
+      });
 
-    if (!confirmed) {
+    if (!approved) {
       return;
     }
 
@@ -377,19 +392,26 @@ export function VersionsWorkspace() {
     );
   }
 
-  function removeSnapshot(
+  async function removeSnapshot(
     snapshotId: string
   ) {
     if (!song) {
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        "Delete this snapshot?"
-      );
+    const approved =
+      await confirm({
+        title:
+          "Delete snapshot?",
+        message:
+          "This saved version will be permanently removed.",
+        confirmLabel:
+          "Delete",
+        tone:
+          "danger",
+      });
 
-    if (!confirmed) {
+    if (!approved) {
       return;
     }
 
@@ -579,8 +601,8 @@ export function VersionsWorkspace() {
 
             <button
               type="button"
-              onClick={
-                restoreSelected
+              onClick={() =>
+                void restoreSelected()
               }
               disabled={
                 !selectedSnapshot
@@ -877,7 +899,7 @@ export function VersionsWorkspace() {
                     type="button"
                     className="version-history-row__delete"
                     onClick={() =>
-                      removeSnapshot(
+                      void removeSnapshot(
                         snapshot.id
                       )
                     }
