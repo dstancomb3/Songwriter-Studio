@@ -20,8 +20,11 @@ import type {
 
 import {
   analyzeLyrics,
+  collectRhymeWordSuggestions,
   countLineSyllables,
   getLineEndWord,
+  normalizeLyricLine,
+  replaceLineEndWord,
   scoreRhymeWords,
 } from "../../analysis/lyricsAnalysis";
 
@@ -466,6 +469,109 @@ export function SectionEditor() {
         lyricAnalysis.targetSyllables
       : 0;
 
+  const songLines =
+    song.sections.flatMap(
+      (candidateSection) => {
+        const candidateVersion =
+          candidateSection.versions.find(
+            (candidate) =>
+              candidate.id ===
+              candidateSection.activeVersionId
+          );
+
+        if (!candidateVersion) {
+          return [];
+        }
+
+        return candidateVersion.lyrics
+          .split(/\r?\n/)
+          .map(
+            (text, lineIndex) => ({
+              sectionId:
+                candidateSection.id,
+              sectionTitle:
+                candidateSection.title,
+              lineIndex,
+              text,
+            })
+          )
+          .filter(
+            (item) =>
+              item.text.trim()
+          );
+      }
+    );
+
+  const songVocabulary =
+    songLines.flatMap(
+      (item) =>
+        item.text
+          .split(/\s+/)
+          .filter(Boolean)
+    );
+
+  const rhymeWordSuggestions =
+    activeLineEndWord
+      ? collectRhymeWordSuggestions(
+          activeLineEndWord,
+          songVocabulary,
+          8
+        )
+      : [];
+
+  const normalizedActiveLine =
+    activeLine
+      ? normalizeLyricLine(
+          activeLine.text
+        )
+      : "";
+
+  const duplicateLines =
+    normalizedActiveLine
+      ? songLines.filter(
+          (item) =>
+            !(
+              item.sectionId ===
+                section.id &&
+              item.lineIndex ===
+                activeLine?.lineIndex
+            ) &&
+            normalizeLyricLine(
+              item.text
+            ) ===
+              normalizedActiveLine
+        )
+      : [];
+
+  const meterGuidance =
+    !activeLine
+      ? null
+      : activeLineDelta === 0
+      ? "This line is exactly on the section's current syllable target."
+      : activeLineDelta > 0
+      ? "This line is " +
+        activeLineDelta +
+        " syllable" +
+        (
+          activeLineDelta === 1
+            ? ""
+            : "s"
+        ) +
+        " longer than the section target."
+      : "This line is " +
+        Math.abs(
+          activeLineDelta
+        ) +
+        " syllable" +
+        (
+          Math.abs(
+            activeLineDelta
+          ) === 1
+            ? ""
+            : "s"
+        ) +
+        " shorter than the section target.";
+
   const rhymeMatches =
     activeLineEndWord
       ? song.sections
@@ -870,10 +976,136 @@ export function SectionEditor() {
               </div>
             </div>
 
+            <div className="line-assist-panel">
+              <div className="line-assist-panel__heading">
+                <span>
+                  Line assist
+                </span>
+
+                <em>
+                  Local
+                </em>
+              </div>
+
+              {meterGuidance && (
+                <div
+                  className={
+                    activeLineDelta === 0
+                      ? "line-meter-guidance line-meter-guidance--on"
+                      : "line-meter-guidance"
+                  }
+                >
+                  <strong>
+                    Meter
+                  </strong>
+                  <p>
+                    {meterGuidance}
+                  </p>
+                </div>
+              )}
+
+              {duplicateLines.length >
+                0 && (
+                <div className="line-duplicate-warning">
+                  <strong>
+                    Duplicate line
+                  </strong>
+
+                  <p>
+                    This exact line also appears in{" "}
+                    {duplicateLines
+                      .map(
+                        (item) =>
+                          item.sectionTitle
+                      )
+                      .join(", ")}
+                    .
+                  </p>
+                </div>
+              )}
+
+              <div className="line-assist-group">
+                <div className="line-assist-group__label">
+                  <span>
+                    Rhyme-family words already in this song
+                  </span>
+
+                  <em>
+                    {
+                      rhymeWordSuggestions.length
+                    }
+                  </em>
+                </div>
+
+                {rhymeWordSuggestions.length ===
+                  0 ? (
+                  <div className="line-rhyme-panel__empty">
+                    No other song words currently fall into this rhyme family.
+                  </div>
+                ) : (
+                  <div className="line-rhyme-word-list">
+                    {rhymeWordSuggestions.map(
+                      (suggestion) => {
+                        const variant =
+                          replaceLineEndWord(
+                            activeLine.text,
+                            suggestion.word
+                          );
+
+                        return (
+                          <button
+                            type="button"
+                            key={
+                              suggestion.word
+                            }
+                            onClick={() => {
+                              addIdea(
+                                "snippet",
+                                variant
+                              );
+
+                              notify({
+                                title:
+                                  "Variant saved to Explore",
+                                message:
+                                  variant,
+                                tone:
+                                  "success",
+                              });
+                            }}
+                            title="Save a line variant using this end word"
+                          >
+                            <strong>
+                              {
+                                suggestion.word
+                              }
+                            </strong>
+
+                            <span>
+                              {
+                                suggestion.strength
+                              }
+                            </span>
+
+                            <em>
+                              {Math.round(
+                                suggestion.score *
+                                  100
+                              )}
+                            </em>
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="line-rhyme-panel">
               <div className="line-rhyme-panel__heading">
                 <span>
-                  Song rhyme matches
+                  Matching lines in song
                 </span>
 
                 <em>
