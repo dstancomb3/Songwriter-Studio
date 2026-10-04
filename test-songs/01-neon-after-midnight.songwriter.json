@@ -1,0 +1,275 @@
+{
+  "id": "test-neon-after-midnight",
+  "title": "Neon After Midnight",
+  "artist": "Test Library",
+  "album": "Songwriter Studio QA",
+  "genre": "Indie Pop",
+  "key": "A minor",
+  "tempo": 104,
+  "timeSignature": "4/4",
+  "notes": "Control case: coherent concept, repeated chorus, fairly regular line lengths, deliberate end-rhyme families.",
+  "concept": "Two people keep driving through the city after a breakup because neither one is ready to say the final goodbye.",
+  "createdAt": "2026-10-04T06:55:00.000Z",
+  "updatedAt": "2026-10-04T06:55:00.000Z",
+  "settings": {
+    "darkMode": true,
+    "sectionColors": {
+      "intro": "#64748b",
+      "verse": "#3b82f6",
+      "pre-chorus": "#f59e0b",
+      "chorus": "#22c55e",
+      "post-chorus": "#14b8a6",
+      "bridge": "#a855f7",
+      "hook": "#ec4899",
+      "outro": "#ef4444",
+      "custom": "#9ca3af"
+    }
+  },
+  "themes": [],
+  "ideas": [
+    {
+      "id": "nam-i1",
+      "kind": "title",
+      "text": "City With No Last Exit",
+      "note": "Alternate title",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "nam-i2",
+      "kind": "image",
+      "text": "Red lights buying another minute together",
+      "note": "Strong recurring image",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "nam-i3",
+      "kind": "hook",
+      "text": "If we never stop the headlights, I don't have to lose you",
+      "note": "Possible alternate hook emphasis",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "nam-intro",
+      "type": "intro",
+      "title": "Intro",
+      "activeVersionId": "nam-intro-v1",
+      "versions": [
+        {
+          "id": "nam-intro-v1",
+          "name": "Default",
+          "lyrics": "Streetlights smear across the glass\nNeither of us says we're lost",
+          "chords": [
+            "Am",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-v1",
+      "type": "verse",
+      "title": "Verse 1",
+      "activeVersionId": "nam-v1-a",
+      "versions": [
+        {
+          "id": "nam-v1-a",
+          "name": "Default",
+          "lyrics": "You trace a circle in the fog\nI miss the turn beside the park\nThe radio is talking soft\nWe let it fill the dark",
+          "chords": [
+            "Am",
+            "F",
+            "C",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-pre",
+      "type": "pre-chorus",
+      "title": "Pre-Chorus",
+      "activeVersionId": "nam-pre-v1",
+      "versions": [
+        {
+          "id": "nam-pre-v1",
+          "name": "Default",
+          "lyrics": "Every red light buys a minute\nEvery green one moves us on\nYou say maybe we should finish\nBut the night keeps holding on",
+          "chords": [
+            "Dm",
+            "F",
+            "C",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-chorus",
+      "type": "chorus",
+      "title": "Chorus",
+      "activeVersionId": "nam-chorus-v1",
+      "versions": [
+        {
+          "id": "nam-chorus-v1",
+          "name": "Default",
+          "lyrics": "Neon after midnight\nPainting blue across your face\nWe keep driving past the goodbye\nLike the road can change its place\nNeon after midnight\nOne more block, one more excuse\nIf we never stop the headlights\nI don't have to lose you",
+          "chords": [
+            "F",
+            "C",
+            "G",
+            "Am"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-v2",
+      "type": "verse",
+      "title": "Verse 2",
+      "activeVersionId": "nam-v2-v1",
+      "versions": [
+        {
+          "id": "nam-v2-v1",
+          "name": "Default",
+          "lyrics": "Your coffee's cold between the seats\nThe skyline fades behind the rain\nI know the silence underneath\nI know we're circling the same",
+          "chords": [
+            "Am",
+            "F",
+            "C",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-bridge",
+      "type": "bridge",
+      "title": "Bridge",
+      "activeVersionId": "nam-bridge-v1",
+      "versions": [
+        {
+          "id": "nam-bridge-v1",
+          "name": "Default",
+          "lyrics": "Morning waits beyond the river\nSoon the signs will all turn clear\nI can keep the wheels in motion\nI can't make you disappear",
+          "chords": [
+            "Dm",
+            "Am",
+            "F",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "nam-outro",
+      "type": "outro",
+      "title": "Outro",
+      "activeVersionId": "nam-outro-v1",
+      "versions": [
+        {
+          "id": "nam-outro-v1",
+          "name": "Default",
+          "lyrics": "Neon thinning into daylight\nYour hand resting near the door",
+          "chords": [
+            "Am",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "arrangements": [
+    {
+      "id": "main",
+      "name": "Main Arrangement",
+      "sequence": [
+        {
+          "id": "nam-o1",
+          "sectionId": "nam-intro"
+        },
+        {
+          "id": "nam-o2",
+          "sectionId": "nam-v1"
+        },
+        {
+          "id": "nam-o3",
+          "sectionId": "nam-pre"
+        },
+        {
+          "id": "nam-o4",
+          "sectionId": "nam-chorus"
+        },
+        {
+          "id": "nam-o5",
+          "sectionId": "nam-v2"
+        },
+        {
+          "id": "nam-o6",
+          "sectionId": "nam-pre"
+        },
+        {
+          "id": "nam-o7",
+          "sectionId": "nam-chorus"
+        },
+        {
+          "id": "nam-o8",
+          "sectionId": "nam-bridge"
+        },
+        {
+          "id": "nam-o9",
+          "sectionId": "nam-chorus"
+        },
+        {
+          "id": "nam-o10",
+          "sectionId": "nam-outro"
+        }
+      ]
+    }
+  ]
+}
