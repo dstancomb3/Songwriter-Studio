@@ -3849,3 +3849,49 @@ h4 {
   font-family: ui-monospace, "Cascadia Code", monospace;
   font-size: 0.51rem;
 }
+
+
+/* Global undo / redo */
+
+.studio-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.studio-history-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.studio-history-controls button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #30384d;
+  border-radius: 7px;
+  background: rgba(20, 25, 38, 0.74);
+  color: #aeb6c7;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.studio-history-controls button:hover:not(:disabled) {
+  border-color: rgba(139, 124, 255, 0.44);
+  background: rgba(139, 124, 255, 0.08);
+  color: #ddd8ff;
+}
+
+.studio-history-controls button:disabled {
+  opacity: 0.34;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .studio-history-controls {
+    display: none;
+  }
+}
