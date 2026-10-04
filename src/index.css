@@ -3673,3 +3673,179 @@ h4 {
   font-size: 0.58rem;
   line-height: 1.4;
 }
+
+
+/* Write Intelligence Wave 2: active line context */
+
+.line-context {
+  display: grid;
+  gap: 0.48rem;
+}
+
+.line-context__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.line-context__heading > div {
+  display: grid;
+  gap: 0.02rem;
+}
+
+.line-context__heading strong {
+  color: #eef1f8;
+  font-size: 0.8rem;
+}
+
+.line-context__heading button {
+  padding: 0.22rem 0.36rem;
+  font-size: 0.58rem;
+}
+
+.line-context__eyebrow {
+  color: #d2a96b;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.line-context__text {
+  margin: 0;
+  padding: 0.48rem 0.52rem;
+  border-left: 3px solid rgba(210, 169, 107, 0.5);
+  border-radius: 0 7px 7px 0;
+  background: rgba(210, 169, 107, 0.055);
+  color: #e6e0d6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.line-context__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.28rem;
+}
+
+.line-context__metrics > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.03rem;
+  padding: 0.4rem 0.34rem;
+  border: 1px solid #30384d;
+  border-radius: 7px;
+  background: rgba(20, 25, 38, 0.72);
+}
+
+.line-context__metrics strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #edf0f7;
+  font-size: 0.73rem;
+}
+
+.line-context__metrics span {
+  color: #747f94;
+  font-size: 0.49rem;
+  text-transform: uppercase;
+}
+
+.line-rhyme-panel {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.line-rhyme-panel__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.line-rhyme-panel__heading span {
+  color: #8f99ad;
+  font-size: 0.57rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.line-rhyme-panel__heading em {
+  min-width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #354059;
+  border-radius: 999px;
+  color: #8faeff;
+  font-size: 0.53rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.line-rhyme-panel__empty {
+  padding: 0.5rem;
+  border: 1px dashed #394259;
+  border-radius: 7px;
+  color: #707b90;
+  font-size: 0.6rem;
+  line-height: 1.4;
+}
+
+.line-rhyme-list {
+  display: grid;
+  gap: 0.26rem;
+}
+
+.line-rhyme-list button {
+  width: 100%;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.38rem 0.42rem;
+  text-align: left;
+  border: 1px solid #30384d;
+  background: rgba(21, 26, 39, 0.7);
+}
+
+.line-rhyme-list button:hover:not(:disabled) {
+  border-color: #47536f;
+  background: rgba(29, 35, 51, 0.9);
+}
+
+.line-rhyme-list button > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.line-rhyme-list button > div span {
+  color: #7f899d;
+  font-size: 0.52rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.line-rhyme-list button > div em {
+  color: #9c8eff;
+  font-size: 0.5rem;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.line-rhyme-list button > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #dfe3ec;
+  font-size: 0.63rem;
+}
+
+.line-rhyme-list button > small {
+  color: #6f7a8f;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.51rem;
+}
