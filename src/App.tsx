@@ -204,6 +204,25 @@ function App() {
       over.data.current?.type;
 
     if (
+      overType ===
+      "arrangement-edge"
+    ) {
+      const edgeIndex =
+        over.data.current?.index;
+
+      if (
+        typeof edgeIndex ===
+        "number"
+      ) {
+        setPreviewInsertIndex(
+          edgeIndex
+        );
+      }
+
+      return;
+    }
+
+    if (
       overType === "arrangement"
     ) {
       const index =
@@ -396,17 +415,53 @@ function App() {
     if (
       activeType === "arrangement"
     ) {
-      if (
-        overType !== "arrangement"
-      ) {
-        return;
-      }
-
       const oldIndex =
         arrangement.sequence.findIndex(
           (item) =>
             item.id === active.id
         );
+
+      if (
+        oldIndex === -1
+      ) {
+        return;
+      }
+
+      if (
+        overType ===
+        "arrangement-edge"
+      ) {
+        const edgeIndex =
+          over.data.current
+            ?.index;
+
+        if (
+          typeof edgeIndex !==
+          "number"
+        ) {
+          return;
+        }
+
+        const targetIndex =
+          edgeIndex <= 0
+            ? 0
+            : arrangement.sequence.length -
+              1;
+
+        moveArrangementItem(
+          oldIndex,
+          targetIndex
+        );
+
+        return;
+      }
+
+      if (
+        overType !==
+        "arrangement"
+      ) {
+        return;
+      }
 
       const newIndex =
         arrangement.sequence.findIndex(
@@ -415,7 +470,6 @@ function App() {
         );
 
       if (
-        oldIndex === -1 ||
         newIndex === -1
       ) {
         return;
