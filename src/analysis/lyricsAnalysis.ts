@@ -929,3 +929,27 @@ export function analyzeLyrics(
       ),
   };
 }
+
+
+export type RhymeCandidateScore = {
+  score: number;
+  strength: RhymeStrength;
+};
+
+export function scoreRhymeWords(
+  leftWord: string,
+  rightWord: string
+): RhymeCandidateScore {
+  return rhymeSimilarity(
+    leftWord,
+    rightWord
+  );
+}
+
+export function getLineEndWord(
+  line: string
+) {
+  return extractEndWord(
+    line
+  );
+}
