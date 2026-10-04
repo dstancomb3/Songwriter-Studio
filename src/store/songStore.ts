@@ -21,6 +21,13 @@ export type SelectedLyricLine = {
 interface SongStore {
   currentSong: Song | null;
 
+  canUndo: boolean;
+  canRedo: boolean;
+
+  undo: () => void;
+  redo: () => void;
+  clearHistory: () => void;
+
   selectedSectionId: string | null;
   selectedLyricLine: SelectedLyricLine | null;
   selectedArrangementId: string | null;
@@ -202,9 +209,304 @@ function touchSong(
   };
 }
 
+const HISTORY_LIMIT = 120;
+const TEXT_EDIT_GROUP_MS = 700;
+
+function isLyricsOnlyChange(
+  previous: Song,
+  next: Song
+) {
+  if (
+    previous.id !== next.id ||
+    previous.sections.length !==
+      next.sections.length ||
+    previous.arrangements !==
+      next.arrangements ||
+    previous.ideas !== next.ideas ||
+    previous.settings !==
+      next.settings ||
+    previous.title !== next.title ||
+    previous.artist !== next.artist ||
+    previous.album !== next.album ||
+    previous.genre !== next.genre ||
+    previous.key !== next.key ||
+    previous.tempo !== next.tempo ||
+    previous.timeSignature !==
+      next.timeSignature ||
+    previous.notes !== next.notes ||
+    previous.concept !== next.concept
+  ) {
+    return false;
+  }
+
+  let changedSections = 0;
+  let changedLyrics = 0;
+
+  for (
+    let sectionIndex = 0;
+    sectionIndex <
+    previous.sections.length;
+    sectionIndex += 1
+  ) {
+    const before =
+      previous.sections[
+        sectionIndex
+      ];
+    const after =
+      next.sections[
+        sectionIndex
+      ];
+
+    if (before === after) {
+      continue;
+    }
+
+    changedSections += 1;
+
+    if (
+      changedSections > 1 ||
+      before.id !== after.id ||
+      before.type !== after.type ||
+      before.title !== after.title ||
+      before.activeVersionId !==
+        after.activeVersionId ||
+      before.versions.length !==
+        after.versions.length
+    ) {
+      return false;
+    }
+
+    for (
+      let versionIndex = 0;
+      versionIndex <
+      before.versions.length;
+      versionIndex += 1
+    ) {
+      const beforeVersion =
+        before.versions[
+          versionIndex
+        ];
+      const afterVersion =
+        after.versions[
+          versionIndex
+        ];
+
+      if (
+        beforeVersion ===
+        afterVersion
+      ) {
+        continue;
+      }
+
+      if (
+        beforeVersion.id !==
+          afterVersion.id ||
+        beforeVersion.name !==
+          afterVersion.name ||
+        beforeVersion.chords !==
+          afterVersion.chords ||
+        beforeVersion.melody !==
+          afterVersion.melody ||
+        beforeVersion.markers !==
+          afterVersion.markers ||
+        beforeVersion.notes !==
+          afterVersion.notes
+      ) {
+        return false;
+      }
+
+      if (
+        beforeVersion.lyrics !==
+        afterVersion.lyrics
+      ) {
+        changedLyrics += 1;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  return (
+    changedSections === 1 &&
+    changedLyrics === 1
+  );
+}
+
 export const useSongStore = create<SongStore>(
-  (set) => ({
+  (baseSet, get) => {
+    let past: Song[] = [];
+    let future: Song[] = [];
+    let lastTextEditAt = 0;
+
+    function syncHistoryFlags() {
+      baseSet({
+        canUndo:
+          past.length > 0,
+        canRedo:
+          future.length > 0,
+      });
+    }
+
+    const set = ((
+      partial: unknown,
+      replace?: boolean
+    ) => {
+      const previousState =
+        get();
+
+      const nextPartial =
+        typeof partial ===
+        "function"
+          ? (
+              partial as (
+                state: SongStore
+              ) =>
+                Partial<SongStore>
+            )(
+              previousState
+            )
+          : partial as Partial<SongStore>;
+
+      const nextSong =
+        "currentSong" in
+          nextPartial
+          ? nextPartial.currentSong
+          : previousState.currentSong;
+
+      const previousSong =
+        previousState.currentSong;
+
+      if (
+        previousSong &&
+        nextSong &&
+        previousSong !==
+          nextSong
+      ) {
+        const now =
+          Date.now();
+
+        const textEdit =
+          isLyricsOnlyChange(
+            previousSong,
+            nextSong
+          );
+
+        const continueTextGroup =
+          textEdit &&
+          now -
+            lastTextEditAt <=
+            TEXT_EDIT_GROUP_MS;
+
+        if (
+          !continueTextGroup
+        ) {
+          past.push(
+            previousSong
+          );
+
+          if (
+            past.length >
+            HISTORY_LIMIT
+          ) {
+            past.shift();
+          }
+        }
+
+        lastTextEditAt =
+          textEdit
+            ? now
+            : 0;
+
+        future = [];
+      }
+
+      baseSet(
+        nextPartial as Partial<SongStore>,
+        replace as false
+      );
+
+      syncHistoryFlags();
+    }) as typeof baseSet;
+
+    return ({
     currentSong: null,
+
+    canUndo: false,
+    canRedo: false,
+
+    undo: () => {
+      const current =
+        get().currentSong;
+
+      const previous =
+        past.pop();
+
+      if (
+        !current ||
+        !previous
+      ) {
+        return;
+      }
+
+      future.push(
+        current
+      );
+
+      lastTextEditAt = 0;
+
+      baseSet({
+        currentSong:
+          previous,
+        selectedLyricLine:
+          null,
+      });
+
+      syncHistoryFlags();
+    },
+
+    redo: () => {
+      const current =
+        get().currentSong;
+
+      const next =
+        future.pop();
+
+      if (
+        !current ||
+        !next
+      ) {
+        return;
+      }
+
+      past.push(
+        current
+      );
+
+      if (
+        past.length >
+        HISTORY_LIMIT
+      ) {
+        past.shift();
+      }
+
+      lastTextEditAt = 0;
+
+      baseSet({
+        currentSong:
+          next,
+        selectedLyricLine:
+          null,
+      });
+
+      syncHistoryFlags();
+    },
+
+    clearHistory: () => {
+      past = [];
+      future = [];
+      lastTextEditAt = 0;
+      syncHistoryFlags();
+    },
 
     selectedSectionId: null,
     selectedLyricLine: null,
@@ -212,12 +514,19 @@ export const useSongStore = create<SongStore>(
 
     previewInsertIndex: null,
 
-    setCurrentSong: (song) =>
-      set({
+    setCurrentSong: (song) => {
+      past = [];
+      future = [];
+      lastTextEditAt = 0;
+
+      baseSet({
         currentSong: song,
         selectedLyricLine:
           null,
-      }),
+        canUndo: false,
+        canRedo: false,
+      });
+    },
 
     setSelectedSection: (id) =>
       set((state) => ({
@@ -1108,5 +1417,6 @@ export const useSongStore = create<SongStore>(
             sectionId,
         };
       }),
-  })
+    });
+  }
 );
