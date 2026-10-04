@@ -1,0 +1,247 @@
+{
+  "id": "test-static-between-us",
+  "title": "Static Between Us",
+  "artist": "Test Library",
+  "album": "Songwriter Studio QA",
+  "genre": "Alternative",
+  "key": "E minor",
+  "tempo": 92,
+  "timeSignature": "4/4",
+  "notes": "Stress case: intentional duplicates, uneven line lengths, cliché/common phrases, concept drift in Verse 2, and a very long bridge.",
+  "concept": "A relationship is breaking down because one partner mentally checks out during conversations and retreats into an overstimulated inner world.",
+  "createdAt": "2026-10-04T06:55:00.000Z",
+  "updatedAt": "2026-10-04T06:55:00.000Z",
+  "settings": {
+    "darkMode": true,
+    "sectionColors": {
+      "intro": "#64748b",
+      "verse": "#3b82f6",
+      "pre-chorus": "#f59e0b",
+      "chorus": "#22c55e",
+      "post-chorus": "#14b8a6",
+      "bridge": "#a855f7",
+      "hook": "#ec4899",
+      "outro": "#ef4444",
+      "custom": "#9ca3af"
+    }
+  },
+  "themes": [],
+  "ideas": [
+    {
+      "id": "sbu-i1",
+      "kind": "image",
+      "text": "Words dissolve into appliance hum",
+      "note": "Could recur in Verse 2",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "sbu-i2",
+      "kind": "emotion",
+      "text": "Guilt at loving someone while failing to stay present",
+      "note": "Core emotional center",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "sbu-i3",
+      "kind": "snippet",
+      "text": "Name five things I see so I can stay in the room",
+      "note": "Bridge fragment",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "sbu-v1",
+      "type": "verse",
+      "title": "Verse 1",
+      "activeVersionId": "sbu-v1-v1",
+      "versions": [
+        {
+          "id": "sbu-v1-v1",
+          "name": "Default",
+          "lyrics": "You're telling me about your day\nI watch your mouth but lose the words\nThe ceiling fan becomes a wave\nThe refrigerator starts to blur\nYou say my name\nYou say my name",
+          "chords": [
+            "Em",
+            "C",
+            "G",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "sbu-pre",
+      "type": "pre-chorus",
+      "title": "Pre-Chorus",
+      "activeVersionId": "sbu-pre-v1",
+      "versions": [
+        {
+          "id": "sbu-pre-v1",
+          "name": "Default",
+          "lyrics": "I swear I'm sitting right beside you\nBut I'm miles away again",
+          "chords": [
+            "C",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "sbu-chorus",
+      "type": "chorus",
+      "title": "Chorus",
+      "activeVersionId": "sbu-chorus-v1",
+      "versions": [
+        {
+          "id": "sbu-chorus-v1",
+          "name": "Default",
+          "lyrics": "There's static between us\nA television in my head\nYou're reaching through the white noise\nI'm somewhere else instead\nThere's static between us\nAnd every signal turns to dust\nYou keep asking me to listen\nI keep losing both of us",
+          "chords": [
+            "G",
+            "D",
+            "Em",
+            "C"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "sbu-v2",
+      "type": "verse",
+      "title": "Verse 2",
+      "activeVersionId": "sbu-v2-v1",
+      "versions": [
+        {
+          "id": "sbu-v2-v1",
+          "name": "Default",
+          "lyrics": "I used to dream about the ocean\nI used to want a house in June\nMy father kept a broken pocket watch\nAnd roses always die too soon\nAt the end of the day\nIt is what it is\nYou say my name",
+          "chords": [
+            "Em",
+            "C",
+            "Am",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "sbu-bridge",
+      "type": "bridge",
+      "title": "Bridge",
+      "activeVersionId": "sbu-bridge-v1",
+      "versions": [
+        {
+          "id": "sbu-bridge-v1",
+          "name": "Default",
+          "lyrics": "Maybe if I count the cracks above the doorway and the passing cars and every breath between your sentences I can stay inside this room\nMaybe if I dig my fingernails into my palms and name five things I see I won't disappear before you finish what you need to say\nI want to be here\nI want to be here\nI want to be here\nBut wanting isn't always enough",
+          "chords": [
+            "Am",
+            "C",
+            "Em",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "sbu-outro",
+      "type": "outro",
+      "title": "Outro",
+      "activeVersionId": "sbu-outro-v1",
+      "versions": [
+        {
+          "id": "sbu-outro-v1",
+          "name": "Default",
+          "lyrics": "You're telling me about your day\nThis time I ask you to begin again",
+          "chords": [
+            "Em",
+            "C"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "arrangements": [
+    {
+      "id": "main",
+      "name": "Main Arrangement",
+      "sequence": [
+        {
+          "id": "sbu-o1",
+          "sectionId": "sbu-v1"
+        },
+        {
+          "id": "sbu-o2",
+          "sectionId": "sbu-pre"
+        },
+        {
+          "id": "sbu-o3",
+          "sectionId": "sbu-chorus"
+        },
+        {
+          "id": "sbu-o4",
+          "sectionId": "sbu-v2"
+        },
+        {
+          "id": "sbu-o5",
+          "sectionId": "sbu-pre"
+        },
+        {
+          "id": "sbu-o6",
+          "sectionId": "sbu-chorus"
+        },
+        {
+          "id": "sbu-o7",
+          "sectionId": "sbu-bridge"
+        },
+        {
+          "id": "sbu-o8",
+          "sectionId": "sbu-chorus"
+        },
+        {
+          "id": "sbu-o9",
+          "sectionId": "sbu-outro"
+        }
+      ]
+    }
+  ]
+}
