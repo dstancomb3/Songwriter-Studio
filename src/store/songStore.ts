@@ -3,6 +3,7 @@ import type {
   Song,
   Section,
   SectionType,
+  SongIdeaKind,
 } from "../types";
 
 import {
@@ -111,6 +112,26 @@ interface SongStore {
   moveArrangementItem: (
     oldIndex: number,
     newIndex: number
+  ) => void;
+
+  addIdea: (
+    kind: SongIdeaKind,
+    text: string
+  ) => void;
+
+  updateIdea: (
+    ideaId: string,
+    updates: Partial<{
+      kind: SongIdeaKind;
+      text: string;
+      note: string;
+      pinned: boolean;
+      archived: boolean;
+    }>
+  ) => void;
+
+  deleteIdea: (
+    ideaId: string
   ) => void;
 }
 
@@ -780,6 +801,100 @@ export const useSongStore = create<SongStore>(
                 sequence,
               },
             ],
+          }),
+        };
+      }),
+
+    addIdea: (
+      kind,
+      text
+    ) =>
+      set((state) => {
+        if (
+          !state.currentSong ||
+          !text.trim()
+        ) {
+          return state;
+        }
+
+        const now =
+          new Date().toISOString();
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            ideas: [
+              {
+                id:
+                  crypto.randomUUID(),
+                kind,
+                text:
+                  text.trim(),
+                note: "",
+                pinned: false,
+                archived: false,
+                createdAt: now,
+                updatedAt: now,
+              },
+              ...(
+                state.currentSong
+                  .ideas ?? []
+              ),
+            ],
+          }),
+        };
+      }),
+
+    updateIdea: (
+      ideaId,
+      updates
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            ideas: (
+              state.currentSong
+                .ideas ?? []
+            ).map(
+              (idea) =>
+                idea.id ===
+                ideaId
+                  ? {
+                      ...idea,
+                      ...updates,
+                      updatedAt:
+                        new Date().toISOString(),
+                    }
+                  : idea
+            ),
+          }),
+        };
+      }),
+
+    deleteIdea: (
+      ideaId
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            ideas: (
+              state.currentSong
+                .ideas ?? []
+            ).filter(
+              (idea) =>
+                idea.id !==
+                ideaId
+            ),
           }),
         };
       }),
