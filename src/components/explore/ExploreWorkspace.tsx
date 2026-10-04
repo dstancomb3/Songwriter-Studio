@@ -12,6 +12,7 @@ import {
 } from "../../semantic/semanticClient";
 
 import type {
+  SectionType,
   SongIdea,
   SongIdeaKind,
 } from "../../types";
@@ -24,35 +25,40 @@ type FilterKind =
   | "all"
   | SongIdeaKind;
 
+type PlacementScore = {
+  id: string;
+  title: string;
+  type: string;
+  score: number;
+};
+
 const kinds:
   Array<{
     value: SongIdeaKind;
     label: string;
   }> = [
-    {
-      value: "hook",
-      label: "Hook",
-    },
-    {
-      value: "title",
-      label: "Title",
-    },
-    {
-      value: "image",
-      label: "Image",
-    },
-    {
-      value: "emotion",
-      label: "Emotion",
-    },
-    {
-      value: "snippet",
-      label: "Snippet",
-    },
-    {
-      value: "concept",
-      label: "Concept",
-    },
+    { value: "hook", label: "Hook" },
+    { value: "title", label: "Title" },
+    { value: "image", label: "Image" },
+    { value: "emotion", label: "Emotion" },
+    { value: "snippet", label: "Snippet" },
+    { value: "concept", label: "Concept" },
+  ];
+
+const sectionTypes:
+  Array<{
+    value: SectionType;
+    label: string;
+  }> = [
+    { value: "intro", label: "Intro" },
+    { value: "verse", label: "Verse" },
+    { value: "pre-chorus", label: "Pre-Chorus" },
+    { value: "chorus", label: "Chorus" },
+    { value: "post-chorus", label: "Post-Chorus" },
+    { value: "bridge", label: "Bridge" },
+    { value: "hook", label: "Hook" },
+    { value: "outro", label: "Outro" },
+    { value: "custom", label: "Custom" },
   ];
 
 function ideaLabel(
@@ -66,7 +72,37 @@ function ideaLabel(
   );
 }
 
-export function ExploreWorkspace() {
+function activeLyrics(
+  ideaText: string,
+  note: string
+) {
+  return [
+    ideaText.trim(),
+    note.trim(),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function displaySimilarity(
+  score: number
+) {
+  return Math.round(
+    Math.max(
+      0,
+      Math.min(
+        1,
+        score
+      )
+    ) * 100
+  );
+}
+
+export function ExploreWorkspace({
+  onOpenWrite,
+}: {
+  onOpenWrite?: () => void;
+}) {
   const {
     confirm,
     notify,
@@ -100,6 +136,24 @@ export function ExploreWorkspace() {
     useSongStore(
       (state) =>
         state.updateSongMetadata
+    );
+
+  const createSectionFromIdea =
+    useSongStore(
+      (state) =>
+        state.createSectionFromIdea
+    );
+
+  const appendIdeaToSection =
+    useSongStore(
+      (state) =>
+        state.appendIdeaToSection
+    );
+
+  const setSelectedSection =
+    useSongStore(
+      (state) =>
+        state.setSelectedSection
     );
 
   const [
@@ -158,6 +212,48 @@ export function ExploreWorkspace() {
   ] = useState<
     string | null
   >(null);
+
+  const [
+    placementStatus,
+    setPlacementStatus,
+  ] = useState<
+    "idle" |
+    "loading" |
+    "ready"
+  >("idle");
+
+  const [
+    placementError,
+    setPlacementError,
+  ] = useState<
+    string | null
+  >(null);
+
+  const [
+    conceptFit,
+    setConceptFit,
+  ] = useState<
+    number | null
+  >(null);
+
+  const [
+    placementScores,
+    setPlacementScores,
+  ] = useState<
+    PlacementScore[]
+  >([]);
+
+  const [
+    targetType,
+    setTargetType,
+  ] = useState<
+    SectionType
+  >("verse");
+
+  const [
+    targetSectionId,
+    setTargetSectionId,
+  ] = useState("");
 
   const ideas =
     song?.ideas ?? [];
@@ -235,6 +331,26 @@ export function ExploreWorkspace() {
           Boolean(item.idea)
       );
 
+  function selectIdea(
+    ideaId: string
+  ) {
+    setSelectedIdeaId(
+      ideaId
+    );
+    setPlacementStatus(
+      "idle"
+    );
+    setPlacementScores(
+      []
+    );
+    setConceptFit(
+      null
+    );
+    setPlacementError(
+      null
+    );
+  }
+
   function createIdea() {
     if (
       !draftText.trim()
@@ -250,6 +366,13 @@ export function ExploreWorkspace() {
     setDraftText(
       ""
     );
+
+    notify({
+      title:
+        "Idea captured",
+      tone:
+        "success",
+    });
   }
 
   async function findRelated(
@@ -268,16 +391,14 @@ export function ExploreWorkspace() {
             id:
               candidate.id,
             text:
-              [
+              activeLyrics(
                 candidate.text,
-                candidate.note,
-              ]
-                .filter(Boolean)
-                .join("\n"),
+                candidate.note
+              ),
           })
         );
 
-    setSelectedIdeaId(
+    selectIdea(
       idea.id
     );
 
@@ -304,12 +425,10 @@ export function ExploreWorkspace() {
     try {
       const result =
         await findRelatedIdeasLocally(
-          [
+          activeLyrics(
             idea.text,
-            idea.note,
-          ]
-            .filter(Boolean)
-            .join("\n"),
+            idea.note
+          ),
           candidates,
           6
         );
@@ -336,6 +455,232 @@ export function ExploreWorkspace() {
           : String(error)
       );
     }
+  }
+
+  async function analyzePlacement(
+    idea: SongIdea
+  ) {
+    if (!song) {
+      return;
+    }
+
+    setPlacementStatus(
+      "loading"
+    );
+    setPlacementError(
+      null
+    );
+    setPlacementScores(
+      []
+    );
+    setConceptFit(
+      null
+    );
+
+    const sectionCandidates =
+      song.sections.map(
+        (section) => {
+          const version =
+            section.versions.find(
+              (candidate) =>
+                candidate.id ===
+                section.activeVersionId
+            );
+
+          return {
+            id:
+              "section:" +
+              section.id,
+            text: [
+              section.title,
+              section.type,
+              version?.lyrics ??
+                "",
+            ]
+              .filter(Boolean)
+              .join("\n"),
+          };
+        }
+      );
+
+    const candidates = [
+      ...sectionCandidates,
+      ...(song.concept?.trim()
+        ? [
+            {
+              id:
+                "__concept__",
+              text:
+                song.concept.trim(),
+            },
+          ]
+        : []),
+    ];
+
+    if (!candidates.length) {
+      setPlacementStatus(
+        "ready"
+      );
+      return;
+    }
+
+    try {
+      const result =
+        await findRelatedIdeasLocally(
+          activeLyrics(
+            idea.text,
+            idea.note
+          ),
+          candidates,
+          candidates.length
+        );
+
+      const nextPlacements =
+        result
+          .filter(
+            (item) =>
+              item.id.startsWith(
+                "section:"
+              )
+          )
+          .map(
+            (item) => {
+              const sectionId =
+                item.id.replace(
+                  "section:",
+                  ""
+                );
+
+              const section =
+                song.sections.find(
+                  (candidate) =>
+                    candidate.id ===
+                    sectionId
+                );
+
+              return {
+                id:
+                  sectionId,
+                title:
+                  section?.title ??
+                  "Section",
+                type:
+                  section?.type ??
+                  "",
+                score:
+                  item.score,
+              };
+            }
+          )
+          .slice(
+            0,
+            4
+          );
+
+      const concept =
+        result.find(
+          (item) =>
+            item.id ===
+            "__concept__"
+        );
+
+      setPlacementScores(
+        nextPlacements
+      );
+
+      setConceptFit(
+        concept?.score ??
+          null
+      );
+
+      if (
+        !targetSectionId &&
+        nextPlacements[0]
+      ) {
+        setTargetSectionId(
+          nextPlacements[0].id
+        );
+      }
+
+      setPlacementStatus(
+        "ready"
+      );
+    } catch (error) {
+      setPlacementStatus(
+        "idle"
+      );
+
+      setPlacementError(
+        error instanceof Error
+          ? error.message
+          : String(error)
+      );
+    }
+  }
+
+  function sendToNewSection(
+    idea: SongIdea
+  ) {
+    const sectionId =
+      createSectionFromIdea(
+        targetType,
+        idea.text,
+        idea.note
+      );
+
+    if (!sectionId) {
+      return;
+    }
+
+    notify({
+      title:
+        "Section created",
+      message:
+        "The idea was added to the song and arrangement.",
+      tone:
+        "success",
+    });
+
+    onOpenWrite?.();
+  }
+
+  function appendToExisting(
+    idea: SongIdea
+  ) {
+    const sectionId =
+      targetSectionId ||
+      placementScores[0]?.id ||
+      song?.sections[0]?.id;
+
+    if (!sectionId) {
+      notify({
+        title:
+          "No target section",
+        message:
+          "Create a section first or use New section.",
+        tone:
+          "danger",
+      });
+      return;
+    }
+
+    appendIdeaToSection(
+      sectionId,
+      idea.text
+    );
+
+    setSelectedSection(
+      sectionId
+    );
+
+    notify({
+      title:
+        "Idea added to section",
+      tone:
+        "success",
+    });
+
+    onOpenWrite?.();
   }
 
   if (!song) {
@@ -553,7 +898,7 @@ export function ExploreWorkspace() {
                     : "idea-card"
                 }
                 onClick={() =>
-                  setSelectedIdeaId(
+                  selectIdea(
                     idea.id
                   )
                 }
@@ -674,6 +1019,13 @@ export function ExploreWorkspace() {
                         concept:
                           idea.text,
                       });
+
+                      notify({
+                        title:
+                          "Song concept updated",
+                        tone:
+                          "success",
+                      });
                     }}
                   >
                     Use as concept
@@ -751,10 +1103,10 @@ export function ExploreWorkspace() {
         <div className="explore-heading">
           <div>
             <span>
-              Local semantic
+              Idea actions
             </span>
             <strong>
-              Related ideas
+              Develop
             </strong>
           </div>
 
@@ -765,29 +1117,265 @@ export function ExploreWorkspace() {
 
         {!selectedIdea && (
           <div className="related-empty">
-            Select an idea, then press Related to surface nearby thoughts by meaning,
-            not just matching words.
+            Select an idea to connect it to the song, test its fit, or find nearby ideas.
           </div>
         )}
 
         {selectedIdea && (
-          <div className="related-source">
-            <span>
-              Selected
-            </span>
-            <strong>
-              {
-                selectedIdea.text
-              }
-            </strong>
-          </div>
-        )}
+          <>
+            <div className="related-source">
+              <span>
+                Selected
+              </span>
+              <strong>
+                {
+                  selectedIdea.text
+                }
+              </strong>
+            </div>
 
-        {semanticStatus ===
-          "loading" && (
-          <div className="related-loading">
-            Comparing locally…
-          </div>
+            <div className="idea-send-panel">
+              <div className="idea-send-panel__label">
+                Send to song
+              </div>
+
+              <label>
+                <span>
+                  New section type
+                </span>
+
+                <select
+                  value={
+                    targetType
+                  }
+                  onChange={(event) =>
+                    setTargetType(
+                      event.target.value as SectionType
+                    )
+                  }
+                >
+                  {sectionTypes.map(
+                    (type) => (
+                      <option
+                        key={
+                          type.value
+                        }
+                        value={
+                          type.value
+                        }
+                      >
+                        {type.label}
+                      </option>
+                    )
+                  )}
+                </select>
+              </label>
+
+              <button
+                type="button"
+                className="idea-send-panel__primary"
+                onClick={() =>
+                  sendToNewSection(
+                    selectedIdea
+                  )
+                }
+              >
+                Create new section
+              </button>
+
+              <div className="idea-send-panel__or">
+                or add to existing
+              </div>
+
+              <label>
+                <span>
+                  Target section
+                </span>
+
+                <select
+                  value={
+                    targetSectionId
+                  }
+                  onChange={(event) =>
+                    setTargetSectionId(
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="">
+                    Choose section…
+                  </option>
+
+                  {song.sections.map(
+                    (section) => (
+                      <option
+                        key={
+                          section.id
+                        }
+                        value={
+                          section.id
+                        }
+                      >
+                        {section.title}
+                      </option>
+                    )
+                  )}
+                </select>
+              </label>
+
+              <button
+                type="button"
+                onClick={() =>
+                  appendToExisting(
+                    selectedIdea
+                  )
+                }
+              >
+                Append to section
+              </button>
+            </div>
+
+            <div className="idea-fit-panel">
+              <div className="idea-fit-panel__heading">
+                <div>
+                  <span>
+                    Local semantic
+                  </span>
+                  <strong>
+                    Best fit
+                  </strong>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    void analyzePlacement(
+                      selectedIdea
+                    )
+                  }
+                  disabled={
+                    placementStatus ===
+                    "loading"
+                  }
+                >
+                  {placementStatus ===
+                  "loading"
+                    ? "Analyzing…"
+                    : "Analyze"}
+                </button>
+              </div>
+
+              {placementError && (
+                <div className="related-error">
+                  {
+                    placementError
+                  }
+                </div>
+              )}
+
+              {conceptFit !==
+                null && (
+                <div className="idea-concept-fit">
+                  <span>
+                    Concept alignment
+                  </span>
+                  <strong>
+                    {displaySimilarity(
+                      conceptFit
+                    )}
+                  </strong>
+                </div>
+              )}
+
+              {placementScores.length >
+                0 && (
+                <div className="idea-placement-list">
+                  {placementScores.map(
+                    (
+                      item,
+                      index
+                    ) => (
+                      <button
+                        type="button"
+                        key={
+                          item.id
+                        }
+                        className={
+                          targetSectionId ===
+                          item.id
+                            ? "idea-placement idea-placement--selected"
+                            : "idea-placement"
+                        }
+                        onClick={() =>
+                          setTargetSectionId(
+                            item.id
+                          )
+                        }
+                      >
+                        <span>
+                          {index + 1}
+                        </span>
+
+                        <div>
+                          <strong>
+                            {
+                              item.title
+                            }
+                          </strong>
+                          <small>
+                            {
+                              item.type
+                            }
+                          </small>
+                        </div>
+
+                        <em>
+                          {displaySimilarity(
+                            item.score
+                          )}
+                        </em>
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
+
+              {placementStatus ===
+                "ready" &&
+                placementScores.length ===
+                  0 && (
+                <div className="related-empty related-empty--compact">
+                  Add song sections to get placement suggestions.
+                </div>
+              )}
+            </div>
+
+            <div className="related-divider" />
+
+            <div className="related-list-heading">
+              <span>
+                Related ideas
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  void findRelated(
+                    selectedIdea
+                  )
+                }
+                disabled={
+                  semanticStatus ===
+                  "loading"
+                }
+              >
+                {semanticStatus ===
+                "loading"
+                  ? "Comparing…"
+                  : "Find related"}
+              </button>
+            </div>
+          </>
         )}
 
         {semanticError && (
@@ -802,7 +1390,7 @@ export function ExploreWorkspace() {
             selectedIdea &&
             relatedIdeas.length ===
               0 && (
-              <div className="related-empty">
+              <div className="related-empty related-empty--compact">
                 Add a few more ideas to make semantic connections useful.
               </div>
             )}
@@ -816,7 +1404,7 @@ export function ExploreWorkspace() {
                   item.id
                 }
                 onClick={() => {
-                  setSelectedIdeaId(
+                  selectIdea(
                     item.id
                   );
 
@@ -838,9 +1426,8 @@ export function ExploreWorkspace() {
                   </span>
 
                   <em>
-                    {Math.round(
-                      item.score *
-                        100
+                    {displaySimilarity(
+                      item.score
                     )}
                   </em>
                 </div>
@@ -856,8 +1443,8 @@ export function ExploreWorkspace() {
         </div>
 
         <div className="related-note">
-          Similarity uses the same local 384-dimensional BGE embeddings as Concept Score.
-          No lyric or idea text is sent to an API.
+          Best Fit and Related use local BGE embeddings. They measure semantic proximity,
+          not writing quality, and do not send idea or lyric text to an API.
         </div>
       </aside>
     </div>
