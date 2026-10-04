@@ -40,6 +40,7 @@ function SortableItem({
     id,
     data: {
       type: "arrangement",
+      axis: "horizontal",
     },
   });
 
@@ -116,6 +117,8 @@ export function ArrangementPanel({
     data: {
       type:
         "arrangement-container",
+      axis:
+        "horizontal",
     },
   });
 
