@@ -305,6 +305,14 @@ export function VersionsWorkspace() {
           : loaded[0]?.id ??
             null
     );
+
+    setCurrentConceptScore(
+      null
+    );
+
+    setCurrentConceptFingerprint(
+      null
+    );
   }, [song?.id]);
 
   useEffect(() => {
