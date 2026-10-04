@@ -1522,3 +1522,102 @@ h4 {
 .workspace-arrangement .arrangement-empty--horizontal {
   min-height: 30px;
 }
+
+
+/* Hard viewport containment for shorter desktop windows */
+
+.app-shell {
+  display: grid;
+  grid-template-rows: 36px auto minmax(0, 1fr);
+  height: 100vh;
+  min-height: 0;
+}
+
+.studio-header,
+.song-strip,
+.workspace-grid,
+.arrange-workspace {
+  min-height: 0;
+}
+
+.workspace-grid {
+  height: 100%;
+  max-height: 100%;
+}
+
+.workspace-preview,
+.workspace-sections,
+.workspace-context,
+.workspace-arrangement {
+  min-height: 0;
+}
+
+.preview-shell,
+.preview-shell .app-panel,
+.workspace-sections .app-panel,
+.workspace-context .app-panel {
+  min-height: 0;
+}
+
+.preview-shell .app-panel__body,
+.workspace-sections .app-panel__body,
+.workspace-context .app-panel__body {
+  min-height: 0;
+}
+
+@media (max-height: 760px) {
+  .app-shell {
+    grid-template-rows: 32px auto minmax(0, 1fr);
+    gap: 0.35rem;
+    padding: 0.35rem;
+  }
+
+  .studio-header {
+    min-height: 32px;
+  }
+
+  .workspace-grid {
+    grid-template-rows: minmax(0, 1fr) 58px;
+  }
+
+  .workspace-arrangement .app-panel {
+    height: 58px;
+  }
+
+  .workspace-arrangement .app-panel__header {
+    min-height: 24px;
+    padding: 0.22rem 0.5rem;
+  }
+
+  .workspace-arrangement .app-panel__body {
+    padding: 0.2rem 0.38rem 0.24rem;
+  }
+
+  .workspace-arrangement .arrangement-track {
+    min-height: 28px;
+    height: 28px;
+  }
+
+  .workspace-arrangement .arrangement-item--horizontal {
+    min-height: 26px;
+  }
+
+  .workspace-arrangement .arrangement-drop-target--horizontal {
+    height: 26px;
+  }
+
+  .workspace-arrangement .arrangement-empty--horizontal {
+    min-height: 26px;
+  }
+
+  .song-strip .app-panel__header {
+    min-height: 26px;
+    padding-top: 0.24rem;
+    padding-bottom: 0.24rem;
+  }
+
+  .preview-paper {
+    padding-top: 0.8rem;
+    padding-bottom: 0.9rem;
+  }
+}
