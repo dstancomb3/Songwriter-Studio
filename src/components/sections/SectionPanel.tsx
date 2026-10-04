@@ -13,6 +13,14 @@ import type {
   SectionType,
 } from "../../types";
 
+import {
+  saveSafetySnapshot,
+} from "../../services/versionHistory";
+
+import {
+  useStudioModal,
+} from "../ui/StudioModalProvider";
+
 function DraggableSection({
   id,
   title,
@@ -104,6 +112,11 @@ function DraggableSection({
 }
 
 export function SectionPanel() {
+  const {
+    confirm,
+    notify,
+  } = useStudioModal();
+
   const [newType, setNewType] =
     useState<SectionType>("verse");
 
@@ -203,11 +216,49 @@ export function SectionPanel() {
                   title
                 )
               }
-              onDelete={() =>
-                deleteSection(
-                  section.id
-                )
-              }
+              onDelete={() => {
+                void (async () => {
+                  if (!song) {
+                    return;
+                  }
+
+                  const approved =
+                    await confirm({
+                      title:
+                        "Delete section?",
+                      message:
+                        "This removes the section and every occurrence of it from the arrangement. A safety snapshot will be saved first.",
+                      confirmLabel:
+                        "Delete section",
+                      tone:
+                        "danger",
+                    });
+
+                  if (!approved) {
+                    return;
+                  }
+
+                  saveSafetySnapshot(
+                    song,
+                    "Before deleting " +
+                      section.title,
+                    "Automatic safety snapshot before deleting a section."
+                  );
+
+                  deleteSection(
+                    section.id
+                  );
+
+                  notify({
+                    title:
+                      "Section deleted",
+                    message:
+                      "A safety snapshot was saved in Versions.",
+                    tone:
+                      "success",
+                  });
+                })();
+              }}
             />
           )
         )}
