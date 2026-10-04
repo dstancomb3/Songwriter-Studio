@@ -8,13 +8,31 @@ export type VersionScoreSummary = {
   wordCount: number;
 };
 
+export type VersionSnapshotSource =
+  | "manual"
+  | "safety"
+  | "restore"
+  | "import";
+
 export type SongVersionSnapshot = {
   id: string;
   name: string;
+  note?: string;
+  source?: VersionSnapshotSource;
   createdAt: string;
   songId: string;
   song: Song;
   scores: VersionScoreSummary;
+};
+
+export type VersionLineDiff = {
+  kind:
+    | "same"
+    | "added"
+    | "removed";
+  text: string;
+  beforeLine: number | null;
+  afterLine: number | null;
 };
 
 export type SectionChangeSummary = {
@@ -27,6 +45,7 @@ export type SectionChangeSummary = {
     | "unchanged";
   addedLines: number;
   removedLines: number;
+  lineDiff: VersionLineDiff[];
 };
 
 export type VersionComparison = {
