@@ -26,7 +26,7 @@ import {
 
 import { SectionPanel } from "./components/sections/SectionPanel";
 import { SectionEditor } from "./components/sections/SectionEditor";
-import { ArrangementPanel } from "./components/arrangement/ArrangementPanel";
+import { ArrangeWorkspace } from "./components/arrangement/ArrangeWorkspace";
 import { SongPanel } from "./components/songpanel";
 import { PreviewPanel } from "./components/preview/PreviewPanel";
 import { VersionsWorkspace } from "./components/versions/VersionsWorkspace";
@@ -852,71 +852,11 @@ function App() {
 
           </div>
         ) : workspace === "arrange" ? (
-          <div className="arrange-workspace">
-            <div className="arrange-workspace__sections">
-              <SectionPanel />
-            </div>
-
-            <div className="arrange-workspace__main">
-              <div className="arrange-workspace__intro">
-                <div>
-                  <div className="arrange-workspace__eyebrow">
-                    Structure view
-                  </div>
-                  <h2>Build the song's shape</h2>
-                  <p>
-                    Drag sections into the arrangement, reorder repetitions,
-                    and shape the full song without leaving the project.
-                  </p>
-                </div>
-
-                <div className="arrange-workspace__summary">
-                  <span>
-                    {song?.sections.length ?? 0} sections
-                  </span>
-                  <span>
-                    {song?.arrangements[0]?.sequence.length ?? 0} blocks
-                  </span>
-                </div>
-              </div>
-
-              <ArrangementPanel expanded />
-
-              <div className="arrange-workspace__map">
-                {(song?.arrangements[0]?.sequence ?? []).map(
-                  (item, index) => {
-                    const section =
-                      song?.sections.find(
-                        (candidate) =>
-                          candidate.id ===
-                          item.sectionId
-                      );
-
-                    return (
-                      <div
-                        className="arrange-map-card"
-                        key={item.id}
-                      >
-                        <span className="arrange-map-card__index">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <strong>
-                          {section?.title ?? "Section"}
-                        </strong>
-                        <span>
-                          {section?.type ?? ""}
-                        </span>
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            </div>
-
-            <div className="arrange-workspace__context">
-              <SectionEditor />
-            </div>
-          </div>
+          <ArrangeWorkspace
+            onOpenWrite={() =>
+              setWorkspace("write")
+            }
+          />
         ) : workspace === "explore" ? (
           <ExploreWorkspace
             onOpenWrite={() =>
