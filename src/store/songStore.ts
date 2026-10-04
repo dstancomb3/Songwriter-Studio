@@ -129,6 +129,10 @@ interface SongStore {
     index: number
   ) => void;
 
+  duplicateArrangementItem: (
+    index: number
+  ) => void;
+
   moveArrangementItem: (
     oldIndex: number,
     newIndex: number
@@ -1124,6 +1128,60 @@ export const useSongStore = create<SongStore>(
                       i !== index
                   ),
               },
+            ],
+          }),
+        };
+      }),
+
+    duplicateArrangementItem: (
+      index
+    ) =>
+      set((state) => {
+        if (!state.currentSong) {
+          return state;
+        }
+
+        const arrangement =
+          state.currentSong.arrangements[0];
+
+        const item =
+          arrangement?.sequence[
+            index
+          ];
+
+        if (
+          !arrangement ||
+          !item
+        ) {
+          return state;
+        }
+
+        const sequence = [
+          ...arrangement.sequence,
+        ];
+
+        sequence.splice(
+          index + 1,
+          0,
+          {
+            id:
+              crypto.randomUUID(),
+            sectionId:
+              item.sectionId,
+          }
+        );
+
+        return {
+          currentSong: touchSong({
+            ...state.currentSong,
+            arrangements: [
+              {
+                ...arrangement,
+                sequence,
+              },
+              ...state.currentSong.arrangements.slice(
+                1
+              ),
             ],
           }),
         };
