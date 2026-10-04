@@ -10,10 +10,19 @@ import {
   getSectionColors,
 } from "../constants/sectionColors";
 
+export type SelectedLyricLine = {
+  sectionId: string;
+  lineIndex: number;
+  text: string;
+  start: number;
+  end: number;
+};
+
 interface SongStore {
   currentSong: Song | null;
 
   selectedSectionId: string | null;
+  selectedLyricLine: SelectedLyricLine | null;
   selectedArrangementId: string | null;
 
   previewInsertIndex: number | null;
@@ -22,6 +31,10 @@ interface SongStore {
 
   setSelectedSection: (
     id: string | null
+  ) => void;
+
+  setSelectedLyricLine: (
+    selection: SelectedLyricLine | null
   ) => void;
 
   setSelectedArrangement: (
@@ -194,6 +207,7 @@ export const useSongStore = create<SongStore>(
     currentSong: null,
 
     selectedSectionId: null,
+    selectedLyricLine: null,
     selectedArrangementId: null,
 
     previewInsertIndex: null,
@@ -201,11 +215,29 @@ export const useSongStore = create<SongStore>(
     setCurrentSong: (song) =>
       set({
         currentSong: song,
+        selectedLyricLine:
+          null,
       }),
 
     setSelectedSection: (id) =>
-      set({
+      set((state) => ({
         selectedSectionId: id,
+        selectedLyricLine:
+          id ===
+          state.selectedLyricLine?.sectionId
+            ? state.selectedLyricLine
+            : null,
+      })),
+
+    setSelectedLyricLine: (
+      selection
+    ) =>
+      set({
+        selectedLyricLine:
+          selection,
+        selectedSectionId:
+          selection?.sectionId ??
+          null,
       }),
 
     setSelectedArrangement: (id) =>
@@ -658,6 +690,11 @@ export const useSongStore = create<SongStore>(
             sectionId
               ? null
               : state.selectedSectionId,
+          selectedLyricLine:
+            state.selectedLyricLine?.sectionId ===
+            sectionId
+              ? null
+              : state.selectedLyricLine,
         };
       }),
 
