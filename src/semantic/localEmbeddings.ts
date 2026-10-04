@@ -54,6 +54,16 @@ export type SemanticConceptAnalysis = {
   sections: SemanticSectionScore[];
 };
 
+export type SemanticIdeaCandidate = {
+  id: string;
+  text: string;
+};
+
+export type SemanticIdeaNeighbor = {
+  id: string;
+  score: number;
+};
+
 let extractorPromise:
   | Promise<FeatureExtractor>
   | null = null;
@@ -546,4 +556,69 @@ export async function analyzeSongConcept(
         left.rerankerLogit
     ),
   };
+}
+
+
+export async function findRelatedIdeas(
+  queryText: string,
+  candidates: SemanticIdeaCandidate[],
+  limit = 6
+): Promise<SemanticIdeaNeighbor[]> {
+  const query =
+    queryText.trim();
+
+  if (
+    !query ||
+    candidates.length === 0
+  ) {
+    return [];
+  }
+
+  const filtered =
+    candidates.filter(
+      (candidate) =>
+        candidate.text.trim()
+    );
+
+  if (!filtered.length) {
+    return [];
+  }
+
+  const vectors =
+    await embedTexts([
+      query,
+      ...filtered.map(
+        (candidate) =>
+          candidate.text.trim()
+      ),
+    ]);
+
+  const queryVector =
+    vectors[0];
+
+  return filtered
+    .map(
+      (candidate, index) => ({
+        id: candidate.id,
+        score:
+          cosineSimilarity(
+            queryVector,
+            vectors[
+              index + 1
+            ]
+          ),
+      })
+    )
+    .sort(
+      (left, right) =>
+        right.score -
+        left.score
+    )
+    .slice(
+      0,
+      Math.max(
+        1,
+        limit
+      )
+    );
 }
