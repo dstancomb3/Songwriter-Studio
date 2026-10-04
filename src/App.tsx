@@ -24,10 +24,12 @@ import { ArrangementPanel } from "./components/arrangement/ArrangementPanel";
 import { SongPanel } from "./components/songpanel";
 import { PreviewPanel } from "./components/preview/PreviewPanel";
 import { VersionsWorkspace } from "./components/versions/VersionsWorkspace";
+import { ExploreWorkspace } from "./components/explore/ExploreWorkspace";
 
 type Workspace =
   | "write"
   | "arrange"
+  | "explore"
   | "versions";
 
 function App() {
@@ -377,9 +379,14 @@ function App() {
 
             <button
               type="button"
-              className="studio-nav__item studio-nav__item--disabled"
-              disabled
-              title="Explore workspace is coming next"
+              className={
+                workspace === "explore"
+                  ? "studio-nav__item studio-nav__item--active"
+                  : "studio-nav__item"
+              }
+              onClick={() =>
+                setWorkspace("explore")
+              }
             >
               Explore
             </button>
@@ -493,6 +500,8 @@ function App() {
               <SectionEditor />
             </div>
           </div>
+        ) : workspace === "explore" ? (
+          <ExploreWorkspace />
         ) : (
           <VersionsWorkspace />
         )}
