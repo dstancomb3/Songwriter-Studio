@@ -1,8 +1,13 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
-  type ReactNode,
+  useState,
 } from "react";
+
+import {
+  createPortal,
+} from "react-dom";
 
 export type ContextMenuItem = {
   id: string;
@@ -28,6 +33,59 @@ export function StudioContextMenu({
       null
     );
 
+  const [
+    position,
+    setPosition,
+  ] = useState({
+    left: x,
+    top: y,
+  });
+
+  useLayoutEffect(() => {
+    const element =
+      ref.current;
+
+    if (!element) {
+      return;
+    }
+
+    const rect =
+      element.getBoundingClientRect();
+
+    const padding = 8;
+
+    const left =
+      Math.max(
+        padding,
+        Math.min(
+          x,
+          window.innerWidth -
+            rect.width -
+            padding
+        )
+      );
+
+    const top =
+      Math.max(
+        padding,
+        Math.min(
+          y,
+          window.innerHeight -
+            rect.height -
+            padding
+        )
+      );
+
+    setPosition({
+      left,
+      top,
+    });
+  }, [
+    x,
+    y,
+    items.length,
+  ]);
+
   useEffect(() => {
     function close() {
       onClose();
@@ -45,7 +103,7 @@ export function StudioContextMenu({
     }
 
     window.addEventListener(
-      "mousedown",
+      "pointerdown",
       close
     );
 
@@ -61,13 +119,15 @@ export function StudioContextMenu({
 
     return () => {
       window.removeEventListener(
-        "mousedown",
+        "pointerdown",
         close
       );
+
       window.removeEventListener(
         "blur",
         close
       );
+
       window.removeEventListener(
         "keydown",
         handleKeyDown
@@ -75,40 +135,18 @@ export function StudioContextMenu({
     };
   }, [onClose]);
 
-  const viewportWidth =
-    window.innerWidth;
-  const viewportHeight =
-    window.innerHeight;
-
-  const left =
-    Math.min(
-      x,
-      viewportWidth - 210
-    );
-
-  const top =
-    Math.min(
-      y,
-      viewportHeight -
-        Math.max(
-          60,
-          items.length * 34 +
-            16
-        )
-    );
-
-  return (
+  return createPortal(
     <div
       ref={ref}
       className="studio-context-menu"
       style={{
         left:
-          Math.max(8, left),
+          position.left,
         top:
-          Math.max(8, top),
+          position.top,
       }}
       role="menu"
-      onMouseDown={(event) =>
+      onPointerDown={(event) =>
         event.stopPropagation()
       }
       onContextMenu={(event) => {
@@ -145,6 +183,7 @@ export function StudioContextMenu({
           </button>
         )
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
