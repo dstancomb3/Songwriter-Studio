@@ -1,0 +1,349 @@
+{
+  "id": "test-long-way-home",
+  "title": "The Long Way Home",
+  "artist": "Test Library",
+  "album": "Songwriter Studio QA",
+  "genre": "Americana",
+  "key": "C major",
+  "tempo": 88,
+  "timeSignature": "4/4",
+  "notes": "Long-form case for scrolling/performance, repeated sections, chords, section versions, and larger arrangement.",
+  "concept": "After years away, a person drives back to their hometown and realizes home is not a place they can simply return to; it is made from the people, memories, and choices they carry.",
+  "createdAt": "2026-10-04T06:55:00.000Z",
+  "updatedAt": "2026-10-04T06:55:00.000Z",
+  "settings": {
+    "darkMode": true,
+    "sectionColors": {
+      "intro": "#64748b",
+      "verse": "#3b82f6",
+      "pre-chorus": "#f59e0b",
+      "chorus": "#22c55e",
+      "post-chorus": "#14b8a6",
+      "bridge": "#a855f7",
+      "hook": "#ec4899",
+      "outro": "#ef4444",
+      "custom": "#9ca3af"
+    }
+  },
+  "themes": [],
+  "ideas": [
+    {
+      "id": "lwh-i1",
+      "kind": "image",
+      "text": "Porch light reflected in the rearview mirror",
+      "note": "Outro image",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "lwh-i2",
+      "kind": "hook",
+      "text": "A road can bring you to the doorway, it can't tell you what to do",
+      "note": "Possible secondary hook",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "lwh-i3",
+      "kind": "title",
+      "text": "What the Road Remembers",
+      "note": "Alternate title",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "lwh-intro",
+      "type": "intro",
+      "title": "Intro",
+      "activeVersionId": "lwh-i-v1",
+      "versions": [
+        {
+          "id": "lwh-i-v1",
+          "name": "Default",
+          "lyrics": "County line at quarter to three\nDashboard glowing low",
+          "chords": [
+            "C",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-v1",
+      "type": "verse",
+      "title": "Verse 1",
+      "activeVersionId": "lwh-v1-a",
+      "versions": [
+        {
+          "id": "lwh-v1-a",
+          "name": "Default",
+          "lyrics": "The water tower still wears the old name\nThe diner sign is missing half its red\nI pass the field where we learned how to drive\nAnd hear my father's warning in my head\nSlow down before the railroad\nWatch the curve beyond the mill\nFunny how a road remembers\nEven when the people don't stand still",
+          "chords": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-chorus",
+      "type": "chorus",
+      "title": "Chorus",
+      "activeVersionId": "lwh-c-b",
+      "versions": [
+        {
+          "id": "lwh-c-a",
+          "name": "Original",
+          "lyrics": "I took the long way home\nPast every place I used to know\nThinking miles could turn me back\nTo someone I outgrew long ago\nI took the long way home\nTill the morning found the road\nMaybe home is what you carry\nWhen there's nowhere left to go",
+          "chords": [
+            "F",
+            "C",
+            "G",
+            "Am"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        },
+        {
+          "id": "lwh-c-b",
+          "name": "Current",
+          "lyrics": "I took the long way home\nPast every place I used to know\nThought the miles could turn me back\nTo someone I outgrew long ago\nI took the long way home\nTill the sunrise found the road\nMaybe home is what you carry\nWhen there's nowhere left to go",
+          "chords": [
+            "F",
+            "C",
+            "G",
+            "Am"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-v2",
+      "type": "verse",
+      "title": "Verse 2",
+      "activeVersionId": "lwh-v2-v1",
+      "versions": [
+        {
+          "id": "lwh-v2-v1",
+          "name": "Default",
+          "lyrics": "Mrs. Carter's porch is painted yellow\nHer mailbox leans the way it always did\nThe corner store became a pharmacy\nThe vacant lot is full of someone's kids\nI almost stop beside the church\nWhere my mother sang soprano\nBut the parking lot is empty\nAnd I let the memory go",
+          "chords": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-pre",
+      "type": "pre-chorus",
+      "title": "Pre-Chorus",
+      "activeVersionId": "lwh-pre-v1",
+      "versions": [
+        {
+          "id": "lwh-pre-v1",
+          "name": "Default",
+          "lyrics": "Every mile says keep on moving\nEvery landmark says remember",
+          "chords": [
+            "Dm",
+            "F",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-v3",
+      "type": "verse",
+      "title": "Verse 3",
+      "activeVersionId": "lwh-v3-v1",
+      "versions": [
+        {
+          "id": "lwh-v3-v1",
+          "name": "Default",
+          "lyrics": "My brother leaves the porch light burning\nThough I told him I might not arrive\nHe meets me barefoot in the driveway\nLike no time passed between our lives\nWe don't talk about the leaving\nWe don't count who should have called\nHe just takes my bag and tells me\nThere's still coffee after all",
+          "chords": [
+            "C",
+            "G",
+            "Am",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-bridge",
+      "type": "bridge",
+      "title": "Bridge",
+      "activeVersionId": "lwh-b-v1",
+      "versions": [
+        {
+          "id": "lwh-b-v1",
+          "name": "Default",
+          "lyrics": "A town can keep your fingerprints\nWithout keeping your old room\nA road can bring you to the doorway\nIt can't tell you what to do\nSo I stand there in the porch light\nWith the engine ticking cold\nAnd for once I stop confusing\nBeing known with being old",
+          "chords": [
+            "Am",
+            "F",
+            "C",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-hook",
+      "type": "hook",
+      "title": "Hook",
+      "activeVersionId": "lwh-h-v1",
+      "versions": [
+        {
+          "id": "lwh-h-v1",
+          "name": "Default",
+          "lyrics": "Home is what you carry\nHome is who still knows your name",
+          "chords": [
+            "F",
+            "G",
+            "C"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "lwh-outro",
+      "type": "outro",
+      "title": "Outro",
+      "activeVersionId": "lwh-o-v1",
+      "versions": [
+        {
+          "id": "lwh-o-v1",
+          "name": "Default",
+          "lyrics": "County line behind me now\nPorch light in the mirror",
+          "chords": [
+            "C",
+            "F"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "arrangements": [
+    {
+      "id": "main",
+      "name": "Main Arrangement",
+      "sequence": [
+        {
+          "id": "lwh-o1",
+          "sectionId": "lwh-intro"
+        },
+        {
+          "id": "lwh-o2",
+          "sectionId": "lwh-v1"
+        },
+        {
+          "id": "lwh-o3",
+          "sectionId": "lwh-pre"
+        },
+        {
+          "id": "lwh-o4",
+          "sectionId": "lwh-chorus"
+        },
+        {
+          "id": "lwh-o5",
+          "sectionId": "lwh-v2"
+        },
+        {
+          "id": "lwh-o6",
+          "sectionId": "lwh-pre"
+        },
+        {
+          "id": "lwh-o7",
+          "sectionId": "lwh-chorus"
+        },
+        {
+          "id": "lwh-o8",
+          "sectionId": "lwh-v3"
+        },
+        {
+          "id": "lwh-o9",
+          "sectionId": "lwh-chorus"
+        },
+        {
+          "id": "lwh-o10",
+          "sectionId": "lwh-bridge"
+        },
+        {
+          "id": "lwh-o11",
+          "sectionId": "lwh-hook"
+        },
+        {
+          "id": "lwh-o12",
+          "sectionId": "lwh-chorus"
+        },
+        {
+          "id": "lwh-o13",
+          "sectionId": "lwh-outro"
+        }
+      ]
+    }
+  ]
+}
