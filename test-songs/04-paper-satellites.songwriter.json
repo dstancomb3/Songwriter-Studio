@@ -1,0 +1,254 @@
+{
+  "id": "test-paper-satellites",
+  "title": "Paper Satellites",
+  "artist": "Test Library",
+  "album": "Songwriter Studio QA",
+  "genre": "Singer-Songwriter",
+  "key": "G",
+  "tempo": 78,
+  "timeSignature": "4/4",
+  "notes": "Sparse/incomplete case. No explicit concept, blank Sections, multiple lyric versions, and a large Explore bank. Concept Score should clearly use title/notes fallback and ignore blank lyric Sections.",
+  "concept": "",
+  "createdAt": "2026-10-04T06:55:00.000Z",
+  "updatedAt": "2026-10-04T06:55:00.000Z",
+  "settings": {
+    "darkMode": true,
+    "sectionColors": {
+      "intro": "#64748b",
+      "verse": "#3b82f6",
+      "pre-chorus": "#f59e0b",
+      "chorus": "#22c55e",
+      "post-chorus": "#14b8a6",
+      "bridge": "#a855f7",
+      "hook": "#ec4899",
+      "outro": "#ef4444",
+      "custom": "#9ca3af"
+    }
+  },
+  "themes": [],
+  "ideas": [
+    {
+      "id": "ps-i1",
+      "kind": "concept",
+      "text": "Trying to communicate after contact has already been lost",
+      "note": "Possible explicit concept",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ps-i2",
+      "kind": "hook",
+      "text": "Sending all my silence back to me",
+      "note": "Current chorus anchor",
+      "pinned": true,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ps-i3",
+      "kind": "image",
+      "text": "Origami message caught on a television antenna",
+      "note": "Visual for bridge",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ps-i4",
+      "kind": "snippet",
+      "text": "No atmosphere can carry paper this far",
+      "note": "Maybe Verse 2",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ps-i5",
+      "kind": "title",
+      "text": "Dead Letter Orbit",
+      "note": "Alternate title",
+      "pinned": false,
+      "archived": false,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    },
+    {
+      "id": "ps-i6",
+      "kind": "emotion",
+      "text": "Hope kept alive by the ritual of sending even with no receiver",
+      "note": "",
+      "pinned": false,
+      "archived": true,
+      "createdAt": "2026-10-04T06:55:00.000Z",
+      "updatedAt": "2026-10-04T06:55:00.000Z"
+    }
+  ],
+  "sections": [
+    {
+      "id": "ps-v1",
+      "type": "verse",
+      "title": "Verse 1",
+      "activeVersionId": "ps-v1-b",
+      "versions": [
+        {
+          "id": "ps-v1-a",
+          "name": "First Draft",
+          "lyrics": "I folded up the things I couldn't tell you\nSet them on the windowsill to dry\nEvery little page became a signal\nPointed at an empty patch of sky",
+          "chords": [
+            "G",
+            "C",
+            "Em",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        },
+        {
+          "id": "ps-v1-b",
+          "name": "Tighter",
+          "lyrics": "I folded what I couldn't tell you\nLeft the pages by the light\nEvery little crease became a signal\nAimed into the night",
+          "chords": [
+            "G",
+            "C",
+            "Em",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ps-chorus",
+      "type": "chorus",
+      "title": "Chorus",
+      "activeVersionId": "ps-c-a",
+      "versions": [
+        {
+          "id": "ps-c-a",
+          "name": "Default",
+          "lyrics": "Paper satellites\nSpinning where your answer ought to be\nPaper satellites\nSending all my silence back to me",
+          "chords": [
+            "C",
+            "G",
+            "Em",
+            "D"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ps-v2",
+      "type": "verse",
+      "title": "Verse 2",
+      "activeVersionId": "ps-v2-empty",
+      "versions": [
+        {
+          "id": "ps-v2-empty",
+          "name": "Default",
+          "lyrics": "",
+          "chords": [],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ps-bridge",
+      "type": "bridge",
+      "title": "Bridge",
+      "activeVersionId": "ps-b-empty",
+      "versions": [
+        {
+          "id": "ps-b-empty",
+          "name": "Default",
+          "lyrics": "",
+          "chords": [],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "ps-outro",
+      "type": "outro",
+      "title": "Outro",
+      "activeVersionId": "ps-o1",
+      "versions": [
+        {
+          "id": "ps-o1",
+          "name": "Default",
+          "lyrics": "One page catches on the antenna\nThen the wind takes it away",
+          "chords": [
+            "Em",
+            "C",
+            "G"
+          ],
+          "melody": {
+            "notes": []
+          },
+          "markers": [],
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "arrangements": [
+    {
+      "id": "main",
+      "name": "Main Arrangement",
+      "sequence": [
+        {
+          "id": "ps-o1",
+          "sectionId": "ps-v1"
+        },
+        {
+          "id": "ps-o2",
+          "sectionId": "ps-chorus"
+        },
+        {
+          "id": "ps-o3",
+          "sectionId": "ps-v2"
+        },
+        {
+          "id": "ps-o4",
+          "sectionId": "ps-chorus"
+        },
+        {
+          "id": "ps-o5",
+          "sectionId": "ps-bridge"
+        },
+        {
+          "id": "ps-o6",
+          "sectionId": "ps-chorus"
+        },
+        {
+          "id": "ps-o7",
+          "sectionId": "ps-outro"
+        }
+      ]
+    }
+  ]
+}
