@@ -3,6 +3,8 @@ import type {
   SongVersionSnapshot,
   VersionComparison,
   VersionScoreSummary,
+  VersionLineDiff,
+  VersionSnapshotSource,
 } from "../types";
 
 import {
@@ -63,6 +65,150 @@ function lineSet(
         line.trim()
     )
     .filter(Boolean);
+}
+
+export function buildLineDiff(
+  before: string[],
+  after: string[]
+): VersionLineDiff[] {
+  const rows =
+    before.length + 1;
+  const columns =
+    after.length + 1;
+
+  const table =
+    Array.from(
+      { length: rows },
+      () =>
+        Array<number>(
+          columns
+        ).fill(0)
+    );
+
+  for (
+    let beforeIndex =
+      before.length - 1;
+    beforeIndex >= 0;
+    beforeIndex -= 1
+  ) {
+    for (
+      let afterIndex =
+        after.length - 1;
+      afterIndex >= 0;
+      afterIndex -= 1
+    ) {
+      table[beforeIndex][afterIndex] =
+        before[beforeIndex] ===
+        after[afterIndex]
+          ? table[
+              beforeIndex + 1
+            ][
+              afterIndex + 1
+            ] + 1
+          : Math.max(
+              table[
+                beforeIndex + 1
+              ][afterIndex],
+              table[beforeIndex][
+                afterIndex + 1
+              ]
+            );
+    }
+  }
+
+  const diff:
+    VersionLineDiff[] = [];
+
+  let beforeIndex = 0;
+  let afterIndex = 0;
+
+  while (
+    beforeIndex <
+      before.length ||
+    afterIndex <
+      after.length
+  ) {
+    if (
+      beforeIndex <
+        before.length &&
+      afterIndex <
+        after.length &&
+      before[beforeIndex] ===
+        after[afterIndex]
+    ) {
+      diff.push({
+        kind: "same",
+        text:
+          before[beforeIndex],
+        beforeLine:
+          beforeIndex + 1,
+        afterLine:
+          afterIndex + 1,
+      });
+
+      beforeIndex += 1;
+      afterIndex += 1;
+      continue;
+    }
+
+    const canAdd =
+      afterIndex <
+      after.length;
+
+    const canRemove =
+      beforeIndex <
+      before.length;
+
+    const addScore =
+      canAdd
+        ? table[
+            beforeIndex
+          ][
+            afterIndex + 1
+          ]
+        : -1;
+
+    const removeScore =
+      canRemove
+        ? table[
+            beforeIndex + 1
+          ][afterIndex]
+        : -1;
+
+    if (
+      canAdd &&
+      addScore >=
+        removeScore
+    ) {
+      diff.push({
+        kind: "added",
+        text:
+          after[afterIndex],
+        beforeLine: null,
+        afterLine:
+          afterIndex + 1,
+      });
+
+      afterIndex += 1;
+      continue;
+    }
+
+    if (canRemove) {
+      diff.push({
+        kind:
+          "removed",
+        text:
+          before[beforeIndex],
+        beforeLine:
+          beforeIndex + 1,
+        afterLine: null,
+      });
+
+      beforeIndex += 1;
+    }
+  }
+
+  return diff;
 }
 
 function multisetDifferenceCount(
@@ -277,7 +423,11 @@ export function saveVersionSnapshot(
   song: Song,
   name: string,
   scores:
-    VersionScoreSummary
+    VersionScoreSummary,
+  options?: {
+    note?: string;
+    source?: VersionSnapshotSource;
+  }
 ): SongVersionSnapshot[] {
   const existing =
     loadVersionHistory(
@@ -291,6 +441,12 @@ export function saveVersionSnapshot(
       name:
         name.trim() ||
         "Snapshot",
+      note:
+        options?.note?.trim() ||
+        undefined,
+      source:
+        options?.source ??
+        "manual",
       createdAt:
         new Date().toISOString(),
       songId:
@@ -311,6 +467,26 @@ export function saveVersionSnapshot(
   );
 
   return next;
+}
+
+export function saveSafetySnapshot(
+  song: Song,
+  name: string,
+  note?: string
+): SongVersionSnapshot[] {
+  return saveVersionSnapshot(
+    song,
+    name,
+    buildCraftSummary(
+      song,
+      null
+    ),
+    {
+      note,
+      source:
+        "safety",
+    }
+  );
 }
 
 export function deleteVersionSnapshot(
@@ -403,6 +579,16 @@ export function compareSongVersions(
                 )
               ).length,
             removedLines: 0,
+            lineDiff:
+              buildLineDiff(
+                [],
+                lineSet(
+                  activeLyrics(
+                    current,
+                    sectionId
+                  )
+                )
+              ),
           };
         }
 
@@ -421,6 +607,16 @@ export function compareSongVersions(
                   sectionId
                 )
               ).length,
+            lineDiff:
+              buildLineDiff(
+                lineSet(
+                  activeLyrics(
+                    previous,
+                    sectionId
+                  )
+                ),
+                []
+              ),
           };
         }
 
@@ -452,6 +648,12 @@ export function compareSongVersions(
             afterLines
           );
 
+        const lineDiff =
+          buildLineDiff(
+            beforeLines,
+            afterLines
+          );
+
         const changed =
           before.title !==
             after.title ||
@@ -470,6 +672,7 @@ export function compareSongVersions(
               : "unchanged",
           addedLines,
           removedLines,
+          lineDiff,
         } as const;
       }
     );
@@ -527,5 +730,59 @@ export function compareSongVersions(
       previous.title !==
       current.title,
     sections,
+  };
+}
+
+
+export function restoreSectionFromSnapshot(
+  current: Song,
+  snapshot:
+    SongVersionSnapshot,
+  sectionId: string
+): Song {
+  const snapshotSection =
+    snapshot.song.sections.find(
+      (section) =>
+        section.id ===
+        sectionId
+    );
+
+  if (!snapshotSection) {
+    return current;
+  }
+
+  const clonedSection =
+    JSON.parse(
+      JSON.stringify(
+        snapshotSection
+      )
+    );
+
+  const existingIndex =
+    current.sections.findIndex(
+      (section) =>
+        section.id ===
+        sectionId
+    );
+
+  const sections =
+    existingIndex >= 0
+      ? current.sections.map(
+          (section) =>
+            section.id ===
+            sectionId
+              ? clonedSection
+              : section
+        )
+      : [
+          ...current.sections,
+          clonedSection,
+        ];
+
+  return {
+    ...current,
+    sections,
+    updatedAt:
+      new Date().toISOString(),
   };
 }
