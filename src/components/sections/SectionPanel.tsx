@@ -324,14 +324,6 @@ export function SectionPanel() {
     notify,
   } = useStudioModal();
 
-  const [
-    newType,
-    setNewType,
-  ] =
-    useState<SectionType>(
-      "verse"
-    );
-
   const song =
     useSongStore(
       (state) =>
@@ -421,17 +413,36 @@ export function SectionPanel() {
 
   return (
     <Panel title="Sections">
-      <div className="section-create-row">
+      <div className="section-create-row section-create-row--single">
         <select
-          value={newType}
-          onChange={(event) =>
-            setNewType(
-              event.target
-                .value as SectionType
-            )
-          }
-          aria-label="Section type"
+          className="section-add-select"
+          value=""
+          onChange={(event) => {
+            const value =
+              event.target.value as
+                | SectionType
+                | "";
+
+            if (!value) {
+              return;
+            }
+
+            createSection(
+              value
+            );
+
+            event.currentTarget.value =
+              "";
+          }}
+          aria-label="Add a Section"
         >
+          <option
+            value=""
+            disabled
+          >
+            Add a Section
+          </option>
+
           <option value="intro">
             Intro
           </option>
@@ -460,19 +471,6 @@ export function SectionPanel() {
             Custom
           </option>
         </select>
-
-        <button
-          type="button"
-          className="section-create-button"
-          onClick={() =>
-            createSection(
-              newType
-            )
-          }
-          title="Create section"
-        >
-          +
-        </button>
       </div>
 
       <div className="section-card-list">
