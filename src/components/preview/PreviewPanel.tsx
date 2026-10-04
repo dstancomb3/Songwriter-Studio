@@ -11,6 +11,10 @@ import {
   getSectionColors,
 } from "../../constants/sectionColors";
 
+import {
+  analyzeLyrics,
+} from "../../analysis/lyricsAnalysis";
+
 export function PreviewPanel() {
   const [hoveredSectionId, setHoveredSectionId] =
     useState<string | null>(null);
@@ -145,6 +149,15 @@ export function PreviewPanel() {
               sectionColors[section.type] ??
               sectionColors.custom;
 
+            const lyricAnalysis =
+              analyzeLyrics(
+                version.lyrics
+              );
+
+            const isSelected =
+              selectedSectionId ===
+              section.id;
+
             return (
               <div
                 key={item.id ?? index}
@@ -164,8 +177,7 @@ export function PreviewPanel() {
                 }}
                 data-section-id={section.id}
                 className={
-                  selectedSectionId ===
-                  section.id
+                  isSelected
                     ? "preview-section preview-section--selected"
                     : "preview-section"
                 }
@@ -175,7 +187,8 @@ export function PreviewPanel() {
                   )
                 }
               >
-                <h3
+                <div className="preview-section__heading">
+                  <h3
                   className="preview-section__title"
                   onMouseEnter={() =>
                     setHoveredSectionId(
@@ -199,7 +212,50 @@ export function PreviewPanel() {
                   }}
                 >
                   {section.title}
-                </h3>
+                  </h3>
+
+                  {isSelected && lyricAnalysis.lineCount > 0 && (
+                    <div className="preview-section__metrics">
+                      <span>
+                        {lyricAnalysis.targetSyllables} syl
+                      </span>
+                      <span>
+                        {lyricAnalysis.rhymeScheme || "—"}
+                      </span>
+                      <span>
+                        R {lyricAnalysis.rhymeScore.total}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {isSelected && lyricAnalysis.lines.length > 0 && (
+                  <div className="preview-line-guide">
+                    {lyricAnalysis.lines.map(
+                      (line, lineIndex) => (
+                        <span
+                          key={lineIndex}
+                          className={
+                            "preview-line-guide__chip preview-line-guide__chip--" +
+                            line.meterStatus
+                          }
+                          title={
+                            line.rhymeLabel +
+                            " · " +
+                            line.syllables +
+                            " syllables · " +
+                            line.endWord
+                          }
+                        >
+                          {lineIndex + 1}
+                          {" · "}
+                          {line.syllables}
+                          {line.rhymeLabel}
+                        </span>
+                      )
+                    )}
+                  </div>
+                )}
 
                 <textarea
                   className="preview-lyrics"
