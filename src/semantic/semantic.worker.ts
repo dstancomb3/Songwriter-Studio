@@ -1,16 +1,32 @@
 import {
   analyzeSongConcept,
+  findRelatedIdeas,
 } from "./localEmbeddings";
 
 import type {
   Song,
 } from "../types";
 
-type SemanticWorkerRequest = {
-  id: number;
-  operation: "analyze-concept";
-  song: Song;
-};
+import type {
+  SemanticIdeaCandidate,
+} from "./localEmbeddings";
+
+type SemanticWorkerRequest =
+  | {
+      id: number;
+      operation:
+        "analyze-concept";
+      song: Song;
+    }
+  | {
+      id: number;
+      operation:
+        "related-ideas";
+      queryText: string;
+      candidates:
+        SemanticIdeaCandidate[];
+      limit: number;
+    };
 
 type WorkerScope = {
   onmessage:
@@ -34,9 +50,16 @@ async function handleRequest(
 ) {
   try {
     const result =
-      await analyzeSongConcept(
-        request.song
-      );
+      request.operation ===
+      "analyze-concept"
+        ? await analyzeSongConcept(
+            request.song
+          )
+        : await findRelatedIdeas(
+            request.queryText,
+            request.candidates,
+            request.limit
+          );
 
     scope.postMessage({
       id: request.id,
