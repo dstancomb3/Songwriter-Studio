@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -456,6 +457,12 @@ export function PreviewPanel() {
         state.setSelectedLyricLine
     );
 
+  const previewInsertIndex =
+    useSongStore(
+      (state) =>
+        state.previewInsertIndex
+    );
+
   const {
     setNodeRef:
       setPaperDropRef,
@@ -654,10 +661,17 @@ export function PreviewPanel() {
                   );
 
                 return (
-                  <SortableWriteSection
+                  <Fragment
                     key={
                       item.id
                     }
+                  >
+                    {previewInsertIndex ===
+                      index && (
+                      <div className="preview-arrangement-drop-target" />
+                    )}
+
+                  <SortableWriteSection
                     arrangementItemId={
                       item.id
                     }
@@ -699,8 +713,14 @@ export function PreviewPanel() {
                       firstIndex
                     }
                   />
+                  </Fragment>
                 );
               }
+            )}
+
+            {previewInsertIndex ===
+              arrangement.sequence.length && (
+              <div className="preview-arrangement-drop-target" />
             )}
           </SortableContext>
         </div>
