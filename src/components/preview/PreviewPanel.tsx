@@ -30,6 +30,18 @@ import {
   analyzeLyrics,
 } from "../../analysis/lyricsAnalysis";
 
+import {
+  saveSafetySnapshot,
+} from "../../services/versionHistory";
+
+import {
+  useStudioModal,
+} from "../ui/StudioModalProvider";
+
+import {
+  StudioContextMenu,
+} from "../ui/StudioContextMenu";
+
 import type {
   Section,
   SectionVersion,
@@ -49,6 +61,8 @@ function SortableWriteSection({
   textareaRefs,
   sectionRefs,
   isFirstOccurrence,
+  onRemoveOccurrence,
+  onDeleteSection,
 }: {
   arrangementItemId: string;
   section: Section;
@@ -85,7 +99,20 @@ function SortableWriteSection({
       >
     >;
   isFirstOccurrence: boolean;
+  onRemoveOccurrence: () => void;
+  onDeleteSection: () => void;
 }) {
+  const [
+    menu,
+    setMenu,
+  ] = useState<
+    | {
+        x: number;
+        y: number;
+      }
+    | null
+  >(null);
+
   const {
     attributes,
     listeners,
@@ -222,6 +249,21 @@ function SortableWriteSection({
           section.id
         )
       }
+      onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        setSelectedSection(
+          section.id
+        );
+
+        setMenu({
+          x:
+            event.clientX,
+          y:
+            event.clientY,
+        });
+      }}
     >
       <div className="preview-section__heading">
         <div className="preview-section__title-group">
@@ -398,12 +440,61 @@ function SortableWriteSection({
           )
         }
         rows={1}
+        onContextMenu={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          setSelectedSection(
+            section.id
+          );
+
+          setMenu({
+            x:
+              event.clientX,
+            y:
+              event.clientY,
+          });
+        }}
       />
+
+      {menu && (
+        <StudioContextMenu
+          x={menu.x}
+          y={menu.y}
+          onClose={() =>
+            setMenu(null)
+          }
+          items={[
+            {
+              id:
+                "remove-occurrence",
+              label:
+                "Remove this occurrence",
+              onSelect:
+                onRemoveOccurrence,
+            },
+            {
+              id:
+                "delete-section",
+              label:
+                "Delete section everywhere",
+              danger: true,
+              onSelect:
+                onDeleteSection,
+            },
+          ]}
+        />
+      )}
     </div>
   );
 }
 
 export function PreviewPanel() {
+  const {
+    confirm,
+    notify,
+  } = useStudioModal();
+
   const [
     hoveredSectionId,
     setHoveredSectionId,
@@ -455,6 +546,18 @@ export function PreviewPanel() {
     useSongStore(
       (state) =>
         state.setSelectedLyricLine
+    );
+
+  const removeArrangementItem =
+    useSongStore(
+      (state) =>
+        state.removeArrangementItem
+    );
+
+  const deleteSection =
+    useSongStore(
+      (state) =>
+        state.deleteSection
     );
 
   const previewInsertIndex =
@@ -712,6 +815,50 @@ export function PreviewPanel() {
                       index ===
                       firstIndex
                     }
+                    onRemoveOccurrence={() =>
+                      removeArrangementItem(
+                        index
+                      )
+                    }
+                    onDeleteSection={() => {
+                      void (async () => {
+                        const approved =
+                          await confirm({
+                            title:
+                              "Delete section everywhere?",
+                            message:
+                              "This removes the section itself and every occurrence of it from the song. A safety snapshot will be saved first.",
+                            confirmLabel:
+                              "Delete section",
+                            tone:
+                              "danger",
+                          });
+
+                        if (!approved) {
+                          return;
+                        }
+
+                        saveSafetySnapshot(
+                          song,
+                          "Before deleting " +
+                            section.title,
+                          "Automatic safety snapshot before deleting a section from Write."
+                        );
+
+                        deleteSection(
+                          section.id
+                        );
+
+                        notify({
+                          title:
+                            "Section deleted",
+                          message:
+                            "All occurrences were removed. A safety snapshot was saved in Versions.",
+                          tone:
+                            "success",
+                        });
+                      })();
+                    }}
                   />
                   </Fragment>
                 );
