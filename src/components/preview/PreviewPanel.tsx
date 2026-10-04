@@ -52,6 +52,67 @@ export function PreviewPanel() {
         state.setSelectedSection
     );
 
+  const setSelectedLyricLine =
+    useSongStore(
+      (state) =>
+        state.setSelectedLyricLine
+    );
+
+  function syncCaretLine(
+    sectionId: string,
+    lyrics: string,
+    element:
+      HTMLTextAreaElement
+  ) {
+    const caret =
+      element.selectionStart ??
+      0;
+
+    const before =
+      lyrics.slice(
+        0,
+        caret
+      );
+
+    const lineIndex =
+      before.split(
+        /\r?\n/
+      ).length - 1;
+
+    const lines =
+      lyrics.split(
+        /\r?\n/
+      );
+
+    let start = 0;
+
+    for (
+      let index = 0;
+      index < lineIndex;
+      index += 1
+    ) {
+      start +=
+        lines[index].length +
+        1;
+    }
+
+    const text =
+      lines[lineIndex] ??
+      "";
+
+    const end =
+      start +
+      text.length;
+
+    setSelectedLyricLine({
+      sectionId,
+      lineIndex,
+      text,
+      start,
+      end,
+    });
+  }
+
   function resizeTextarea(
     element: HTMLTextAreaElement | null
   ) {
@@ -266,24 +327,56 @@ export function PreviewPanel() {
                     resizeTextarea(element);
                   }}
                   value={version.lyrics}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     updateLyrics(
                       section.id,
                       e.target.value
-                    )
-                  }
+                    );
+
+                    syncCaretLine(
+                      section.id,
+                      e.target.value,
+                      e.currentTarget
+                    );
+                  }}
                   onInput={(e) =>
                     resizeTextarea(
                       e.currentTarget
                     )
                   }
-                  onFocus={() =>
+                  onFocus={(event) => {
                     setSelectedSection(
                       section.id
+                    );
+
+                    syncCaretLine(
+                      section.id,
+                      version.lyrics,
+                      event.currentTarget
+                    );
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+
+                    syncCaretLine(
+                      section.id,
+                      version.lyrics,
+                      event.currentTarget
+                    );
+                  }}
+                  onKeyUp={(event) =>
+                    syncCaretLine(
+                      section.id,
+                      version.lyrics,
+                      event.currentTarget
                     )
                   }
-                  onClick={(event) =>
-                    event.stopPropagation()
+                  onSelect={(event) =>
+                    syncCaretLine(
+                      section.id,
+                      version.lyrics,
+                      event.currentTarget
+                    )
                   }
                   rows={1}
                 />
