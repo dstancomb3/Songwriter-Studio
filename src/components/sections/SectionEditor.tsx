@@ -563,6 +563,49 @@ export function SectionEditor() {
           </span>
         </div>
 
+        <div className="rhyme-score-hero">
+          <div>
+            <span>Rhyme Score</span>
+            <strong>
+              {lyricAnalysis.rhymeScore.total}
+            </strong>
+            <em>
+              {lyricAnalysis.rhymeScore.total >= 75
+                ? "Structured"
+                : lyricAnalysis.rhymeScore.total >= 50
+                ? "Developing"
+                : "Open"}
+            </em>
+          </div>
+
+          <div className="rhyme-score-ring">
+            {lyricAnalysis.rhymeScore.total}
+          </div>
+        </div>
+
+        <div className="rhyme-score-breakdown">
+          <div>
+            <span>Coverage</span>
+            <strong>
+              {lyricAnalysis.rhymeScore.coverage}
+            </strong>
+          </div>
+
+          <div>
+            <span>Pattern</span>
+            <strong>
+              {lyricAnalysis.rhymeScore.pattern}
+            </strong>
+          </div>
+
+          <div>
+            <span>Quality</span>
+            <strong>
+              {lyricAnalysis.rhymeScore.quality}
+            </strong>
+          </div>
+        </div>
+
         <div className="lyric-analysis__stats">
           <div>
             <strong>
@@ -573,9 +616,9 @@ export function SectionEditor() {
 
           <div>
             <strong>
-              {lyricAnalysis.averageSyllables.toFixed(1)}
+              {lyricAnalysis.targetSyllables}
             </strong>
-            <span>Avg syllables</span>
+            <span>Target syllables</span>
           </div>
 
           <div>
@@ -587,9 +630,9 @@ export function SectionEditor() {
 
           <div>
             <strong>
-              {lyricAnalysis.rhymeCoverage}%
+              {lyricAnalysis.syllableSpread.toFixed(1)}
             </strong>
-            <span>Rhyme coverage</span>
+            <span>Syllable spread</span>
           </div>
         </div>
 
@@ -618,11 +661,29 @@ export function SectionEditor() {
                     {line.text}
                   </span>
 
-                  <span className="lyric-line-row__syllables">
+                  <span
+                    className={
+                      "lyric-line-row__meter lyric-line-row__meter--" +
+                      line.meterStatus
+                    }
+                    title={
+                      line.syllableDelta === 0
+                        ? "At section syllable target"
+                        : line.syllableDelta > 0
+                        ? "+" + line.syllableDelta + " syllables"
+                        : line.syllableDelta + " syllables"
+                    }
+                  >
                     {line.syllables}
                   </span>
 
-                  <span className="lyric-line-row__ending">
+                  <span
+                    className={
+                      "lyric-line-row__ending lyric-line-row__ending--" +
+                      line.rhymeStrength
+                    }
+                    title={line.rhymeStrength + " rhyme"}
+                  >
                     {line.endWord || "—"}
                   </span>
                 </div>
@@ -631,11 +692,27 @@ export function SectionEditor() {
           </div>
         )}
 
+        {lyricAnalysis.observations.length > 0 && (
+          <div className="lyric-observations">
+            {lyricAnalysis.observations.map(
+              (observation) => (
+                <div
+                  className="lyric-observation"
+                  key={observation}
+                >
+                  <span aria-hidden="true">•</span>
+                  <p>{observation}</p>
+                </div>
+              )
+            )}
+          </div>
+        )}
+
         <div className="lyric-analysis__note">
-          Syllable and rhyme detection are heuristic
-          for now. We can later upgrade this with a
-          pronunciation dictionary without changing
-          the UI.
+          Rhyme Score v1 = 45% coverage, 30% recurring
+          pattern, 25% match quality with repeated-word
+          penalties. Meter analysis compares each line
+          with the section's syllable center.
         </div>
       </div>
 
