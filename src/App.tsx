@@ -39,6 +39,22 @@ function App() {
     (state) => state.currentSong
   );
 
+  const canUndo = useSongStore(
+    (state) => state.canUndo
+  );
+
+  const canRedo = useSongStore(
+    (state) => state.canRedo
+  );
+
+  const undo = useSongStore(
+    (state) => state.undo
+  );
+
+  const redo = useSongStore(
+    (state) => state.redo
+  );
+
   const setCurrentSong = useSongStore(
     (state) => state.setCurrentSong
   );
@@ -94,6 +110,60 @@ function App() {
 
     saveSong(song);
   }, [song]);
+
+  useEffect(() => {
+    function handleUndoRedo(
+      event: KeyboardEvent
+    ) {
+      if (
+        !event.ctrlKey &&
+        !event.metaKey
+      ) {
+        return;
+      }
+
+      const key =
+        event.key.toLowerCase();
+
+      const wantsUndo =
+        key === "z" &&
+        !event.shiftKey;
+
+      const wantsRedo =
+        key === "y" ||
+        (
+          key === "z" &&
+          event.shiftKey
+        );
+
+      if (
+        !wantsUndo &&
+        !wantsRedo
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (wantsUndo) {
+        undo();
+        return;
+      }
+
+      redo();
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleUndoRedo
+    );
+
+    return () =>
+      window.removeEventListener(
+        "keydown",
+        handleUndoRedo
+      );
+  }, [undo, redo]);
 
   function handleDragOver(
     event: DragOverEvent
@@ -406,9 +476,36 @@ function App() {
             </button>
           </nav>
 
-          <div className="studio-status">
-            <span className="studio-status__dot" />
-            <span>Saved locally</span>
+          <div className="studio-header__actions">
+            <div
+              className="studio-history-controls"
+              aria-label="Edit history"
+            >
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!canUndo}
+                title="Undo (Ctrl+Z)"
+                aria-label="Undo"
+              >
+                ↶
+              </button>
+
+              <button
+                type="button"
+                onClick={redo}
+                disabled={!canRedo}
+                title="Redo (Ctrl+Y)"
+                aria-label="Redo"
+              >
+                ↷
+              </button>
+            </div>
+
+            <div className="studio-status">
+              <span className="studio-status__dot" />
+              <span>Saved locally</span>
+            </div>
           </div>
         </div>
 
