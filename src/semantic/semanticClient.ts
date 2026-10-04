@@ -4,12 +4,18 @@ import type {
 
 import type {
   SemanticConceptAnalysis,
+  SemanticIdeaCandidate,
+  SemanticIdeaNeighbor,
 } from "./localEmbeddings";
+
+type SemanticResult =
+  | SemanticConceptAnalysis
+  | SemanticIdeaNeighbor[];
 
 type PendingRequest = {
   resolve: (
     value:
-      SemanticConceptAnalysis
+      SemanticResult
   ) => void;
   reject: (
     reason?: unknown
@@ -47,7 +53,7 @@ function getWorker() {
     event: MessageEvent<{
       id: number;
       ok: boolean;
-      result?: SemanticConceptAnalysis;
+      result?: SemanticResult;
       error?: string;
     }>
   ) => {
@@ -108,9 +114,10 @@ function getWorker() {
   return worker;
 }
 
-export function analyzeConceptLocally(
-  song: Song
-): Promise<SemanticConceptAnalysis> {
+function sendRequest(
+  payload:
+    Record<string, unknown>
+): Promise<SemanticResult> {
   const id =
     nextId++;
 
@@ -123,10 +130,33 @@ export function analyzeConceptLocally(
 
       getWorker().postMessage({
         id,
-        operation:
-          "analyze-concept",
-        song,
+        ...payload,
       });
     }
   );
+}
+
+export async function analyzeConceptLocally(
+  song: Song
+): Promise<SemanticConceptAnalysis> {
+  return await sendRequest({
+    operation:
+      "analyze-concept",
+    song,
+  }) as SemanticConceptAnalysis;
+}
+
+export async function findRelatedIdeasLocally(
+  queryText: string,
+  candidates:
+    SemanticIdeaCandidate[],
+  limit = 6
+): Promise<SemanticIdeaNeighbor[]> {
+  return await sendRequest({
+    operation:
+      "related-ideas",
+    queryText,
+    candidates,
+    limit,
+  }) as SemanticIdeaNeighbor[];
 }
