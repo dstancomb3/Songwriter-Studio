@@ -22,6 +22,10 @@ import {
   analyzeLyrics,
 } from "../../analysis/lyricsAnalysis";
 
+import {
+  useStudioModal,
+} from "../ui/StudioModalProvider";
+
 function formatScore(
   value: number
 ) {
@@ -43,6 +47,11 @@ function semanticLabel(
 }
 
 export function SectionEditor() {
+  const {
+    confirm,
+    prompt,
+  } = useStudioModal();
+
   const [
     semanticAnalysis,
     setSemanticAnalysis,
@@ -500,21 +509,29 @@ export function SectionEditor() {
         <button
           type="button"
           onClick={() => {
-            const newName =
-              window.prompt(
-                "Rename version",
-                version.name
+            void (async () => {
+              const newName =
+                await prompt({
+                  title:
+                    "Rename version",
+                  message:
+                    "Give this lyric version a new name.",
+                  initialValue:
+                    version.name,
+                  confirmLabel:
+                    "Rename",
+                });
+
+              if (!newName) {
+                return;
+              }
+
+              renameVersion(
+                section.id,
+                version.id,
+                newName
               );
-
-            if (!newName) {
-              return;
-            }
-
-            renameVersion(
-              section.id,
-              version.id,
-              newName
-            );
+            })();
           }}
         >
           Rename
@@ -523,18 +540,28 @@ export function SectionEditor() {
         <button
           type="button"
           onClick={() => {
-            if (
-              !window.confirm(
-                "Delete this version?"
-              )
-            ) {
-              return;
-            }
+            void (async () => {
+              const approved =
+                await confirm({
+                  title:
+                    "Delete version?",
+                  message:
+                    "This lyric version will be permanently removed.",
+                  confirmLabel:
+                    "Delete",
+                  tone:
+                    "danger",
+                });
 
-            deleteVersion(
-              section.id,
-              version.id
-            );
+              if (!approved) {
+                return;
+              }
+
+              deleteVersion(
+                section.id,
+                version.id
+              );
+            })();
           }}
           disabled={
             section.versions.length ===
