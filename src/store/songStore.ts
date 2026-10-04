@@ -992,6 +992,18 @@ export const useSongStore = create<SongStore>(
                 (section) =>
                   section.id !== sectionId
               ),
+            arrangements:
+              state.currentSong.arrangements.map(
+                (arrangement) => ({
+                  ...arrangement,
+                  sequence:
+                    arrangement.sequence.filter(
+                      (item) =>
+                        item.sectionId !==
+                        sectionId
+                    ),
+                })
+              ),
           }),
 
           selectedSectionId:
