@@ -1713,3 +1713,146 @@ h4 {
   font-family: ui-monospace, "Cascadia Code", monospace;
   font-size: 0.74rem;
 }
+
+
+/* Deterministic lyric analysis */
+
+.lyric-analysis {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lyric-analysis__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lyric-analysis__heading strong {
+  color: #eef1f8;
+  font-size: 0.82rem;
+}
+
+.lyric-analysis__heading > span {
+  padding: 0.14rem 0.34rem;
+  border: 1px solid rgba(111, 165, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(111, 165, 255, 0.06);
+  color: #93baff;
+  font-size: 0.57rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lyric-analysis__eyebrow {
+  margin-bottom: 0.08rem;
+  color: #7fa8ff;
+  font-size: 0.59rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lyric-analysis__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+.lyric-analysis__stats > div {
+  display: grid;
+  gap: 0.03rem;
+  padding: 0.42rem 0.46rem;
+  border: 1px solid #30384d;
+  border-radius: 7px;
+  background: rgba(20, 25, 38, 0.72);
+}
+
+.lyric-analysis__stats strong {
+  color: #edf1f8;
+  font-size: 0.82rem;
+}
+
+.lyric-analysis__stats span {
+  color: #7f899f;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.rhyme-scheme-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.42rem 0.5rem;
+  border: 1px solid rgba(111, 165, 255, 0.24);
+  border-radius: 7px;
+  background: rgba(42, 64, 105, 0.12);
+}
+
+.rhyme-scheme-card span {
+  color: #8d97aa;
+  font-size: 0.64rem;
+}
+
+.rhyme-scheme-card strong {
+  color: #b9ceff;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.lyric-line-list {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.lyric-line-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 22px 48px;
+  gap: 0.3rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.28rem 0.32rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.lyric-line-row__label {
+  color: #8faeff;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.lyric-line-row__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #cfd4e0;
+  font-size: 0.64rem;
+}
+
+.lyric-line-row__syllables {
+  color: #9ca6ba;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.lyric-line-row__ending {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #777f91;
+  font-size: 0.59rem;
+  text-align: right;
+}
+
+.lyric-analysis__note {
+  color: #697488;
+  font-size: 0.6rem;
+  line-height: 1.4;
+}
