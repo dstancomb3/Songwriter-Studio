@@ -18,6 +18,10 @@ import type {
   SemanticConceptAnalysis,
 } from "../../semantic/localEmbeddings";
 
+import {
+  analyzeLyrics,
+} from "../../analysis/lyricsAnalysis";
+
 function formatScore(
   value: number
 ) {
@@ -390,6 +394,11 @@ export function SectionEditor() {
       song.settings.sectionColors
     );
 
+  const lyricAnalysis =
+    analyzeLyrics(
+      version.lyrics
+    );
+
   return (
     <Panel title="Context">
       <div className="editor-section-heading">
@@ -534,6 +543,100 @@ export function SectionEditor() {
         >
           Delete
         </button>
+      </div>
+
+      <div className="context-divider" />
+
+      <div className="lyric-analysis">
+        <div className="lyric-analysis__heading">
+          <div>
+            <div className="lyric-analysis__eyebrow">
+              Deterministic
+            </div>
+            <strong>
+              Lyric analysis
+            </strong>
+          </div>
+
+          <span>
+            Offline
+          </span>
+        </div>
+
+        <div className="lyric-analysis__stats">
+          <div>
+            <strong>
+              {lyricAnalysis.lineCount}
+            </strong>
+            <span>Lines</span>
+          </div>
+
+          <div>
+            <strong>
+              {lyricAnalysis.averageSyllables.toFixed(1)}
+            </strong>
+            <span>Avg syllables</span>
+          </div>
+
+          <div>
+            <strong>
+              {lyricAnalysis.consistencyScore}
+            </strong>
+            <span>Meter consistency</span>
+          </div>
+
+          <div>
+            <strong>
+              {lyricAnalysis.rhymeCoverage}%
+            </strong>
+            <span>Rhyme coverage</span>
+          </div>
+        </div>
+
+        <div className="rhyme-scheme-card">
+          <span>
+            Inferred rhyme scheme
+          </span>
+          <strong>
+            {lyricAnalysis.rhymeScheme || "—"}
+          </strong>
+        </div>
+
+        {lyricAnalysis.lines.length > 0 && (
+          <div className="lyric-line-list">
+            {lyricAnalysis.lines.map(
+              (line, index) => (
+                <div
+                  className="lyric-line-row"
+                  key={`${line.text}-${index}`}
+                >
+                  <span className="lyric-line-row__label">
+                    {line.rhymeLabel}
+                  </span>
+
+                  <span className="lyric-line-row__text">
+                    {line.text}
+                  </span>
+
+                  <span className="lyric-line-row__syllables">
+                    {line.syllables}
+                  </span>
+
+                  <span className="lyric-line-row__ending">
+                    {line.endWord || "—"}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+        )}
+
+        <div className="lyric-analysis__note">
+          Syllable and rhyme detection are heuristic
+          for now. We can later upgrade this with a
+          pronunciation dictionary without changing
+          the UI.
+        </div>
       </div>
 
       <div className="context-divider" />
