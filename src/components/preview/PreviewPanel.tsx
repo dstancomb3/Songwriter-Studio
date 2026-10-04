@@ -4,6 +4,20 @@ import {
   useState,
 } from "react";
 
+import {
+  useDroppable,
+} from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+
+import {
+  CSS,
+} from "@dnd-kit/utilities";
+
 import { useSongStore } from "../../store/songStore";
 import { Panel } from "../ui/Panel";
 
@@ -15,51 +29,86 @@ import {
   analyzeLyrics,
 } from "../../analysis/lyricsAnalysis";
 
-export function PreviewPanel() {
-  const [hoveredSectionId, setHoveredSectionId] =
-    useState<string | null>(null);
-  const textareaRefs = useRef<
-    Record<
-      string,
-      HTMLTextAreaElement | null
-    >
-  >({});
+import type {
+  Section,
+  SectionVersion,
+} from "../../types";
 
-  const sectionRefs = useRef<
-    Record<
-      string,
-      HTMLDivElement | null
-    >
-  >({});
+function SortableWriteSection({
+  arrangementItemId,
+  section,
+  version,
+  sectionColor,
+  isSelected,
+  hoveredSectionId,
+  setHoveredSectionId,
+  setSelectedSection,
+  setSelectedLyricLine,
+  updateLyrics,
+  textareaRefs,
+  sectionRefs,
+  isFirstOccurrence,
+}: {
+  arrangementItemId: string;
+  section: Section;
+  version: SectionVersion;
+  sectionColor: string;
+  isSelected: boolean;
+  hoveredSectionId: string | null;
+  setHoveredSectionId: (
+    id: string | null
+  ) => void;
+  setSelectedSection: (
+    id: string | null
+  ) => void;
+  setSelectedLyricLine:
+    ReturnType<
+      typeof useSongStore.getState
+    >["setSelectedLyricLine"];
+  updateLyrics:
+    ReturnType<
+      typeof useSongStore.getState
+    >["updateLyrics"];
+  textareaRefs:
+    React.MutableRefObject<
+      Record<
+        string,
+        HTMLTextAreaElement | null
+      >
+    >;
+  sectionRefs:
+    React.MutableRefObject<
+      Record<
+        string,
+        HTMLDivElement | null
+      >
+    >;
+  isFirstOccurrence: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id:
+      arrangementItemId,
+    data: {
+      type:
+        "arrangement",
+      axis:
+        "vertical",
+    },
+  });
 
-  const song = useSongStore(
-    (state) => state.currentSong
-  );
-
-  const updateLyrics = useSongStore(
-    (state) => state.updateLyrics
-  );
-
-  const selectedSectionId =
-    useSongStore(
-      (state) =>
-        state.selectedSectionId
-    );
-
-  const setSelectedSection =
-    useSongStore(
-      (state) =>
-        state.setSelectedSection
-    );
-
-  const setSelectedLyricLine =
-    useSongStore(
-      (state) =>
-        state.setSelectedLyricLine
+  const lyricAnalysis =
+    analyzeLyrics(
+      version.lyrics
     );
 
   function syncCaretLine(
-    sectionId: string,
     lyrics: string,
     element:
       HTMLTextAreaElement
@@ -100,289 +149,560 @@ export function PreviewPanel() {
       lines[lineIndex] ??
       "";
 
-    const end =
-      start +
-      text.length;
-
     setSelectedLyricLine({
-      sectionId,
+      sectionId:
+        section.id,
       lineIndex,
       text,
       start,
-      end,
+      end:
+        start +
+        text.length,
     });
   }
 
   function resizeTextarea(
-    element: HTMLTextAreaElement | null
+    element:
+      HTMLTextAreaElement | null
   ) {
     if (!element) {
       return;
     }
 
-    element.style.height = "0px";
-    element.style.height = `${element.scrollHeight}px`;
+    element.style.height =
+      "0px";
+
+    element.style.height =
+      element.scrollHeight +
+      "px";
   }
+
+  return (
+    <div
+      ref={(element) => {
+        setNodeRef(
+          element
+        );
+
+        if (
+          isFirstOccurrence
+        ) {
+          sectionRefs.current[
+            section.id
+          ] = element;
+        }
+      }}
+      data-section-id={
+        section.id
+      }
+      data-arrangement-id={
+        arrangementItemId
+      }
+      className={[
+        "preview-section",
+        isSelected
+          ? "preview-section--selected"
+          : "",
+        isDragging
+          ? "preview-section--dragging"
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={{
+        transform:
+          CSS.Transform.toString(
+            transform
+          ),
+        transition,
+      }}
+      onClick={() =>
+        setSelectedSection(
+          section.id
+        )
+      }
+    >
+      <div className="preview-section__heading">
+        <div className="preview-section__title-group">
+          <button
+            type="button"
+            className="preview-section__drag"
+            {...attributes}
+            {...listeners}
+            aria-label={
+              "Move " +
+              section.title
+            }
+            title="Drag to reorder"
+            onClick={(
+              event
+            ) =>
+              event.stopPropagation()
+            }
+          >
+            ⠿
+          </button>
+
+          <h3
+            className="preview-section__title"
+            onMouseEnter={() =>
+              setHoveredSectionId(
+                section.id
+              )
+            }
+            onMouseLeave={() =>
+              setHoveredSectionId(
+                hoveredSectionId ===
+                  section.id
+                  ? null
+                  : hoveredSectionId
+              )
+            }
+            style={{
+              color:
+                sectionColor,
+              filter:
+                hoveredSectionId ===
+                section.id
+                  ? "brightness(0.82)"
+                  : "none",
+            }}
+          >
+            {section.title}
+          </h3>
+        </div>
+
+        {isSelected &&
+          lyricAnalysis.lineCount >
+            0 && (
+          <div className="preview-section__metrics">
+            <span>
+              {
+                lyricAnalysis.targetSyllables
+              }{" "}
+              syl
+            </span>
+
+            <span>
+              {
+                lyricAnalysis.rhymeScheme ||
+                "—"
+              }
+            </span>
+
+            <span>
+              R{" "}
+              {
+                lyricAnalysis.rhymeScore
+                  .total
+              }
+            </span>
+          </div>
+        )}
+      </div>
+
+      {isSelected &&
+        lyricAnalysis.lines.length >
+          0 && (
+        <div className="preview-line-guide">
+          {lyricAnalysis.lines.map(
+            (
+              line,
+              lineIndex
+            ) => (
+              <span
+                key={
+                  lineIndex
+                }
+                className={
+                  "preview-line-guide__chip preview-line-guide__chip--" +
+                  line.meterStatus
+                }
+                title={
+                  line.rhymeLabel +
+                  " · " +
+                  line.syllables +
+                  " syllables · " +
+                  line.endWord
+                }
+              >
+                {lineIndex + 1}
+                {" · "}
+                {line.syllables}
+                {line.rhymeLabel}
+              </span>
+            )
+          )}
+        </div>
+      )}
+
+      <textarea
+        className="preview-lyrics"
+        ref={(element) => {
+          textareaRefs.current[
+            arrangementItemId
+          ] = element;
+
+          resizeTextarea(
+            element
+          );
+        }}
+        value={
+          version.lyrics
+        }
+        onChange={(event) => {
+          updateLyrics(
+            section.id,
+            event.target.value
+          );
+
+          syncCaretLine(
+            event.target.value,
+            event.currentTarget
+          );
+        }}
+        onInput={(event) =>
+          resizeTextarea(
+            event.currentTarget
+          )
+        }
+        onFocus={(event) => {
+          setSelectedSection(
+            section.id
+          );
+
+          syncCaretLine(
+            version.lyrics,
+            event.currentTarget
+          );
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+
+          syncCaretLine(
+            version.lyrics,
+            event.currentTarget
+          );
+        }}
+        onKeyUp={(event) =>
+          syncCaretLine(
+            version.lyrics,
+            event.currentTarget
+          )
+        }
+        onSelect={(event) =>
+          syncCaretLine(
+            version.lyrics,
+            event.currentTarget
+          )
+        }
+        rows={1}
+      />
+    </div>
+  );
+}
+
+export function PreviewPanel() {
+  const [
+    hoveredSectionId,
+    setHoveredSectionId,
+  ] = useState<
+    string | null
+  >(null);
+
+  const textareaRefs =
+    useRef<
+      Record<
+        string,
+        HTMLTextAreaElement | null
+      >
+    >({});
+
+  const sectionRefs =
+    useRef<
+      Record<
+        string,
+        HTMLDivElement | null
+      >
+    >({});
+
+  const song =
+    useSongStore(
+      (state) =>
+        state.currentSong
+    );
+
+  const updateLyrics =
+    useSongStore(
+      (state) =>
+        state.updateLyrics
+    );
+
+  const selectedSectionId =
+    useSongStore(
+      (state) =>
+        state.selectedSectionId
+    );
+
+  const setSelectedSection =
+    useSongStore(
+      (state) =>
+        state.setSelectedSection
+    );
+
+  const setSelectedLyricLine =
+    useSongStore(
+      (state) =>
+        state.setSelectedLyricLine
+    );
+
+  const {
+    setNodeRef:
+      setPaperDropRef,
+  } = useDroppable({
+    id:
+      "arrangement-container",
+    data: {
+      type:
+        "arrangement-container",
+      axis:
+        "vertical",
+    },
+  });
 
   useEffect(() => {
     Object.values(
       textareaRefs.current
-    ).forEach((element) =>
-      resizeTextarea(element)
+    ).forEach(
+      (element) => {
+        if (!element) {
+          return;
+        }
+
+        element.style.height =
+          "0px";
+
+        element.style.height =
+          element.scrollHeight +
+          "px";
+      }
     );
   }, [song]);
 
   useEffect(() => {
-    if (!selectedSectionId) {
+    if (
+      !selectedSectionId
+    ) {
       return;
     }
 
-    const element =
-      sectionRefs.current[
-        selectedSectionId
-      ];
-
-    element?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
+    sectionRefs.current[
+      selectedSectionId
+    ]?.scrollIntoView({
+      behavior:
+        "smooth",
+      block:
+        "nearest",
     });
-  }, [selectedSectionId]);
+  }, [
+    selectedSectionId,
+  ]);
 
-  if (!song) return null;
+  if (!song) {
+    return null;
+  }
 
-  const arrangement = song.arrangements[0];
+  const arrangement =
+    song.arrangements[0];
 
-  if (!arrangement) return null;
+  if (!arrangement) {
+    return null;
+  }
 
   const sectionColors =
     getSectionColors(
-      song.settings.sectionColors
+      song.settings
+        .sectionColors
     );
 
   return (
     <div className="preview-shell">
       <Panel title="Write">
-        <div className="preview-paper">
+        <div
+          ref={
+            setPaperDropRef
+          }
+          className="preview-paper"
+        >
           <div className="preview-song-header">
             <div>
-              <div className="preview-song-kicker">Current song</div>
+              <div className="preview-song-kicker">
+                Current song
+              </div>
+
               <h1 className="preview-song-title">
-                {song.title || "Untitled Song"}
+                {song.title ||
+                  "Untitled Song"}
               </h1>
+
               {song.artist && (
                 <div className="preview-song-artist">
-                  {song.artist}
+                  {
+                    song.artist
+                  }
                 </div>
               )}
             </div>
 
             <div className="preview-song-meta">
               {song.genre && (
-                <span>{song.genre}</span>
+                <span>
+                  {
+                    song.genre
+                  }
+                </span>
               )}
+
               {song.key && (
-                <span>{song.key}</span>
+                <span>
+                  {song.key}
+                </span>
               )}
-              {song.tempo > 0 && (
-                <span>{song.tempo} BPM</span>
+
+              {song.tempo >
+                0 && (
+                <span>
+                  {song.tempo}{" "}
+                  BPM
+                </span>
               )}
+
               {song.timeSignature && (
-                <span>{song.timeSignature}</span>
+                <span>
+                  {
+                    song.timeSignature
+                  }
+                </span>
               )}
             </div>
           </div>
 
           <div className="preview-song-divider" />
-          {arrangement.sequence.map((item, index) => {
-            const section = song.sections.find(
-              (s) => s.id === item.sectionId
-            );
 
-            if (!section) return null;
-
-            const version = section.versions.find(
-              (v) => v.id === section.activeVersionId
-            );
-
-            if (!version) return null;
-
-            const sectionColor =
-              sectionColors[section.type] ??
-              sectionColors.custom;
-
-            const lyricAnalysis =
-              analyzeLyrics(
-                version.lyrics
-              );
-
-            const isSelected =
-              selectedSectionId ===
-              section.id;
-
-            return (
-              <div
-                key={item.id ?? index}
-                ref={(element) => {
-                  if (
-                    index ===
-                    arrangement.sequence.findIndex(
-                      (candidate) =>
-                        candidate.sectionId ===
-                        section.id
-                    )
-                  ) {
-                    sectionRefs.current[
-                      section.id
-                    ] = element;
-                  }
-                }}
-                data-section-id={section.id}
-                className={
-                  isSelected
-                    ? "preview-section preview-section--selected"
-                    : "preview-section"
-                }
-                onClick={() =>
-                  setSelectedSection(
-                    section.id
-                  )
-                }
-              >
-                <div className="preview-section__heading">
-                  <h3
-                  className="preview-section__title"
-                  onMouseEnter={() =>
-                    setHoveredSectionId(
-                      section.id
-                    )
-                  }
-                  onMouseLeave={() =>
-                    setHoveredSectionId((id) =>
-                      id === section.id
-                        ? null
-                        : id
-                    )
-                  }
-                  style={{
-                    color: sectionColor,
-                    filter:
-                      hoveredSectionId ===
-                      section.id
-                        ? "brightness(0.82)"
-                        : "none",
-                  }}
-                >
-                  {section.title}
-                  </h3>
-
-                  {isSelected && lyricAnalysis.lineCount > 0 && (
-                    <div className="preview-section__metrics">
-                      <span>
-                        {lyricAnalysis.targetSyllables} syl
-                      </span>
-                      <span>
-                        {lyricAnalysis.rhymeScheme || "—"}
-                      </span>
-                      <span>
-                        R {lyricAnalysis.rhymeScore.total}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {isSelected && lyricAnalysis.lines.length > 0 && (
-                  <div className="preview-line-guide">
-                    {lyricAnalysis.lines.map(
-                      (line, lineIndex) => (
-                        <span
-                          key={lineIndex}
-                          className={
-                            "preview-line-guide__chip preview-line-guide__chip--" +
-                            line.meterStatus
-                          }
-                          title={
-                            line.rhymeLabel +
-                            " · " +
-                            line.syllables +
-                            " syllables · " +
-                            line.endWord
-                          }
-                        >
-                          {lineIndex + 1}
-                          {" · "}
-                          {line.syllables}
-                          {line.rhymeLabel}
-                        </span>
-                      )
-                    )}
-                  </div>
-                )}
-
-                <textarea
-                  className="preview-lyrics"
-                  ref={(element) => {
-                    textareaRefs.current[
-                      item.id
-                    ] = element;
-                    resizeTextarea(element);
-                  }}
-                  value={version.lyrics}
-                  onChange={(e) => {
-                    updateLyrics(
-                      section.id,
-                      e.target.value
-                    );
-
-                    syncCaretLine(
-                      section.id,
-                      e.target.value,
-                      e.currentTarget
-                    );
-                  }}
-                  onInput={(e) =>
-                    resizeTextarea(
-                      e.currentTarget
-                    )
-                  }
-                  onFocus={(event) => {
-                    setSelectedSection(
-                      section.id
-                    );
-
-                    syncCaretLine(
-                      section.id,
-                      version.lyrics,
-                      event.currentTarget
-                    );
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-
-                    syncCaretLine(
-                      section.id,
-                      version.lyrics,
-                      event.currentTarget
-                    );
-                  }}
-                  onKeyUp={(event) =>
-                    syncCaretLine(
-                      section.id,
-                      version.lyrics,
-                      event.currentTarget
-                    )
-                  }
-                  onSelect={(event) =>
-                    syncCaretLine(
-                      section.id,
-                      version.lyrics,
-                      event.currentTarget
-                    )
-                  }
-                  rows={1}
-                />
+          <SortableContext
+            items={
+              arrangement.sequence.map(
+                (item) =>
+                  item.id
+              )
+            }
+            strategy={
+              verticalListSortingStrategy
+            }
+          >
+            {arrangement.sequence.length ===
+              0 && (
+              <div className="preview-arrangement-empty">
+                Drag a section here to start the song.
               </div>
-            );
-          })}
+            )}
+
+            {arrangement.sequence.map(
+              (
+                item,
+                index
+              ) => {
+                const section =
+                  song.sections.find(
+                    (candidate) =>
+                      candidate.id ===
+                      item.sectionId
+                  );
+
+                if (!section) {
+                  return null;
+                }
+
+                const version =
+                  section.versions.find(
+                    (candidate) =>
+                      candidate.id ===
+                      section.activeVersionId
+                  );
+
+                if (!version) {
+                  return null;
+                }
+
+                const sectionColor =
+                  sectionColors[
+                    section.type
+                  ] ??
+                  sectionColors.custom;
+
+                const isSelected =
+                  selectedSectionId ===
+                  section.id;
+
+                const firstIndex =
+                  arrangement.sequence.findIndex(
+                    (
+                      candidate
+                    ) =>
+                      candidate.sectionId ===
+                      section.id
+                  );
+
+                return (
+                  <SortableWriteSection
+                    key={
+                      item.id
+                    }
+                    arrangementItemId={
+                      item.id
+                    }
+                    section={
+                      section
+                    }
+                    version={
+                      version
+                    }
+                    sectionColor={
+                      sectionColor
+                    }
+                    isSelected={
+                      isSelected
+                    }
+                    hoveredSectionId={
+                      hoveredSectionId
+                    }
+                    setHoveredSectionId={
+                      setHoveredSectionId
+                    }
+                    setSelectedSection={
+                      setSelectedSection
+                    }
+                    setSelectedLyricLine={
+                      setSelectedLyricLine
+                    }
+                    updateLyrics={
+                      updateLyrics
+                    }
+                    textareaRefs={
+                      textareaRefs
+                    }
+                    sectionRefs={
+                      sectionRefs
+                    }
+                    isFirstOccurrence={
+                      index ===
+                      firstIndex
+                    }
+                  />
+                );
+              }
+            )}
+          </SortableContext>
         </div>
       </Panel>
     </div>
