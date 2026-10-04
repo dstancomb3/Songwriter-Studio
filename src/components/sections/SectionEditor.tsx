@@ -20,6 +20,9 @@ import type {
 
 import {
   analyzeLyrics,
+  countLineSyllables,
+  getLineEndWord,
+  scoreRhymeWords,
 } from "../../analysis/lyricsAnalysis";
 
 import {
@@ -86,6 +89,30 @@ export function SectionEditor() {
     useSongStore(
       (state) =>
         state.selectedSectionId
+    );
+
+  const selectedLyricLine =
+    useSongStore(
+      (state) =>
+        state.selectedLyricLine
+    );
+
+  const setSelectedLyricLine =
+    useSongStore(
+      (state) =>
+        state.setSelectedLyricLine
+    );
+
+  const setSelectedSection =
+    useSongStore(
+      (state) =>
+        state.setSelectedSection
+    );
+
+  const addIdea =
+    useSongStore(
+      (state) =>
+        state.addIdea
     );
 
   const updateSongMetadata =
@@ -413,6 +440,170 @@ export function SectionEditor() {
       version.lyrics
     );
 
+  const activeLine =
+    selectedLyricLine?.sectionId ===
+    section.id
+      ? selectedLyricLine
+      : null;
+
+  const activeLineSyllables =
+    activeLine
+      ? countLineSyllables(
+          activeLine.text
+        )
+      : 0;
+
+  const activeLineEndWord =
+    activeLine
+      ? getLineEndWord(
+          activeLine.text
+        )
+      : "";
+
+  const activeLineDelta =
+    activeLine
+      ? activeLineSyllables -
+        lyricAnalysis.targetSyllables
+      : 0;
+
+  const rhymeMatches =
+    activeLineEndWord
+      ? song.sections
+          .flatMap(
+            (candidateSection) => {
+              const candidateVersion =
+                candidateSection.versions.find(
+                  (candidate) =>
+                    candidate.id ===
+                    candidateSection.activeVersionId
+                );
+
+              if (!candidateVersion) {
+                return [];
+              }
+
+              const lines =
+                candidateVersion.lyrics.split(
+                  /\r?\n/
+                );
+
+              return lines
+                .map(
+                  (text, lineIndex) => {
+                    const endWord =
+                      getLineEndWord(
+                        text
+                      );
+
+                    const rhyme =
+                      scoreRhymeWords(
+                        activeLineEndWord,
+                        endWord
+                      );
+
+                    return {
+                      sectionId:
+                        candidateSection.id,
+                      sectionTitle:
+                        candidateSection.title,
+                      lineIndex,
+                      text,
+                      endWord,
+                      score:
+                        rhyme.score,
+                      strength:
+                        rhyme.strength,
+                    };
+                  }
+                )
+                .filter(
+                  (candidate) =>
+                    candidate.text.trim() &&
+                    !(
+                      candidate.sectionId ===
+                        section.id &&
+                      candidate.lineIndex ===
+                        activeLine?.lineIndex
+                    ) &&
+                    candidate.score >=
+                      0.55
+                );
+            }
+          )
+          .sort(
+            (left, right) =>
+              right.score -
+              left.score
+          )
+          .slice(0, 6)
+      : [];
+
+  function jumpToRhymeMatch(
+    match:
+      (typeof rhymeMatches)[number]
+  ) {
+    const targetSection =
+      song.sections.find(
+        (candidate) =>
+          candidate.id ===
+          match.sectionId
+      );
+
+    const targetVersion =
+      targetSection?.versions.find(
+        (candidate) =>
+          candidate.id ===
+          targetSection.activeVersionId
+      );
+
+    if (
+      !targetSection ||
+      !targetVersion
+    ) {
+      return;
+    }
+
+    const lines =
+      targetVersion.lyrics.split(
+        /\r?\n/
+      );
+
+    let start = 0;
+
+    for (
+      let index = 0;
+      index < match.lineIndex;
+      index += 1
+    ) {
+      start +=
+        (
+          lines[index] ??
+          ""
+        ).length + 1;
+    }
+
+    const text =
+      lines[
+        match.lineIndex
+      ] ?? "";
+
+    setSelectedSection(
+      match.sectionId
+    );
+
+    setSelectedLyricLine({
+      sectionId:
+        match.sectionId,
+      lineIndex:
+        match.lineIndex,
+      text,
+      start,
+      end:
+        start +
+        text.length,
+    });
+  }
+
   return (
     <Panel title="Context">
       <div className="editor-section-heading">
@@ -592,6 +783,162 @@ export function SectionEditor() {
           Delete
         </button>
       </div>
+
+      {activeLine && (
+        <>
+          <div className="context-divider" />
+
+          <div className="line-context">
+            <div className="line-context__heading">
+              <div>
+                <div className="line-context__eyebrow">
+                  Active line
+                </div>
+                <strong>
+                  Line {activeLine.lineIndex + 1}
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    !activeLine.text.trim()
+                  ) {
+                    return;
+                  }
+
+                  addIdea(
+                    "snippet",
+                    activeLine.text
+                  );
+
+                  notify({
+                    title:
+                      "Line saved to Explore",
+                    tone:
+                      "success",
+                  });
+                }}
+                disabled={
+                  !activeLine.text.trim()
+                }
+              >
+                Save as idea
+              </button>
+            </div>
+
+            <blockquote className="line-context__text">
+              {activeLine.text.trim() ||
+                "Empty line"}
+            </blockquote>
+
+            <div className="line-context__metrics">
+              <div>
+                <strong>
+                  {activeLineSyllables}
+                </strong>
+                <span>
+                  Syllables
+                </span>
+              </div>
+
+              <div>
+                <strong>
+                  {activeLineEndWord ||
+                    "—"}
+                </strong>
+                <span>
+                  End word
+                </span>
+              </div>
+
+              <div>
+                <strong>
+                  {activeLineDelta === 0
+                    ? "On"
+                    : activeLineDelta > 0
+                    ? "+" +
+                      activeLineDelta
+                    : String(
+                        activeLineDelta
+                      )}
+                </strong>
+                <span>
+                  Meter delta
+                </span>
+              </div>
+            </div>
+
+            <div className="line-rhyme-panel">
+              <div className="line-rhyme-panel__heading">
+                <span>
+                  Song rhyme matches
+                </span>
+
+                <em>
+                  {rhymeMatches.length}
+                </em>
+              </div>
+
+              {rhymeMatches.length ===
+                0 ? (
+                <div className="line-rhyme-panel__empty">
+                  No strong matching line endings elsewhere in the song yet.
+                </div>
+              ) : (
+                <div className="line-rhyme-list">
+                  {rhymeMatches.map(
+                    (match) => (
+                      <button
+                        type="button"
+                        key={
+                          match.sectionId +
+                          "-" +
+                          match.lineIndex
+                        }
+                        onClick={() =>
+                          jumpToRhymeMatch(
+                            match
+                          )
+                        }
+                      >
+                        <div>
+                          <span>
+                            {
+                              match.sectionTitle
+                            }
+                          </span>
+
+                          <em>
+                            {
+                              match.strength
+                            }
+                          </em>
+                        </div>
+
+                        <strong>
+                          {
+                            match.text
+                          }
+                        </strong>
+
+                        <small>
+                          {match.endWord} ·{" "}
+                          {Math.round(
+                            match.score *
+                              100
+                          )}
+                        </small>
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="context-divider" />
 
