@@ -852,6 +852,10 @@ export function SectionEditor() {
     match:
       (typeof rhymeMatches)[number]
   ) {
+    if (!song) {
+      return;
+    }
+
     const targetSection =
       song.sections.find(
         (candidate) =>
