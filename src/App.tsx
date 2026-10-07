@@ -117,10 +117,8 @@ function App() {
       event.activatorEvent;
 
     if (
-      "clientX" in
-        activator &&
-      "clientY" in
-        activator
+      activator instanceof
+      MouseEvent
     ) {
       dragPointerStart.current = {
         x:
