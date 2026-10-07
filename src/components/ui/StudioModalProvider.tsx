@@ -220,31 +220,36 @@ export function StudioModalProvider({
       return;
     }
 
+    const currentModal =
+      modal;
+
     function handleKeyDown(
       event:
         KeyboardEvent
     ) {
       if (
-        event.key ===
+        event.key !==
         "Escape"
       ) {
-        if (
-          modal.kind ===
-          "confirm"
-        ) {
-          modal.resolve(
-            false
-          );
-        } else {
-          modal.resolve(
-            null
-          );
-        }
+        return;
+      }
 
-        setModal(
+      if (
+        currentModal.kind ===
+        "confirm"
+      ) {
+        currentModal.resolve(
+          false
+        );
+      } else {
+        currentModal.resolve(
           null
         );
       }
+
+      setModal(
+        null
+      );
     }
 
     window.addEventListener(
