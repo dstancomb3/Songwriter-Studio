@@ -5,6 +5,8 @@ import {
 } from "../constants/sectionColors";
 
 export const sampleSong: Song = {
+  schemaVersion: 1,
+
   id: "song-1",
 
   title: "The Devil Doesn't Bargain",
