@@ -20,7 +20,6 @@ import type {
 
 import {
   analyzeLyrics,
-  collectRhymeWordSuggestions,
   countLineSyllables,
   getLineEndWord,
   normalizeLyricLine,
@@ -40,6 +39,10 @@ import {
 import {
   getConceptAnalysisFingerprint,
 } from "../../analysis/conceptAnalysisState";
+
+import {
+  findRhymes,
+} from "../../rhyme/rhymeEngine";
 
 function semanticLabel(
   value: number
@@ -716,10 +719,14 @@ export function SectionEditor() {
 
   const rhymeWordSuggestions =
     activeLineEndWord
-      ? collectRhymeWordSuggestions(
+      ? findRhymes(
           activeLineEndWord,
-          songVocabulary,
-          8
+          {
+            candidates:
+              songVocabulary,
+            songVocabulary,
+            limit: 8,
+          }
         )
       : [];
 
