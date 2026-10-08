@@ -82,16 +82,19 @@ export function saveSong(
 }
 
 export function loadSong(): Song | null {
-  const raw =
-    localStorage.getItem(
-      STORAGE_KEY
-    );
-
-  if (!raw) {
-    return null;
-  }
+  let raw:
+    string | null = null;
 
   try {
+    raw =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if (!raw) {
+      return null;
+    }
+
     const parsed: unknown =
       JSON.parse(raw);
 
@@ -120,20 +123,22 @@ export function loadSong(): Song | null {
     return result.song;
   } catch (error) {
     console.warn(
-      "Unable to load saved song data. A recovery copy was preserved.",
+      "Unable to load saved song data. A recovery copy was preserved when possible.",
       error
     );
 
-    preserveRecoveryCopy(
-      raw
-    );
-
-    try {
-      localStorage.removeItem(
-        STORAGE_KEY
+    if (raw) {
+      preserveRecoveryCopy(
+        raw
       );
-    } catch {
-      // Storage may be unavailable.
+
+      try {
+        localStorage.removeItem(
+          STORAGE_KEY
+        );
+      } catch {
+        // Storage may be unavailable.
+      }
     }
 
     return null;
