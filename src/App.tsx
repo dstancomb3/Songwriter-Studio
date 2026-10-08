@@ -831,7 +831,18 @@ function App() {
         </div>
 
         <div className="song-strip">
-          <SongPanel />
+          <SongPanel
+            onOpenVersions={() =>
+              setWorkspace(
+                "versions"
+              )
+            }
+            onOpenExplore={() =>
+              setWorkspace(
+                "explore"
+              )
+            }
+          />
         </div>
 
         {workspace === "write" ? (
