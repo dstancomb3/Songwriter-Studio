@@ -12,6 +12,8 @@ export interface SongSettings {
 }
 
 export interface Song {
+  schemaVersion?: number;
+
   id: string;
 
   title: string;
