@@ -4924,3 +4924,21 @@ h4 {
   font-size: 0.46rem;
   text-align: center;
 }
+
+
+/* Song menu */
+
+.song-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 62px;
+  justify-content: center;
+}
+
+.song-menu-button__chevron {
+  color: #8f99ad;
+  font-size: 0.62rem;
+  line-height: 1;
+  transform: translateY(-1px);
+}
