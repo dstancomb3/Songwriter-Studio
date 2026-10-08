@@ -5165,3 +5165,18 @@ h4 {
     justify-content: flex-start;
   }
 }
+
+
+.studio-status--saving .studio-status__dot {
+  background: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.28);
+}
+
+.studio-status--error {
+  color: #dca3a3;
+}
+
+.studio-status--error .studio-status__dot {
+  background: #f87171;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+}
