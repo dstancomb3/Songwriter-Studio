@@ -5180,3 +5180,129 @@ h4 {
   background: #f87171;
   box-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
 }
+
+
+/* Rhyme Explorer */
+
+.rhyme-explorer {
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.5rem;
+  border: 1px solid #30384d;
+  border-radius: 9px;
+  background: rgba(18, 23, 35, 0.58);
+}
+
+.rhyme-explorer__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rhyme-explorer__heading > div {
+  display: grid;
+  gap: 0.02rem;
+}
+
+.rhyme-explorer__heading span {
+  color: #7f899d;
+  font-size: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rhyme-explorer__heading strong {
+  color: #edf0f6;
+  font-size: 0.7rem;
+}
+
+.rhyme-explorer__heading em {
+  color: #8ed8bd;
+  font-size: 0.48rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rhyme-explorer input {
+  width: 100%;
+}
+
+.rhyme-explorer__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.55rem;
+  color: #737e92;
+  font-size: 0.5rem;
+}
+
+.rhyme-explorer__results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.24rem;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.rhyme-explorer__result {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.04rem 0.22rem;
+  align-items: center;
+  padding: 0.26rem 0.34rem;
+  border: 1px solid #354059;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.025);
+  text-align: left;
+}
+
+.rhyme-explorer__result:hover:not(:disabled) {
+  border-color: rgba(139, 124, 255, 0.42);
+  background: rgba(139, 124, 255, 0.08);
+}
+
+.rhyme-explorer__result--used {
+  border-color: rgba(110, 231, 183, 0.28);
+  background: rgba(110, 231, 183, 0.045);
+}
+
+.rhyme-explorer__result strong {
+  color: #dfe4ee;
+  font-size: 0.58rem;
+}
+
+.rhyme-explorer__result span {
+  color: #927fe1;
+  font-size: 0.47rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rhyme-explorer__result em,
+.rhyme-explorer__result small {
+  color: #707b90;
+  font-size: 0.46rem;
+  font-style: normal;
+}
+
+.rhyme-explorer__result small {
+  color: #83c8af;
+  text-align: right;
+}
+
+.rhyme-explorer__empty {
+  padding: 0.55rem;
+  border: 1px dashed #354059;
+  border-radius: 7px;
+  color: #737e92;
+  font-size: 0.55rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.rhyme-explorer__note {
+  color: #667186;
+  font-size: 0.49rem;
+  line-height: 1.4;
+}
