@@ -69,7 +69,7 @@ const families:
     { vowel: "AY", coda: "R", words: ["fire","higher","liar","wire"] },
     { vowel: "IY", coda: "V", words: ["believe","leave","receive","weave"] },
     { vowel: "IY", coda: "L", words: ["feel","heal","real","steel"] },
-    { vowel: "OW", coda: "R", words: ["core","more","shore","store"] },
+    { vowel: "AO", coda: "R", words: ["core","more","shore","store"] },
     { vowel: "AH", coda: "N", words: ["done","one","run","sun"] },
     { vowel: "AH", coda: "M", words: ["come","drum","from","some"] },
     { vowel: "AH", coda: "ST", words: ["dust","must","trust"] },
