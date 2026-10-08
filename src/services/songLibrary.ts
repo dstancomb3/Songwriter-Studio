@@ -2,6 +2,10 @@ import type {
   Song,
 } from "../types";
 
+import {
+  normalizeSong,
+} from "./songSchema";
+
 export type SavedSongSummary = {
   fileName: string;
   songId: string;
@@ -56,7 +60,9 @@ export async function saveSongToLibrary(
     {
       songJson:
         JSON.stringify(
-          song
+          normalizeSong(
+            song
+          ).song
         ),
     }
   );
@@ -83,9 +89,23 @@ export async function loadSongFromLibrary(
       }
     );
 
-  return JSON.parse(
-    raw
-  ) as Song;
+  let parsed:
+    unknown;
+
+  try {
+    parsed =
+      JSON.parse(
+        raw
+      );
+  } catch {
+    throw new Error(
+      "The saved song file contains invalid JSON."
+    );
+  }
+
+  return normalizeSong(
+    parsed
+  ).song;
 }
 
 export async function getSongsDirectory() {
