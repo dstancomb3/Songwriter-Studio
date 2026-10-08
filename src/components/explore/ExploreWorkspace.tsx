@@ -21,6 +21,10 @@ import {
   useStudioModal,
 } from "../ui/StudioModalProvider";
 
+import {
+  RhymeExplorer,
+} from "./RhymeExplorer";
+
 type FilterKind =
   | "all"
   | SongIdeaKind;
@@ -808,6 +812,8 @@ export function ExploreWorkspace({
               "No song concept yet."}
           </p>
         </div>
+
+        <RhymeExplorer />
       </aside>
 
       <main className="explore-board">
