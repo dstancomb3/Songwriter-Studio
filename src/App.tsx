@@ -47,6 +47,22 @@ function App() {
     setDragActive,
   ] = useState(false);
 
+  const [
+    saveStatus,
+    setSaveStatus,
+  ] = useState<
+    "saved" |
+    "saving" |
+    "error"
+  >("saved");
+
+  const [
+    saveError,
+    setSaveError,
+  ] = useState<
+    string | null
+  >(null);
+
   const dragPointerStart =
     useRef<
       | {
@@ -288,7 +304,32 @@ function App() {
       return;
     }
 
-    saveSong(song);
+    setSaveStatus(
+      "saving"
+    );
+
+    const result =
+      saveSong(song);
+
+    if (result.ok) {
+      setSaveStatus(
+        "saved"
+      );
+
+      setSaveError(
+        null
+      );
+
+      return;
+    }
+
+    setSaveStatus(
+      "error"
+    );
+
+    setSaveError(
+      result.error
+    );
   }, [song]);
 
   useEffect(() => {
@@ -823,9 +864,30 @@ function App() {
               </button>
             </div>
 
-            <div className="studio-status">
+            <div
+              className={
+                "studio-status studio-status--" +
+                saveStatus
+              }
+              title={
+                saveStatus ===
+                  "error"
+                  ? saveError ??
+                    "Local save failed."
+                  : undefined
+              }
+            >
               <span className="studio-status__dot" />
-              <span>Saved locally</span>
+
+              <span>
+                {saveStatus ===
+                "saving"
+                  ? "Saving…"
+                  : saveStatus ===
+                    "error"
+                  ? "Save error"
+                  : "Saved locally"}
+              </span>
             </div>
           </div>
         </div>
