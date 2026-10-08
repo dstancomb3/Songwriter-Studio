@@ -1,11 +1,41 @@
-import type { Song } from "../types";
+import type {
+  Song,
+} from "../types";
+
+import {
+  normalizeSong,
+} from "./songSchema";
+
+function safeExportName(
+  title: string
+) {
+  const cleaned =
+    title
+      .trim()
+      .replace(
+        /[\\/:*?"<>|]+/g,
+        "-"
+      )
+      .replace(
+        /\s+/g,
+        " "
+      );
+
+  return cleaned ||
+    "Untitled Song";
+}
 
 export function exportSong(
   song: Song
 ) {
+  const normalized =
+    normalizeSong(
+      song
+    ).song;
+
   const json =
     JSON.stringify(
-      song,
+      normalized,
       null,
       2
     );
@@ -31,8 +61,11 @@ export function exportSong(
 
   link.href = url;
 
-  link.download = 
-    `${song.title}.songwriter.json`;
+  link.download =
+    safeExportName(
+      normalized.title
+    ) +
+    ".songwriter.json";
 
   link.click();
 
@@ -47,7 +80,21 @@ export async function importSong(
   const text =
     await file.text();
 
-  return JSON.parse(
-    text
-  ) as Song;
+  let parsed:
+    unknown;
+
+  try {
+    parsed =
+      JSON.parse(
+        text
+      );
+  } catch {
+    throw new Error(
+      "The selected file is not valid JSON."
+    );
+  }
+
+  return normalizeSong(
+    parsed
+  ).song;
 }
