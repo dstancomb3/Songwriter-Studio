@@ -1198,12 +1198,21 @@ Autosnapshot monitoring should observe committed store changes or explicit mutat
 
 ## Wave A: Foundation + Rhyme
 
+**Status:** In progress.
+
+Implemented:
 - schema version / normalization
 - safe import pipeline
-- pronunciation lexicon
-- rhyme engine
-- Rhyme Explorer
+- initial local pronunciation lexicon
+- pronunciation-aware rhyme engine with deterministic spelling fallback
+- Explore Rhyme Explorer
 - active-line rhyme integration
+
+Still required before Wave A is complete:
+- broaden the pronunciation dataset beyond the initial songwriting vocabulary
+- verify exact/near/slant behavior against a representative QA word set
+- decide the distributable long-term pronunciation data source and licensing
+- run real-song regression testing and tune ranking
 
 **Exit condition:** offline rhyme exploration is materially better than the current spelling heuristic and old Songs still load.
 
