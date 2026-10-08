@@ -312,7 +312,10 @@ export function SongPanel({
         title:
           "Import failed",
         message:
-          "That file could not be loaded as a Songwriter Studio song.",
+          error instanceof
+          Error
+            ? error.message
+            : "That file could not be loaded as a Songwriter Studio song.",
         tone:
           "danger",
       });
