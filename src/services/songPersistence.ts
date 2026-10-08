@@ -1,79 +1,131 @@
-import type { Song } from "../types";
+import type {
+  Song,
+} from "../types";
+
+import {
+  normalizeSong,
+} from "./songSchema";
 
 const STORAGE_KEY =
   "songwriter-current-song";
 
-function isCompatibleSong(
-  value: unknown
-): value is Song {
-  if (
-    !value ||
-    typeof value !== "object"
-  ) {
-    return false;
+const RECOVERY_KEY =
+  "songwriter-current-song-recovery";
+
+export type SongSaveResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+function errorMessage(
+  error: unknown
+) {
+  return error instanceof
+    Error
+    ? error.message
+    : String(error);
+}
+
+function preserveRecoveryCopy(
+  raw: string
+) {
+  try {
+    localStorage.setItem(
+      RECOVERY_KEY,
+      raw
+    );
+  } catch (error) {
+    console.warn(
+      "Unable to preserve the recovery copy.",
+      error
+    );
   }
-
-  const song =
-    value as Partial<Song>;
-
-  return (
-    typeof song.id === "string" &&
-    typeof song.title === "string" &&
-    Array.isArray(song.sections) &&
-    Array.isArray(song.arrangements) &&
-    !!song.settings &&
-    typeof song.settings === "object" &&
-    !!song.settings.sectionColors &&
-    typeof song.settings.sectionColors ===
-      "object"
-  );
 }
 
 export function saveSong(
   song: Song
-) {
+): SongSaveResult {
   try {
+    const normalized =
+      normalizeSong(
+        song
+      ).song;
+
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(song)
+      JSON.stringify(
+        normalized
+      )
     );
+
+    return {
+      ok: true,
+    };
   } catch (error) {
     console.warn(
       "Unable to save song locally.",
       error
     );
+
+    return {
+      ok: false,
+      error:
+        errorMessage(
+          error
+        ),
+    };
   }
 }
 
 export function loadSong(): Song | null {
+  const raw =
+    localStorage.getItem(
+      STORAGE_KEY
+    );
+
+  if (!raw) {
+    return null;
+  }
+
   try {
-    const raw =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-    if (!raw) {
-      return null;
-    }
-
     const parsed: unknown =
       JSON.parse(raw);
 
-    if (!isCompatibleSong(parsed)) {
-      console.warn(
-        "Ignoring incompatible saved song data."
+    const result =
+      normalizeSong(
+        parsed
       );
-      localStorage.removeItem(
-        STORAGE_KEY
+
+    if (
+      result.repairs.length >
+      0
+    ) {
+      console.info(
+        "Songwriter Studio repaired saved song data:",
+        result.repairs
       );
-      return null;
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(
+          result.song
+        )
+      );
     }
 
-    return parsed;
+    return result.song;
   } catch (error) {
     console.warn(
-      "Unable to load saved song data.",
+      "Unable to load saved song data. A recovery copy was preserved.",
       error
+    );
+
+    preserveRecoveryCopy(
+      raw
     );
 
     try {
